@@ -11,8 +11,8 @@
 
 | 步骤 | 目标 | 主责 | 状态 | 日期/commit | 证据 | 阻塞与下一步 |
 |---|---|---|---|---|---|---|
-| 0 | 环境/基线/Git | A + 全员 | 进行中 | 2026-10-28 | `artifacts/M0/bootstrap/` | A 机 Python/Node/FFmpeg/MySQL 已就绪；本地 main 已初始化，远端待配置；**SQL Server 缺机器**，其余五人环境表待填 |
-| 1 | 工程/测试/health | A | 进行中 | 2026-10-28；基线待提交 | `artifacts/M0/bootstrap/t07-step1.json`、`t05-clean-venv.json`、`ds-cold-auth-regression.json` | 既有技术证据通过：58 项测试、Ruff、pip check，新空 venv 仅 lock 安装，无库 503/有库 200、真实 RSA 冷认证与负例；只证明骨架和 SQL 连通性，非全系统或 G1 通过；当前交付修复待重新锁包、复验与基线提交，不能复用旧证据直接放行 |
+| 0 | 环境/基线/Git | A + 全员 | 进行中 | 2026-10-28；2671628 | `artifacts/M0/bootstrap/` | A 机 Python/Node/FFmpeg/MySQL 已就绪；main基线已提交并推送origin；远端main保护待验证；**SQL Server 缺机器**，其余五人环境表待填 |
+| 1 | 工程/测试/health | A | 通过 | 2026-10-28；2671628 | `artifacts/M0/bootstrap/t07-step1.json`、`t05-clean-venv.json`、`git-clone-verification.json`；脱敏摘要见[交付记录](docs/当前阶段交付记录-2026-10-28.md) | 本轮69项测试、Ruff、pip check通过；新空venv仅lock安装、真实HTTP无库503/独立测试库200；基线已提交、干净本地clone复验并推送origin/main。只证明工程骨架／SQL连通性与交付，不代表目标迁移、业务或G1通过 |
 | 2 | 目标 DB/双方言 G1 | A + 各域 | 未开始 | — | `artifacts/G1/mysql/`、`artifacts/G1/sqlserver/` | MySQL 容器已可用；SQL Server 阻塞 |
 | 3 | DTO/前端/契约 | A + 全员 | 未开始 | — | `artifacts/M0/contracts/` | 依赖步骤 2 的 DB 可连 |
 | 4 | 身份组织/授权 | B | 未开始 | — | `artifacts/M0/identity/` | 依赖步骤 2/3 |
@@ -27,6 +27,14 @@
 | 13 | G5/G6/UAT/发布 | 全员 + 业务 | 未开始 | — | `artifacts/M2/` | 依赖全部 |
 
 ## 当前阻塞项
+
+### 本轮有效证据：当前阶段交付闭环（2026-10-28）
+
+- 验收基线：`2671628b2ac57925b673c0a166bab057eca46e8d`；已推送用户指定远端main。
+- 完整Step 1退出0：69 passed、0 skipped；Ruff lint／format、pip check、wheel与源码／lock一致性通过。
+- 新空venv仅主lock安装，中立目录从site-packages启动；live=200、无库ready=503、独立测试库ready=200、OpenAPI=200。
+- 干净本地clone使用上述同一全新venv复验：克隆源码69项通过，项目wheel／lock与验收版本一致，文档清单hash通过，已安装包真实HTTP通过。
+- 完整证据不入Git；脱敏摘要与复跑说明见交付记录。下列48项／58项属于历史，不替代本轮69项证据；G1–G6状态未变。
 
 ### 历史记录：T05–T07 独立任务验收（2026-10-27）
 
