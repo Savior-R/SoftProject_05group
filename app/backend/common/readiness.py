@@ -8,6 +8,8 @@ from pydantic import SecretStr
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
+from common.database_config import mysql_url
+
 DatabaseStatus = Literal["ok", "not_configured", "unavailable", "timeout"]
 logger = logging.getLogger(__name__)
 
@@ -33,7 +35,7 @@ class DatabaseReadinessProbe:
             async with asyncio.timeout(self._timeout_s):
                 if self._engine is None:
                     self._engine = create_async_engine(
-                        self._database_url.get_secret_value(),
+                        mysql_url(self._database_url, asynchronous=True),
                         echo=False,
                         hide_parameters=True,
                         pool_pre_ping=True,

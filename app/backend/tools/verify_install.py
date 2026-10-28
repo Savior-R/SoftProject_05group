@@ -83,6 +83,34 @@ def main() -> None:
         check=True,
     )
     database_result = {"status": "not_run", "reason": "仅 T05 无库安装验证；未声明数据库通过。"}
+    # 独立于源码导入步骤2公共基础和wheel数据资源，不创建业务连接或伪造完整G1。
+    foundation = subprocess.run(
+        [
+            str(python),
+            "-I",
+            "-c",
+            "import importlib.metadata as m; from common.db import Database; "
+            "from common.model_base import Base; "
+            "from common.database_config import mysql_url; "
+            "from common.model_registry import expected_inventory, load_models; "
+            "assert len(expected_inventory()['tables']) == 61; "
+            "assert load_models(require_complete=False)['registered_count'] >= 4; "
+            "assert mysql_url('mysql+pymysql://user:example@localhost/identity_org')"
+            ".drivername == 'mysql+pymysql'; "
+            "assert any(r.lower().startswith('pymysql') for r in m.requires('ai-teach-backend')); "
+            "import pymysql, alembic, uuid6; "
+            "from tools.backup_db import pack, unpack; "
+            "from tools.restore_db import restore_rows; "
+            "from decimal import Decimal; "
+            "assert unpack(pack(Decimal('123.450'))) == Decimal('123.450'); "
+            "print('installed_foundation: passed')",
+        ],
+        cwd=neutral,
+        env=environment,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
     if arguments.require_database:
         database_path = run_dir / "database-smoke.json"
         # 从调用方 .env 加载，但仅将测试库 DSN 传给子进程，不传共享库或其他密钥。
@@ -112,6 +140,7 @@ def main() -> None:
         "smoke": json.loads(smoke_path.read_text(encoding="utf-8")),
         "install_log": str(install_log),
         "database": database_result,
+        "foundation": foundation.stdout.strip(),
     }
     evidence.parent.mkdir(parents=True, exist_ok=True)
     evidence.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

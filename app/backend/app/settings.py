@@ -20,12 +20,20 @@ class Settings(BaseSettings):
     debug: bool = False
     database_url: SecretStr | None = Field(default=None, repr=False)
     test_database_url: SecretStr | None = Field(default=None, repr=False)
+    migration_database_url: SecretStr | None = Field(default=None, repr=False)
+    db_schema_prefix: str = ""
+    test_db_schema_prefix: str = "test_"
     jwt_signing_key: SecretStr | None = Field(default=None, repr=False)
     glm_api_key: SecretStr | None = Field(default=None, repr=False)
     readiness_timeout_s: float = Field(default=2.0, gt=0, le=30)
 
     @field_validator(
-        "database_url", "test_database_url", "jwt_signing_key", "glm_api_key", mode="before"
+        "database_url",
+        "test_database_url",
+        "migration_database_url",
+        "jwt_signing_key",
+        "glm_api_key",
+        mode="before",
     )
     @classmethod
     def empty_secret_is_unconfigured(cls, value: object) -> object:

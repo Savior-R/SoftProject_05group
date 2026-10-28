@@ -14,7 +14,11 @@ dependencies = [
   "pydantic-settings>=2.6,<3",
   "uvicorn>=0.30,<1",
   "SQLAlchemy[asyncio]>=2.0,<2.1",
+  # 业务同步事务；异步驱动仅供独立运维探针。
+  "PyMySQL[rsa]>=1.1,<2",
   "aiomysql[rsa]>=0.2,<1",
+  "alembic>=1.13,<2",
+  "uuid6>=2024.7.10,<2027",
 ]
 
 [project.optional-dependencies]
@@ -35,6 +39,9 @@ where = ["."]
 include = ["app", "app.*", "common", "common.*", "tools", "tools.*"]
 exclude = ["tests", "tests.*"]
 namespaces = false
+
+[tool.setuptools.package-data]
+tools = ["data/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

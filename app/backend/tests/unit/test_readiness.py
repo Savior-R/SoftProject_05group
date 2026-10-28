@@ -17,7 +17,8 @@ async def test_no_url_does_not_create_engine() -> None:
         await probe.close()
 
 
-async def test_success_requires_select_one_and_disposes_pool() -> None:
+@pytest.mark.parametrize("driver", ["aiomysql", "pymysql"])
+async def test_success_requires_select_one_and_disposes_pool(driver) -> None:
     result = MagicMock()
     result.scalar_one.return_value = 1
     connection = AsyncMock()
@@ -27,12 +28,13 @@ async def test_success_requires_select_one_and_disposes_pool() -> None:
     engine = MagicMock()
     engine.connect.return_value = manager
     engine.dispose = AsyncMock()
-    probe = DatabaseReadinessProbe(SecretStr("mysql+aiomysql://user:FAKE@db/test"), 1)
+    probe = DatabaseReadinessProbe(SecretStr(f"mysql+{driver}://user:FAKE@db/test"), 1)
     with patch("common.readiness.create_async_engine", return_value=engine) as factory:
         assert await probe.check() == "ok"
         assert str(connection.execute.call_args.args[0]) == "SELECT 1"
         assert factory.call_args.kwargs["echo"] is False
         assert factory.call_args.kwargs["hide_parameters"] is True
+        assert factory.call_args.args[0].drivername == "mysql+aiomysql"
         await probe.close()
         engine.dispose.assert_awaited_once()
 

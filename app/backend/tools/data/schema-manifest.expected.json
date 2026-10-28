@@ -1,0 +1,3105 @@
+{
+  "design_version": "3.2.0",
+  "source": "设计文档3.x/05-数据库设计文档-V2.md",
+  "source_sha256": "ff1e63f9bff3a1deeeb6ff1a6dfce882ee92e84ab71c27b8e4191e01986bcc7f",
+  "business_table_count": 61,
+  "excludes": [
+    "alembic_version"
+  ],
+  "scope": "设计字段清单；完整物理列/默认/FK/CHECK/索引须全域模型交齐后由A核对并冻结baseline快照，不代表G1通过。",
+  "tables": {
+    "classroom.behavior_event": {
+      "source_line": 523,
+      "columns": {
+        "event_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "session_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "vs_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "event_type": {
+          "type": "VARCHAR(14)",
+          "nullable": false
+        },
+        "offset_ms": {
+          "type": "INT",
+          "nullable": false
+        },
+        "payload": {
+          "type": "JSON",
+          "nullable": true
+        },
+        "handled": {
+          "type": "TINYINT(1)",
+          "nullable": false
+        },
+        "response_ms": {
+          "type": "INT",
+          "nullable": true
+        },
+        "teacher_utterance": {
+          "type": "LONGTEXT",
+          "nullable": true
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "seq": {
+          "type": "BIGINT",
+          "nullable": false
+        }
+      }
+    },
+    "classroom.live_message": {
+      "source_line": 572,
+      "columns": {
+        "msg_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "session_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "sender_type": {
+          "type": "VARCHAR(15)",
+          "nullable": false
+        },
+        "sender_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "msg_type": {
+          "type": "VARCHAR(8)",
+          "nullable": false
+        },
+        "content": {
+          "type": "VARCHAR(2000)",
+          "nullable": false
+        },
+        "sent_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "is_read": {
+          "type": "TINYINT(1)",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "seq": {
+          "type": "BIGINT",
+          "nullable": false
+        }
+      }
+    },
+    "classroom.scenario": {
+      "source_line": 547,
+      "columns": {
+        "scenario_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "scenario_name": {
+          "type": "VARCHAR(50)",
+          "nullable": false
+        },
+        "scenario_type": {
+          "type": "VARCHAR(20)",
+          "nullable": false
+        },
+        "difficulty": {
+          "type": "TINYINT",
+          "nullable": false
+        },
+        "event_script": {
+          "type": "JSON",
+          "nullable": false
+        },
+        "expected_skill": {
+          "type": "VARCHAR(22)",
+          "nullable": false
+        },
+        "subject_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "deleted_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        },
+        "owner_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "department_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        }
+      }
+    },
+    "classroom.session_event": {
+      "source_line": 1364,
+      "columns": {
+        "event_id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "session_id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "seq": {
+          "type": "bigint",
+          "nullable": false
+        },
+        "event_type": {
+          "type": "string(60)",
+          "nullable": false
+        },
+        "offset_ms": {
+          "type": "bigint",
+          "nullable": false
+        },
+        "payload": {
+          "type": "json",
+          "nullable": false
+        },
+        "audience": {
+          "type": "json",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "datetime",
+          "nullable": false
+        }
+      }
+    },
+    "classroom.session_time_span": {
+      "source_line": 1377,
+      "columns": {
+        "span_id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "session_id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "span_no": {
+          "type": "int",
+          "nullable": false
+        },
+        "start_at": {
+          "type": "datetime",
+          "nullable": false
+        },
+        "end_at": {
+          "type": "datetime",
+          "nullable": true
+        },
+        "close_reason": {
+          "type": "enum(pause,finish,abort,process_restart)",
+          "nullable": true
+        }
+      }
+    },
+    "classroom.trial_session": {
+      "source_line": 461,
+      "columns": {
+        "session_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "task_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "user_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "mode": {
+          "type": "VARCHAR(10)",
+          "nullable": false
+        },
+        "scenario_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "topic_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "student_count": {
+          "type": "TINYINT",
+          "nullable": false
+        },
+        "behavior_intensity": {
+          "type": "VARCHAR(4)",
+          "nullable": false
+        },
+        "classroom_theme": {
+          "type": "VARCHAR(12)",
+          "nullable": false
+        },
+        "bgm_level": {
+          "type": "VARCHAR(8)",
+          "nullable": false
+        },
+        "planned_duration_s": {
+          "type": "INT",
+          "nullable": false
+        },
+        "actual_duration_s": {
+          "type": "INT",
+          "nullable": true
+        },
+        "start_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        },
+        "end_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        },
+        "status": {
+          "type": "VARCHAR(11)",
+          "nullable": false
+        },
+        "device_info": {
+          "type": "JSON",
+          "nullable": true
+        },
+        "consent_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "deleted_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        },
+        "rubric_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "session_snapshot": {
+          "type": "JSON",
+          "nullable": false
+        },
+        "runtime_json": {
+          "type": "JSON",
+          "nullable": false
+        },
+        "structured_q_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "attempt_no": {
+          "type": "INT",
+          "nullable": true
+        },
+        "next_seq": {
+          "type": "BIGINT",
+          "nullable": false
+        },
+        "heartbeat_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        },
+        "manifest_hash": {
+          "type": "CHAR(64)",
+          "nullable": true
+        }
+      }
+    },
+    "classroom.virtual_student": {
+      "source_line": 502,
+      "columns": {
+        "vs_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "session_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "seat_no": {
+          "type": "TINYINT",
+          "nullable": false
+        },
+        "vs_name": {
+          "type": "VARCHAR(20)",
+          "nullable": false
+        },
+        "persona": {
+          "type": "VARCHAR(10)",
+          "nullable": false
+        },
+        "engagement_base": {
+          "type": "TINYINT",
+          "nullable": false
+        },
+        "avatar_key": {
+          "type": "VARCHAR(50)",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        }
+      }
+    },
+    "evaluation.dimension_score": {
+      "source_line": 711,
+      "columns": {
+        "score_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "report_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "dimension": {
+          "type": "VARCHAR(15)",
+          "nullable": false
+        },
+        "score": {
+          "type": "DECIMAL(5,2)",
+          "nullable": true
+        },
+        "max_score": {
+          "type": "DECIMAL(5,2)",
+          "nullable": false
+        },
+        "weight": {
+          "type": "DECIMAL(4,3)",
+          "nullable": false
+        },
+        "ai_confidence": {
+          "type": "DECIMAL(4,3)",
+          "nullable": true
+        },
+        "evidence": {
+          "type": "JSON",
+          "nullable": true
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "availability": {
+          "type": "VARCHAR(12)",
+          "nullable": false
+        },
+        "unavailable_reason": {
+          "type": "VARCHAR(200)",
+          "nullable": true
+        },
+        "effective_weight": {
+          "type": "DECIMAL(12,9)",
+          "nullable": false
+        },
+        "item_scores": {
+          "type": "JSON",
+          "nullable": false
+        }
+      }
+    },
+    "evaluation.evaluation_attempt": {
+      "source_line": 1423,
+      "columns": {
+        "attempt_id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "report_id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "attempt_no": {
+          "type": "int",
+          "nullable": false
+        },
+        "status": {
+          "type": "enum(queued,running,succeeded,partial,failed)",
+          "nullable": false
+        },
+        "reason": {
+          "type": "enum(initial,manual,auto_retry,model_upgrade)",
+          "nullable": false
+        },
+        "generation": {
+          "type": "bigint",
+          "nullable": false
+        },
+        "manifest_hash": {
+          "type": "char(64)",
+          "nullable": false
+        },
+        "model_config": {
+          "type": "json",
+          "nullable": false
+        },
+        "rubric_snapshot": {
+          "type": "json",
+          "nullable": false
+        },
+        "topic_snapshot": {
+          "type": "json",
+          "nullable": false
+        },
+        "progress_json": {
+          "type": "json",
+          "nullable": false
+        },
+        "result_json": {
+          "type": "json",
+          "nullable": true
+        },
+        "result_sha256": {
+          "type": "char(64)",
+          "nullable": true
+        },
+        "alignment_quality": {
+          "type": "enum(verified,approximate,unavailable)",
+          "nullable": false
+        },
+        "error": {
+          "type": "json",
+          "nullable": true
+        },
+        "created_at": {
+          "type": "datetime",
+          "nullable": false
+        },
+        "started_at": {
+          "type": "datetime",
+          "nullable": true
+        },
+        "finished_at": {
+          "type": "datetime",
+          "nullable": true
+        }
+      }
+    },
+    "evaluation.evaluation_report": {
+      "source_line": 674,
+      "columns": {
+        "report_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "session_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "user_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "rubric_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "rubric_version": {
+          "type": "INT",
+          "nullable": false
+        },
+        "topic_snapshot": {
+          "type": "JSON",
+          "nullable": false
+        },
+        "ai_total_score": {
+          "type": "DECIMAL(5,2)",
+          "nullable": true
+        },
+        "grade": {
+          "type": "VARCHAR(9)",
+          "nullable": true
+        },
+        "teacher_score": {
+          "type": "DECIMAL(5,2)",
+          "nullable": true
+        },
+        "final_score": {
+          "type": "DECIMAL(5,2)",
+          "nullable": true
+        },
+        "ai_model_version": {
+          "type": "VARCHAR(30)",
+          "nullable": false
+        },
+        "asr_status": {
+          "type": "JSON",
+          "nullable": true
+        },
+        "ai_task_status": {
+          "type": "JSON",
+          "nullable": true
+        },
+        "retry_count": {
+          "type": "INT",
+          "nullable": false
+        },
+        "status": {
+          "type": "VARCHAR(16)",
+          "nullable": false
+        },
+        "generated_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        },
+        "reviewed_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "deleted_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        },
+        "published_attempt_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "latest_attempt_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "score_version": {
+          "type": "BIGINT",
+          "nullable": false
+        },
+        "warnings": {
+          "type": "JSON",
+          "nullable": false
+        }
+      }
+    },
+    "evaluation.filler_word_hit": {
+      "source_line": 762,
+      "columns": {
+        "hit_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "report_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "word": {
+          "type": "VARCHAR(20)",
+          "nullable": false
+        },
+        "cnt": {
+          "type": "INT",
+          "nullable": false
+        },
+        "per_minute": {
+          "type": "DECIMAL(5,2)",
+          "nullable": false
+        },
+        "offsets_ms": {
+          "type": "JSON",
+          "nullable": false
+        },
+        "is_custom": {
+          "type": "TINYINT(1)",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        }
+      }
+    },
+    "evaluation.interaction_metric": {
+      "source_line": 856,
+      "columns": {
+        "metric_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "report_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "question_count": {
+          "type": "SMALLINT",
+          "nullable": true
+        },
+        "open_question_ratio": {
+          "type": "DECIMAL(4,3)",
+          "nullable": true
+        },
+        "wait_time_avg_ms": {
+          "type": "INT",
+          "nullable": true
+        },
+        "feedback_quality_score": {
+          "type": "DECIMAL(5,2)",
+          "nullable": true
+        },
+        "encourage_count": {
+          "type": "SMALLINT",
+          "nullable": true
+        },
+        "discipline_events": {
+          "type": "SMALLINT",
+          "nullable": true
+        },
+        "discipline_handled_ratio": {
+          "type": "DECIMAL(4,3)",
+          "nullable": true
+        },
+        "pacing_score": {
+          "type": "DECIMAL(5,2)",
+          "nullable": true
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        }
+      }
+    },
+    "evaluation.issue_item": {
+      "source_line": 738,
+      "columns": {
+        "issue_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "report_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "dimension": {
+          "type": "VARCHAR(15)",
+          "nullable": false
+        },
+        "issue_type": {
+          "type": "VARCHAR(24)",
+          "nullable": false
+        },
+        "severity": {
+          "type": "VARCHAR(4)",
+          "nullable": false
+        },
+        "offset_start_ms": {
+          "type": "INT",
+          "nullable": false
+        },
+        "offset_end_ms": {
+          "type": "INT",
+          "nullable": false
+        },
+        "description": {
+          "type": "VARCHAR(300)",
+          "nullable": false
+        },
+        "evidence_text": {
+          "type": "LONGTEXT",
+          "nullable": true
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        }
+      }
+    },
+    "evaluation.posture_metric": {
+      "source_line": 808,
+      "columns": {
+        "metric_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "report_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "stand_stability": {
+          "type": "DECIMAL(5,2)",
+          "nullable": true
+        },
+        "gesture_score": {
+          "type": "DECIMAL(5,2)",
+          "nullable": true
+        },
+        "eye_contact_ratio": {
+          "type": "DECIMAL(5,2)",
+          "nullable": true
+        },
+        "smile_ratio": {
+          "type": "DECIMAL(5,2)",
+          "nullable": true
+        },
+        "movement_score": {
+          "type": "DECIMAL(5,2)",
+          "nullable": true
+        },
+        "frames_analyzed": {
+          "type": "INT",
+          "nullable": true
+        },
+        "detect_confidence": {
+          "type": "DECIMAL(4,3)",
+          "nullable": true
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        }
+      }
+    },
+    "evaluation.segment_timing": {
+      "source_line": 881,
+      "columns": {
+        "timing_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "report_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "segment": {
+          "type": "VARCHAR(10)",
+          "nullable": false
+        },
+        "start_ms": {
+          "type": "INT",
+          "nullable": false
+        },
+        "end_ms": {
+          "type": "INT",
+          "nullable": false
+        },
+        "duration_ms": {
+          "type": "INT",
+          "nullable": false
+        },
+        "actual_ratio": {
+          "type": "DECIMAL(4,3)",
+          "nullable": false
+        },
+        "plan_ratio": {
+          "type": "DECIMAL(4,3)",
+          "nullable": true
+        },
+        "deviation_flag": {
+          "type": "VARCHAR(12)",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "source": {
+          "type": "VARCHAR(12)",
+          "nullable": false
+        }
+      }
+    },
+    "evaluation.speech_metric": {
+      "source_line": 783,
+      "columns": {
+        "metric_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "report_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "mandarin_score": {
+          "type": "DECIMAL(5,2)",
+          "nullable": true
+        },
+        "speed_wpm": {
+          "type": "SMALLINT",
+          "nullable": true
+        },
+        "pause_count": {
+          "type": "INT",
+          "nullable": true
+        },
+        "avg_pause_ms": {
+          "type": "INT",
+          "nullable": true
+        },
+        "volume_avg_db": {
+          "type": "DECIMAL(5,2)",
+          "nullable": true
+        },
+        "volume_stability": {
+          "type": "DECIMAL(5,2)",
+          "nullable": true
+        },
+        "fluency_score": {
+          "type": "DECIMAL(5,2)",
+          "nullable": true
+        },
+        "asr_text": {
+          "type": "LONGTEXT",
+          "nullable": true
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        }
+      }
+    },
+    "evaluation.suggestion": {
+      "source_line": 906,
+      "columns": {
+        "suggestion_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "report_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "issue_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "suggestion_type": {
+          "type": "VARCHAR(14)",
+          "nullable": false
+        },
+        "content_text": {
+          "type": "VARCHAR(1000)",
+          "nullable": false
+        },
+        "original_text": {
+          "type": "LONGTEXT",
+          "nullable": true
+        },
+        "optimized_text": {
+          "type": "LONGTEXT",
+          "nullable": true
+        },
+        "sample_audio_url": {
+          "type": "VARCHAR(512)",
+          "nullable": true
+        },
+        "priority": {
+          "type": "TINYINT",
+          "nullable": false
+        },
+        "is_accepted": {
+          "type": "TINYINT(1)",
+          "nullable": true
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        }
+      }
+    },
+    "evaluation.teacher_review": {
+      "source_line": 933,
+      "columns": {
+        "review_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "session_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "report_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "teacher_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "item_scores": {
+          "type": "JSON",
+          "nullable": true
+        },
+        "total_score": {
+          "type": "DECIMAL(5,2)",
+          "nullable": true
+        },
+        "comment_text": {
+          "type": "VARCHAR(2000)",
+          "nullable": true
+        },
+        "voice_comment_url": {
+          "type": "VARCHAR(512)",
+          "nullable": true
+        },
+        "status": {
+          "type": "VARCHAR(8)",
+          "nullable": false
+        },
+        "reviewed_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        },
+        "is_batch": {
+          "type": "TINYINT(1)",
+          "nullable": false
+        },
+        "is_primary": {
+          "type": "TINYINT(1)",
+          "nullable": false
+        },
+        "active_primary_report_id": {
+          "type": "计算列(MySQL)",
+          "nullable": true
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        }
+      }
+    },
+    "evaluation.visual_aid_metric": {
+      "source_line": 832,
+      "columns": {
+        "metric_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "report_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "board_structure_score": {
+          "type": "DECIMAL(5,2)",
+          "nullable": true
+        },
+        "handwriting_score": {
+          "type": "DECIMAL(5,2)",
+          "nullable": true
+        },
+        "ocr_enabled": {
+          "type": "TINYINT(1)",
+          "nullable": false
+        },
+        "ocr_text": {
+          "type": "LONGTEXT",
+          "nullable": true
+        },
+        "ppt_slide_count": {
+          "type": "SMALLINT",
+          "nullable": true
+        },
+        "ppt_rationality_score": {
+          "type": "DECIMAL(5,2)",
+          "nullable": true
+        },
+        "board_time_ratio": {
+          "type": "DECIMAL(4,3)",
+          "nullable": true
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        }
+      }
+    },
+    "growth_cert.certificate": {
+      "source_line": 1104,
+      "columns": {
+        "cert_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "user_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "skill": {
+          "type": "VARCHAR(13)",
+          "nullable": false
+        },
+        "level": {
+          "type": "VARCHAR(9)",
+          "nullable": false
+        },
+        "threshold_score": {
+          "type": "DECIMAL(5,2)",
+          "nullable": false
+        },
+        "serial_no": {
+          "type": "VARCHAR(30)",
+          "nullable": false
+        },
+        "issue_date": {
+          "type": "DATE",
+          "nullable": false
+        },
+        "expire_date": {
+          "type": "DATE",
+          "nullable": false
+        },
+        "verify_url": {
+          "type": "VARCHAR(512)",
+          "nullable": false
+        },
+        "status": {
+          "type": "VARCHAR(14)",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "rule_snapshot": {
+          "type": "JSON",
+          "nullable": false
+        },
+        "review_reason": {
+          "type": "VARCHAR(500)",
+          "nullable": true
+        },
+        "revoked_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        }
+      }
+    },
+    "growth_cert.certificate_report": {
+      "source_line": 1317,
+      "columns": {
+        "cert_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "report_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "attempt_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "score_version": {
+          "type": "BIGINT",
+          "nullable": false
+        },
+        "score_snapshot": {
+          "type": "JSON",
+          "nullable": false
+        }
+      }
+    },
+    "growth_cert.class_stats": {
+      "source_line": 1053,
+      "columns": {
+        "stat_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "class_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "period_type": {
+          "type": "VARCHAR(5)",
+          "nullable": false
+        },
+        "period_key": {
+          "type": "VARCHAR(20)",
+          "nullable": false
+        },
+        "avg_score": {
+          "type": "DECIMAL(5,2)",
+          "nullable": true
+        },
+        "dimension_avgs": {
+          "type": "JSON",
+          "nullable": true
+        },
+        "weakest_dimension": {
+          "type": "VARCHAR(15)",
+          "nullable": true
+        },
+        "submission_rate": {
+          "type": "DECIMAL(4,3)",
+          "nullable": true
+        },
+        "active_count": {
+          "type": "SMALLINT",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "source_version": {
+          "type": "BIGINT",
+          "nullable": false
+        },
+        "updated_from_events_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        }
+      }
+    },
+    "growth_cert.follow_along_material": {
+      "source_line": 994,
+      "columns": {
+        "material_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "subject_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "stage": {
+          "type": "VARCHAR(11)",
+          "nullable": true
+        },
+        "material_text": {
+          "type": "VARCHAR(1000)",
+          "nullable": false
+        },
+        "audio_url": {
+          "type": "VARCHAR(512)",
+          "nullable": false
+        },
+        "focus": {
+          "type": "VARCHAR(13)",
+          "nullable": false
+        },
+        "difficulty": {
+          "type": "TINYINT",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "deleted_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        }
+      }
+    },
+    "growth_cert.leaderboard": {
+      "source_line": 1079,
+      "columns": {
+        "lb_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "scope": {
+          "type": "VARCHAR(6)",
+          "nullable": false
+        },
+        "scope_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "period_key": {
+          "type": "VARCHAR(20)",
+          "nullable": false
+        },
+        "user_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "rank_no": {
+          "type": "SMALLINT",
+          "nullable": false
+        },
+        "score": {
+          "type": "DECIMAL(5,2)",
+          "nullable": false
+        },
+        "improvement_delta": {
+          "type": "DECIMAL(5,2)",
+          "nullable": true
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "board": {
+          "type": "VARCHAR(12)",
+          "nullable": false
+        },
+        "period_type": {
+          "type": "VARCHAR(5)",
+          "nullable": false
+        }
+      }
+    },
+    "growth_cert.mock_exam": {
+      "source_line": 1017,
+      "columns": {
+        "exam_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "user_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "task_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "countdown_s": {
+          "type": "INT",
+          "nullable": false
+        },
+        "examiner_rubric_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "full_video_required": {
+          "type": "TINYINT(1)",
+          "nullable": false
+        },
+        "final_score": {
+          "type": "DECIMAL(5,2)",
+          "nullable": true
+        },
+        "result": {
+          "type": "VARCHAR(4)",
+          "nullable": true
+        },
+        "cert_eligible": {
+          "type": "TINYINT(1)",
+          "nullable": false
+        },
+        "exam_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "status": {
+          "type": "VARCHAR(12)",
+          "nullable": false
+        },
+        "session_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "phase_started_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "phase_deadline_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "rubric_snapshot": {
+          "type": "JSON",
+          "nullable": false
+        },
+        "answers_json": {
+          "type": "JSON",
+          "nullable": true
+        },
+        "submitted_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        },
+        "full_media_upload_ids": {
+          "type": "JSON",
+          "nullable": false
+        },
+        "examiner_review_json": {
+          "type": "JSON",
+          "nullable": true
+        }
+      }
+    },
+    "growth_cert.mock_exam_question": {
+      "source_line": 1300,
+      "columns": {
+        "exam_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "question_type": {
+          "type": "VARCHAR(10)",
+          "nullable": false
+        },
+        "question_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "seq": {
+          "type": "TINYINT",
+          "nullable": false
+        }
+      }
+    },
+    "growth_cert.progress_record": {
+      "source_line": 1132,
+      "columns": {
+        "progress_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "user_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "dimension": {
+          "type": "VARCHAR(15)",
+          "nullable": false
+        },
+        "stat_date": {
+          "type": "DATE",
+          "nullable": false
+        },
+        "score": {
+          "type": "DECIMAL(5,2)",
+          "nullable": false
+        },
+        "session_count": {
+          "type": "INT",
+          "nullable": false
+        },
+        "delta_vs_last": {
+          "type": "DECIMAL(5,2)",
+          "nullable": true
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        }
+      }
+    },
+    "growth_cert.training_record": {
+      "source_line": 963,
+      "columns": {
+        "train_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "user_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "train_mode": {
+          "type": "VARCHAR(10)",
+          "nullable": false
+        },
+        "level": {
+          "type": "VARCHAR(12)",
+          "nullable": false
+        },
+        "material_type": {
+          "type": "VARCHAR(12)",
+          "nullable": true
+        },
+        "material_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "duration_ms": {
+          "type": "INT",
+          "nullable": true
+        },
+        "score": {
+          "type": "DECIMAL(5,2)",
+          "nullable": true
+        },
+        "session_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "completed_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        },
+        "next_recommend": {
+          "type": "JSON",
+          "nullable": true
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "status": {
+          "type": "VARCHAR(12)",
+          "nullable": false
+        },
+        "started_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "media_upload_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "error": {
+          "type": "VARCHAR(500)",
+          "nullable": true
+        },
+        "exam_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        }
+      }
+    },
+    "growth_cert.weakness_push": {
+      "source_line": 1153,
+      "columns": {
+        "push_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "user_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "dimension": {
+          "type": "VARCHAR(15)",
+          "nullable": false
+        },
+        "issue_type": {
+          "type": "VARCHAR(24)",
+          "nullable": true
+        },
+        "severity": {
+          "type": "VARCHAR(4)",
+          "nullable": false
+        },
+        "recommend_train_mode": {
+          "type": "VARCHAR(10)",
+          "nullable": false
+        },
+        "recommend_material_type": {
+          "type": "VARCHAR(12)",
+          "nullable": true
+        },
+        "recommend_material_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "pushed_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "is_clicked": {
+          "type": "TINYINT(1)",
+          "nullable": false
+        },
+        "is_resolved": {
+          "type": "TINYINT(1)",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        }
+      }
+    },
+    "identity_org.class": {
+      "source_line": 181,
+      "columns": {
+        "class_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "class_name": {
+          "type": "VARCHAR(50)",
+          "nullable": false
+        },
+        "student_count": {
+          "type": "SMALLINT",
+          "nullable": false
+        },
+        "enroll_year": {
+          "type": "SMALLINT",
+          "nullable": false
+        },
+        "status": {
+          "type": "VARCHAR(9)",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "deleted_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        },
+        "department_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "major_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        }
+      }
+    },
+    "identity_org.class_group": {
+      "source_line": 202,
+      "columns": {
+        "group_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "class_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "group_name": {
+          "type": "VARCHAR(30)",
+          "nullable": false
+        },
+        "leader_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "deleted_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        }
+      }
+    },
+    "identity_org.class_group_member": {
+      "source_line": 1257,
+      "columns": {
+        "group_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "profile_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "is_leader": {
+          "type": "TINYINT(1)",
+          "nullable": false
+        },
+        "joined_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        }
+      }
+    },
+    "identity_org.class_teacher": {
+      "source_line": 1228,
+      "columns": {
+        "class_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "teacher_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "relation_type": {
+          "type": "VARCHAR(7)",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        }
+      }
+    },
+    "identity_org.consent_record": {
+      "source_line": 241,
+      "columns": {
+        "consent_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "user_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "consent_text_version": {
+          "type": "VARCHAR(20)",
+          "nullable": false
+        },
+        "consent_scope": {
+          "type": "JSON",
+          "nullable": false
+        },
+        "signed_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "revoked_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        },
+        "signed_ip": {
+          "type": "VARCHAR(45)",
+          "nullable": true
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        }
+      }
+    },
+    "identity_org.department": {
+      "source_line": 1337,
+      "columns": {
+        "department_id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "department_code": {
+          "type": "string(30)",
+          "nullable": false
+        },
+        "department_name": {
+          "type": "string(100)",
+          "nullable": false
+        },
+        "status": {
+          "type": "enum(enabled,disabled)",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "datetime",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "datetime",
+          "nullable": false
+        }
+      }
+    },
+    "identity_org.dim_grade": {
+      "source_line": 220,
+      "columns": {
+        "grade_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "grade_code": {
+          "type": "VARCHAR(20)",
+          "nullable": false
+        },
+        "grade_name": {
+          "type": "VARCHAR(50)",
+          "nullable": false
+        },
+        "cohort_year": {
+          "type": "SMALLINT",
+          "nullable": false
+        },
+        "sort_no": {
+          "type": "SMALLINT",
+          "nullable": false
+        },
+        "status": {
+          "type": "VARCHAR(8)",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        }
+      }
+    },
+    "identity_org.major": {
+      "source_line": 144,
+      "columns": {
+        "major_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "major_name": {
+          "type": "VARCHAR(50)",
+          "nullable": false
+        },
+        "school_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "status": {
+          "type": "VARCHAR(8)",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "deleted_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        },
+        "department_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        }
+      }
+    },
+    "identity_org.security_session": {
+      "source_line": 1348,
+      "columns": {
+        "sid": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "user_id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "family_id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "refresh_hash": {
+          "type": "char(64)",
+          "nullable": false
+        },
+        "refresh_expires_at": {
+          "type": "datetime",
+          "nullable": false
+        },
+        "auth_version": {
+          "type": "int",
+          "nullable": false
+        },
+        "revoked_at": {
+          "type": "datetime",
+          "nullable": true
+        },
+        "last_rotated_at": {
+          "type": "datetime",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "datetime",
+          "nullable": false
+        },
+        "user_agent_hash": {
+          "type": "char(64)",
+          "nullable": true
+        },
+        "rotated_refresh_hashes": {
+          "type": "json",
+          "nullable": false
+        }
+      }
+    },
+    "identity_org.student_profile": {
+      "source_line": 101,
+      "columns": {
+        "profile_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "user_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "student_no": {
+          "type": "VARCHAR(30)",
+          "nullable": false
+        },
+        "major_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "grade": {
+          "type": "VARCHAR(9)",
+          "nullable": false
+        },
+        "class_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "subject_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "stage_pref": {
+          "type": "VARCHAR(11)",
+          "nullable": false
+        },
+        "target_cert": {
+          "type": "VARCHAR(12)",
+          "nullable": true
+        },
+        "practice_school": {
+          "type": "VARCHAR(100)",
+          "nullable": true
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "deleted_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        }
+      }
+    },
+    "identity_org.subject": {
+      "source_line": 162,
+      "columns": {
+        "subject_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "subject_name": {
+          "type": "VARCHAR(30)",
+          "nullable": false
+        },
+        "stage_range": {
+          "type": "JSON",
+          "nullable": false
+        },
+        "ai_prompt_key": {
+          "type": "VARCHAR(50)",
+          "nullable": true
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "deleted_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        }
+      }
+    },
+    "identity_org.teacher_profile": {
+      "source_line": 125,
+      "columns": {
+        "teacher_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "user_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "title": {
+          "type": "VARCHAR(19)",
+          "nullable": true
+        },
+        "is_examiner": {
+          "type": "TINYINT(1)",
+          "nullable": false
+        },
+        "review_quota": {
+          "type": "SMALLINT",
+          "nullable": true
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "deleted_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        }
+      }
+    },
+    "identity_org.teacher_subject": {
+      "source_line": 1243,
+      "columns": {
+        "teacher_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "subject_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        }
+      }
+    },
+    "identity_org.user": {
+      "source_line": 71,
+      "columns": {
+        "user_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "real_name": {
+          "type": "VARCHAR(50)",
+          "nullable": false
+        },
+        "role": {
+          "type": "VARCHAR(9)",
+          "nullable": false
+        },
+        "permission_codes": {
+          "type": "JSON",
+          "nullable": false
+        },
+        "phone": {
+          "type": "VARCHAR(11)",
+          "nullable": false
+        },
+        "password_hash": {
+          "type": "VARCHAR(60)",
+          "nullable": false
+        },
+        "avatar_url": {
+          "type": "VARCHAR(512)",
+          "nullable": true
+        },
+        "status": {
+          "type": "VARCHAR(8)",
+          "nullable": false
+        },
+        "last_login_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        },
+        "school_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "deleted_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        },
+        "must_change_password": {
+          "type": "TINYINT(1)",
+          "nullable": false
+        },
+        "department_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "auth_version": {
+          "type": "INT",
+          "nullable": false
+        },
+        "login_fail_count": {
+          "type": "INT",
+          "nullable": false
+        },
+        "login_fail_window_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        }
+      }
+    },
+    "media.media_upload": {
+      "source_line": 1388,
+      "columns": {
+        "upload_id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "owner_id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "purpose": {
+          "type": "enum(recording,review_voice,training,resource,avatar,exam)",
+          "nullable": false
+        },
+        "target_id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "recording_id": {
+          "type": "uuid",
+          "nullable": true
+        },
+        "mode": {
+          "type": "enum(local_parts,s3_multipart)",
+          "nullable": false
+        },
+        "status": {
+          "type": "enum(uploading,completed,aborted,failed)",
+          "nullable": false
+        },
+        "object_key": {
+          "type": "string(512)",
+          "nullable": false
+        },
+        "provider_upload_id": {
+          "type": "string(512)",
+          "nullable": true
+        },
+        "part_size": {
+          "type": "int",
+          "nullable": false
+        },
+        "total_bytes": {
+          "type": "bigint",
+          "nullable": true
+        },
+        "sha256": {
+          "type": "char(64)",
+          "nullable": true
+        },
+        "duration_ms": {
+          "type": "bigint",
+          "nullable": true
+        },
+        "content_type": {
+          "type": "string(100)",
+          "nullable": false
+        },
+        "metadata_json": {
+          "type": "json",
+          "nullable": false
+        },
+        "expires_at": {
+          "type": "datetime",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "datetime",
+          "nullable": false
+        },
+        "completed_at": {
+          "type": "datetime",
+          "nullable": true
+        }
+      }
+    },
+    "media.media_upload_part": {
+      "source_line": 1411,
+      "columns": {
+        "upload_id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "part_no": {
+          "type": "int",
+          "nullable": false
+        },
+        "bytes": {
+          "type": "int",
+          "nullable": false
+        },
+        "sha256": {
+          "type": "char(64)",
+          "nullable": true
+        },
+        "etag": {
+          "type": "string(200)",
+          "nullable": true
+        },
+        "local_key": {
+          "type": "string(512)",
+          "nullable": true
+        },
+        "received_at": {
+          "type": "datetime",
+          "nullable": false
+        }
+      }
+    },
+    "media.observation": {
+      "source_line": 649,
+      "columns": {
+        "observation_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "session_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "teacher_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "join_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "leave_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        },
+        "watch_duration_ms": {
+          "type": "INT",
+          "nullable": false
+        },
+        "guidance_count": {
+          "type": "SMALLINT",
+          "nullable": false
+        },
+        "is_live": {
+          "type": "TINYINT(1)",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        }
+      }
+    },
+    "media.playback_marker": {
+      "source_line": 626,
+      "columns": {
+        "marker_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "recording_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "offset_ms": {
+          "type": "INT",
+          "nullable": false
+        },
+        "marker_type": {
+          "type": "VARCHAR(15)",
+          "nullable": false
+        },
+        "comment": {
+          "type": "VARCHAR(500)",
+          "nullable": true
+        },
+        "author_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "linked_issue_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "deleted_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        }
+      }
+    },
+    "media.recording": {
+      "source_line": 595,
+      "columns": {
+        "recording_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "session_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "track_type": {
+          "type": "VARCHAR(8)",
+          "nullable": false
+        },
+        "file_url": {
+          "type": "VARCHAR(512)",
+          "nullable": true
+        },
+        "duration_ms": {
+          "type": "INT",
+          "nullable": true
+        },
+        "size_mb": {
+          "type": "DECIMAL(10,2)",
+          "nullable": true
+        },
+        "resolution": {
+          "type": "VARCHAR(20)",
+          "nullable": true
+        },
+        "format": {
+          "type": "VARCHAR(10)",
+          "nullable": true
+        },
+        "storage_region": {
+          "type": "VARCHAR(5)",
+          "nullable": false
+        },
+        "upload_status": {
+          "type": "VARCHAR(10)",
+          "nullable": false
+        },
+        "checksum": {
+          "type": "CHAR(64)",
+          "nullable": true
+        },
+        "retention_until": {
+          "type": "DATE",
+          "nullable": false
+        },
+        "merged_url": {
+          "type": "VARCHAR(512)",
+          "nullable": true
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "deleted_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        },
+        "lock_until": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        },
+        "required": {
+          "type": "TINYINT(1)",
+          "nullable": false
+        }
+      }
+    },
+    "platform.audit_log": {
+      "source_line": 1207,
+      "columns": {
+        "log_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "user_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "action": {
+          "type": "VARCHAR(17)",
+          "nullable": false
+        },
+        "target_type": {
+          "type": "VARCHAR(30)",
+          "nullable": false
+        },
+        "target_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "ip": {
+          "type": "VARCHAR(45)",
+          "nullable": true
+        },
+        "user_agent": {
+          "type": "VARCHAR(255)",
+          "nullable": true
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "department_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "details": {
+          "type": "JSON",
+          "nullable": false
+        }
+      }
+    },
+    "platform.consumer_receipt": {
+      "source_line": 1464,
+      "columns": {
+        "consumer": {
+          "type": "string(80)",
+          "nullable": false
+        },
+        "event_id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "aggregate_id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "aggregate_version": {
+          "type": "bigint",
+          "nullable": false
+        },
+        "processed_at": {
+          "type": "datetime",
+          "nullable": false
+        },
+        "result_json": {
+          "type": "json",
+          "nullable": true
+        }
+      }
+    },
+    "platform.export_task": {
+      "source_line": 1181,
+      "columns": {
+        "export_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "operator_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "export_scope": {
+          "type": "VARCHAR(15)",
+          "nullable": false
+        },
+        "filter_cond": {
+          "type": "JSON",
+          "nullable": true
+        },
+        "export_format": {
+          "type": "VARCHAR(4)",
+          "nullable": false
+        },
+        "file_url": {
+          "type": "VARCHAR(512)",
+          "nullable": true
+        },
+        "status": {
+          "type": "VARCHAR(7)",
+          "nullable": false
+        },
+        "expire_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "progress": {
+          "type": "DECIMAL(4,3)",
+          "nullable": false
+        },
+        "row_count": {
+          "type": "INT",
+          "nullable": true
+        },
+        "error": {
+          "type": "VARCHAR(500)",
+          "nullable": true
+        }
+      }
+    },
+    "platform.outbox_event": {
+      "source_line": 1446,
+      "columns": {
+        "event_id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "aggregate_type": {
+          "type": "string(40)",
+          "nullable": false
+        },
+        "aggregate_id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "aggregate_version": {
+          "type": "bigint",
+          "nullable": false
+        },
+        "topic": {
+          "type": "string(80)",
+          "nullable": false
+        },
+        "payload": {
+          "type": "json",
+          "nullable": false
+        },
+        "dedupe_key": {
+          "type": "string(255)",
+          "nullable": true
+        },
+        "request_hash": {
+          "type": "char(64)",
+          "nullable": true
+        },
+        "status": {
+          "type": "enum(pending,delivered,dead_letter)",
+          "nullable": false
+        },
+        "attempts": {
+          "type": "int",
+          "nullable": false
+        },
+        "next_attempt_at": {
+          "type": "datetime",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "datetime",
+          "nullable": false
+        },
+        "delivered_at": {
+          "type": "datetime",
+          "nullable": true
+        }
+      }
+    },
+    "task_content.exemplar": {
+      "source_line": 434,
+      "columns": {
+        "exemplar_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "topic_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "video_url": {
+          "type": "VARCHAR(512)",
+          "nullable": false
+        },
+        "transcript": {
+          "type": "LONGTEXT",
+          "nullable": true
+        },
+        "highlight_tags": {
+          "type": "JSON",
+          "nullable": true
+        },
+        "ref_score": {
+          "type": "DECIMAL(5,2)",
+          "nullable": true
+        },
+        "status": {
+          "type": "VARCHAR(9)",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "deleted_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        },
+        "owner_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "department_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        }
+      }
+    },
+    "task_content.lesson_template": {
+      "source_line": 408,
+      "columns": {
+        "template_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "template_type": {
+          "type": "VARCHAR(13)",
+          "nullable": false
+        },
+        "subject_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "stage": {
+          "type": "VARCHAR(11)",
+          "nullable": true
+        },
+        "template_name": {
+          "type": "VARCHAR(50)",
+          "nullable": false
+        },
+        "content_json": {
+          "type": "JSON",
+          "nullable": false
+        },
+        "file_url": {
+          "type": "VARCHAR(512)",
+          "nullable": true
+        },
+        "usage_count": {
+          "type": "INT",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "deleted_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        },
+        "owner_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "department_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        }
+      }
+    },
+    "task_content.rubric": {
+      "source_line": 296,
+      "columns": {
+        "rubric_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "root_rubric_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "rubric_name": {
+          "type": "VARCHAR(50)",
+          "nullable": false
+        },
+        "scope": {
+          "type": "VARCHAR(7)",
+          "nullable": false
+        },
+        "subject_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "stage": {
+          "type": "VARCHAR(11)",
+          "nullable": true
+        },
+        "total_score": {
+          "type": "DECIMAL(5,2)",
+          "nullable": false
+        },
+        "dimension_weights": {
+          "type": "JSON",
+          "nullable": false
+        },
+        "grade_bands": {
+          "type": "JSON",
+          "nullable": false
+        },
+        "version": {
+          "type": "INT",
+          "nullable": false
+        },
+        "is_template": {
+          "type": "TINYINT(1)",
+          "nullable": false
+        },
+        "status": {
+          "type": "VARCHAR(9)",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "deleted_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        },
+        "department_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "publisher_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        }
+      }
+    },
+    "task_content.rubric_item": {
+      "source_line": 326,
+      "columns": {
+        "item_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "rubric_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "dimension": {
+          "type": "VARCHAR(15)",
+          "nullable": false
+        },
+        "item_name": {
+          "type": "VARCHAR(50)",
+          "nullable": false
+        },
+        "max_score": {
+          "type": "DECIMAL(5,2)",
+          "nullable": false
+        },
+        "scoring_desc": {
+          "type": "LONGTEXT",
+          "nullable": true
+        },
+        "ai_enabled": {
+          "type": "TINYINT(1)",
+          "nullable": false
+        },
+        "scored_by": {
+          "type": "VARCHAR(14)",
+          "nullable": false
+        },
+        "weight_in_dimension": {
+          "type": "DECIMAL(4,3)",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "deleted_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        }
+      }
+    },
+    "task_content.structured_question": {
+      "source_line": 383,
+      "columns": {
+        "q_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "category": {
+          "type": "VARCHAR(18)",
+          "nullable": false
+        },
+        "q_text": {
+          "type": "LONGTEXT",
+          "nullable": false
+        },
+        "answer_outline": {
+          "type": "LONGTEXT",
+          "nullable": true
+        },
+        "source": {
+          "type": "VARCHAR(17)",
+          "nullable": false
+        },
+        "exam_year": {
+          "type": "SMALLINT",
+          "nullable": true
+        },
+        "region": {
+          "type": "VARCHAR(30)",
+          "nullable": true
+        },
+        "difficulty": {
+          "type": "TINYINT",
+          "nullable": false
+        },
+        "tags": {
+          "type": "JSON",
+          "nullable": true
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "deleted_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        },
+        "owner_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "department_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        }
+      }
+    },
+    "task_content.task_class": {
+      "source_line": 1272,
+      "columns": {
+        "task_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "class_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        }
+      }
+    },
+    "task_content.task_topic": {
+      "source_line": 1286,
+      "columns": {
+        "task_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "topic_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        }
+      }
+    },
+    "task_content.trial_task": {
+      "source_line": 263,
+      "columns": {
+        "task_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "title": {
+          "type": "VARCHAR(100)",
+          "nullable": false
+        },
+        "publisher_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        },
+        "subject_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "stage": {
+          "type": "VARCHAR(11)",
+          "nullable": false
+        },
+        "textbook_version": {
+          "type": "VARCHAR(50)",
+          "nullable": false
+        },
+        "mode": {
+          "type": "VARCHAR(10)",
+          "nullable": false
+        },
+        "duration_limit_s": {
+          "type": "INT",
+          "nullable": false
+        },
+        "rubric_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "allow_retry": {
+          "type": "SMALLINT",
+          "nullable": false
+        },
+        "require_video": {
+          "type": "TINYINT(1)",
+          "nullable": false
+        },
+        "deadline": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "status": {
+          "type": "VARCHAR(9)",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "deleted_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        },
+        "roster_snapshot": {
+          "type": "JSON",
+          "nullable": true
+        },
+        "config_json": {
+          "type": "JSON",
+          "nullable": false
+        },
+        "published_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        },
+        "created_by": {
+          "type": "CHAR(36)",
+          "nullable": false
+        }
+      }
+    },
+    "task_content.trial_topic": {
+      "source_line": 351,
+      "columns": {
+        "topic_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "subject_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "stage": {
+          "type": "VARCHAR(11)",
+          "nullable": false
+        },
+        "textbook_version": {
+          "type": "VARCHAR(50)",
+          "nullable": false
+        },
+        "book_volume": {
+          "type": "VARCHAR(20)",
+          "nullable": true
+        },
+        "chapter": {
+          "type": "VARCHAR(100)",
+          "nullable": true
+        },
+        "topic_title": {
+          "type": "VARCHAR(200)",
+          "nullable": false
+        },
+        "content_text": {
+          "type": "LONGTEXT",
+          "nullable": false
+        },
+        "requirements": {
+          "type": "LONGTEXT",
+          "nullable": true
+        },
+        "difficulty": {
+          "type": "TINYINT",
+          "nullable": false
+        },
+        "source": {
+          "type": "VARCHAR(17)",
+          "nullable": false
+        },
+        "exam_year": {
+          "type": "SMALLINT",
+          "nullable": true
+        },
+        "usage_count": {
+          "type": "INT",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "updated_at": {
+          "type": "DATETIME(3)",
+          "nullable": false
+        },
+        "deleted_at": {
+          "type": "DATETIME(3)",
+          "nullable": true
+        },
+        "status": {
+          "type": "VARCHAR(8)",
+          "nullable": false
+        },
+        "owner_id": {
+          "type": "CHAR(36)",
+          "nullable": false
+        },
+        "department_id": {
+          "type": "CHAR(36)",
+          "nullable": true
+        }
+      }
+    }
+  }
+}
