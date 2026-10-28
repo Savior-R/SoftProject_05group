@@ -1,0 +1,4123 @@
+[
+ {
+  "code": "A1",
+  "cn": "用户账号",
+  "en": "user",
+  "fields": [
+   {
+    "f": "user_id",
+    "cn": "用户ID",
+    "type": "uuid",
+    "rule": "36 位，全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "账号存续期；注销后保留 180 天",
+    "use": "全链路主键，关联档案/任务/报告/证书"
+   },
+   {
+    "f": "real_name",
+    "cn": "姓名",
+    "type": "string(50)",
+    "rule": "2–20 字符，中文/字母",
+    "req": "必填",
+    "src": "用户输入",
+    "life": "随账号",
+    "use": "班级名单、证书署名、排行榜展示"
+   },
+   {
+    "f": "role",
+    "cn": "角色",
+    "type": "enum",
+    "rule": "师范生 / 指导教师 / 教研管理员 / 系统管理员",
+    "req": "必填",
+    "src": "管理员配置",
+    "life": "随账号，可变更并留痕",
+    "use": "权限与菜单路由"
+   },
+   {
+    "f": "permission_codes",
+    "cn": "权限码集",
+    "type": "array\\<string\\>",
+    "rule": "由 role 展开，如 `task:publish`、`review:batch`",
+    "req": "系统自动",
+    "src": "继承（role）",
+    "life": "随 role 变更同步刷新",
+    "use": "接口鉴权"
+   },
+   {
+    "f": "phone",
+    "cn": "手机号",
+    "type": "string(11)",
+    "rule": "`^1[3-9]\\d{9}$`，唯一",
+    "req": "必填",
+    "src": "用户输入 + 短信验证",
+    "life": "随账号",
+    "use": "登录、找回密码、通知"
+   },
+   {
+    "f": "password_hash",
+    "cn": "密码摘要",
+    "type": "string(60)",
+    "rule": "bcrypt，不明文存储",
+    "req": "必填",
+    "src": "用户输入（加密后）",
+    "life": "随账号，建议 90 天强制更换",
+    "use": "身份认证"
+   },
+   {
+    "f": "avatar_url",
+    "cn": "头像",
+    "type": "url",
+    "rule": "jpg/png ≤ 2MB",
+    "req": "选填",
+    "src": "用户输入（上传）",
+    "life": "随账号，覆盖更新",
+    "use": "个人展示"
+   },
+   {
+    "f": "status",
+    "cn": "账号状态",
+    "type": "enum",
+    "rule": "正常 / 停用 / 锁定",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随账号",
+    "use": "登录拦截"
+   },
+   {
+    "f": "last_login_at",
+    "cn": "最近登录时间",
+    "type": "datetime",
+    "rule": "—",
+    "req": "系统自动",
+    "src": "系统采集",
+    "life": "滚动保留 90 天",
+    "use": "活跃度统计、安全审计"
+   },
+   {
+    "f": "created_at",
+    "cn": "创建时间",
+    "type": "datetime",
+    "rule": "—",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "永久",
+    "use": "数据溯源"
+   }
+  ]
+ },
+ {
+  "code": "A2",
+  "cn": "师范生档案",
+  "en": "student_profile",
+  "fields": [
+   {
+    "f": "profile_id",
+    "cn": "档案ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随账号",
+    "use": "主键"
+   },
+   {
+    "f": "user_id",
+    "cn": "用户ID",
+    "type": "uuid",
+    "rule": "外键 → user",
+    "req": "必填",
+    "src": "继承",
+    "life": "随账号",
+    "use": "关联账号"
+   },
+   {
+    "f": "student_no",
+    "cn": "学号",
+    "type": "string(30)",
+    "rule": "校内唯一",
+    "req": "必填",
+    "src": "用户输入 / 教务导入",
+    "life": "在校期间",
+    "use": "班级归集、成绩导出、与教务系统对齐"
+   },
+   {
+    "f": "major_id",
+    "cn": "专业ID",
+    "type": "uuid",
+    "rule": "外键 → major",
+    "req": "必填",
+    "src": "用户输入",
+    "life": "随账号",
+    "use": "专业维度统计"
+   },
+   {
+    "f": "grade",
+    "cn": "年级",
+    "type": "enum",
+    "rule": "大一 / 大二 / 大三 / 大四 / 研究生",
+    "req": "必填",
+    "src": "用户输入",
+    "life": "每学年滚动更新",
+    "use": "分层训练难度、年级榜"
+   },
+   {
+    "f": "class_id",
+    "cn": "班级ID",
+    "type": "uuid",
+    "rule": "外键 → class",
+    "req": "必填",
+    "src": "管理员配置",
+    "life": "随班级，毕业归档",
+    "use": "任务分发、班级统计"
+   },
+   {
+    "f": "subject_id",
+    "cn": "学科方向ID",
+    "type": "uuid",
+    "rule": "外键 → subject",
+    "req": "必填",
+    "src": "用户输入",
+    "life": "随账号",
+    "use": "题目/教材/范例推荐"
+   },
+   {
+    "f": "stage_pref",
+    "cn": "目标学段",
+    "type": "enum",
+    "rule": "幼教 / 小学 / 初中 / 高中 / 中职",
+    "req": "必填",
+    "src": "用户输入",
+    "life": "随账号",
+    "use": "教材版本与题库筛选"
+   },
+   {
+    "f": "target_cert",
+    "cn": "目标资格证",
+    "type": "enum",
+    "rule": "幼儿园 / 小学 / 初级中学 / 高级中学 / 中职 / 无",
+    "req": "选填",
+    "src": "用户输入",
+    "life": "随账号",
+    "use": "教资面试真题与结构化题库推送"
+   },
+   {
+    "f": "practice_school",
+    "cn": "实习学校",
+    "type": "string(100)",
+    "rule": "≤ 50 字符",
+    "req": "选填",
+    "src": "用户输入",
+    "life": "随账号",
+    "use": "实践履历 ❓是否需要"
+   }
+  ]
+ },
+ {
+  "code": "A3",
+  "cn": "教师档案",
+  "en": "teacher_profile",
+  "fields": [
+   {
+    "f": "teacher_id",
+    "cn": "教师档案ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随账号",
+    "use": "主键"
+   },
+   {
+    "f": "user_id",
+    "cn": "用户ID",
+    "type": "uuid",
+    "rule": "外键 → user",
+    "req": "必填",
+    "src": "继承",
+    "life": "随账号",
+    "use": "关联账号"
+   },
+   {
+    "f": "title",
+    "cn": "职称",
+    "type": "enum",
+    "rule": "助教 / 讲师 / 副教授 / 教授 / 教研员 / 校外导师",
+    "req": "选填",
+    "src": "用户输入",
+    "life": "随账号",
+    "use": "考官资质标识"
+   },
+   {
+    "f": "subject_ids",
+    "cn": "可评学科",
+    "type": "array\\<uuid\\>",
+    "rule": "外键 → subject，1–5 个",
+    "req": "必填",
+    "src": "教师录入",
+    "life": "随账号",
+    "use": "批阅任务分配依据"
+   },
+   {
+    "f": "managed_class_ids",
+    "cn": "管理班级",
+    "type": "array\\<uuid\\>",
+    "rule": "外键 → class",
+    "req": "必填",
+    "src": "管理员配置",
+    "life": "随班级",
+    "use": "后台数据可见范围"
+   },
+   {
+    "f": "is_examiner",
+    "cn": "考官资格",
+    "type": "bool",
+    "rule": "true / false",
+    "req": "系统自动",
+    "src": "管理员配置",
+    "life": "随账号",
+    "use": "能否参与模拟考核评分"
+   },
+   {
+    "f": "review_quota",
+    "cn": "待批上限",
+    "type": "int",
+    "rule": "1–200，默认 50",
+    "req": "选填",
+    "src": "管理员配置",
+    "life": "随账号",
+    "use": "批阅负载均衡 ❓是否需要"
+   }
+  ]
+ },
+ {
+  "code": "A4",
+  "cn": "专业",
+  "en": "major",
+  "fields": [
+   {
+    "f": "major_id",
+    "cn": "专业ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "长期保留",
+    "use": "主键"
+   },
+   {
+    "f": "major_name",
+    "cn": "专业名称",
+    "type": "string(50)",
+    "rule": "如「汉语言文学（师范）」，唯一",
+    "req": "必填",
+    "src": "管理员配置 / 教务导入",
+    "life": "长期保留",
+    "use": "档案绑定、统计分组"
+   },
+   {
+    "f": "school_id",
+    "cn": "所属院系",
+    "type": "uuid",
+    "rule": "外键",
+    "req": "选填",
+    "src": "管理员配置",
+    "life": "长期保留",
+    "use": "校级数据隔离 ❓是否需要多校"
+   },
+   {
+    "f": "status",
+    "cn": "状态",
+    "type": "enum",
+    "rule": "启用 / 停用",
+    "req": "系统自动",
+    "src": "管理员配置",
+    "life": "长期保留",
+    "use": "下拉可选控制"
+   }
+  ]
+ },
+ {
+  "code": "A5",
+  "cn": "学科",
+  "en": "subject",
+  "fields": [
+   {
+    "f": "subject_id",
+    "cn": "学科ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "长期保留",
+    "use": "主键"
+   },
+   {
+    "f": "subject_name",
+    "cn": "学科名称",
+    "type": "string(30)",
+    "rule": "语文 / 数学 / 英语 / 物理 / 化学 / 生物 / 政治 / 历史 / 地理 / 思政 / 音乐 / 体育 / 美术 / 信息技术 / 幼教 / 其他",
+    "req": "必填",
+    "src": "管理员配置",
+    "life": "长期保留",
+    "use": "题目、教材、范例分类"
+   },
+   {
+    "f": "stage_range",
+    "cn": "适用学段",
+    "type": "array\\<enum\\>",
+    "rule": "幼教 / 小学 / 初中 / 高中 / 中职 子集",
+    "req": "必填",
+    "src": "管理员配置",
+    "life": "长期保留",
+    "use": "学科-学段组合校验"
+   },
+   {
+    "f": "ai_prompt_key",
+    "cn": "学科评测提示词键",
+    "type": "string(50)",
+    "rule": "对应评测模型的学科策略",
+    "req": "系统自动",
+    "src": "管理员配置",
+    "life": "随学科",
+    "use": "知识点准确性评测调用 ❓是否自研模型"
+   }
+  ]
+ },
+ {
+  "code": "A6",
+  "cn": "班级",
+  "en": "class",
+  "fields": [
+   {
+    "f": "class_id",
+    "cn": "班级ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "在校期间，毕业后归档 3 年",
+    "use": "主键"
+   },
+   {
+    "f": "class_name",
+    "cn": "班级名称",
+    "type": "string(50)",
+    "rule": "如「2023级汉语言文学1班」",
+    "req": "必填",
+    "src": "管理员配置",
+    "life": "随班级",
+    "use": "展示与筛选"
+   },
+   {
+    "f": "teacher_ids",
+    "cn": "任课/指导教师",
+    "type": "array\\<uuid\\>",
+    "rule": "外键 → teacher_profile，≥1",
+    "req": "必填",
+    "src": "管理员配置",
+    "life": "随班级",
+    "use": "任务发布与批阅权限"
+   },
+   {
+    "f": "student_count",
+    "cn": "学生数",
+    "type": "int",
+    "rule": "0–200，冗余统计",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "实时更新",
+    "use": "提交率计算"
+   },
+   {
+    "f": "enroll_year",
+    "cn": "入学年份",
+    "type": "int",
+    "rule": "2000–当前年",
+    "req": "必填",
+    "src": "管理员配置",
+    "life": "随班级",
+    "use": "年级推导"
+   },
+   {
+    "f": "group_ids",
+    "cn": "训练小组",
+    "type": "array\\<uuid\\>",
+    "rule": "外键 → group",
+    "req": "选填",
+    "src": "教师录入",
+    "life": "随班级",
+    "use": "小组训练"
+   },
+   {
+    "f": "status",
+    "cn": "状态",
+    "type": "enum",
+    "rule": "在读 / 已毕业 / 归档",
+    "req": "系统自动",
+    "src": "管理员配置",
+    "life": "随班级",
+    "use": "数据可见性"
+   }
+  ]
+ },
+ {
+  "code": "A7",
+  "cn": "训练小组",
+  "en": "group",
+  "fields": [
+   {
+    "f": "group_id",
+    "cn": "小组ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随班级",
+    "use": "主键"
+   },
+   {
+    "f": "class_id",
+    "cn": "所属班级",
+    "type": "uuid",
+    "rule": "外键 → class",
+    "req": "必填",
+    "src": "继承",
+    "life": "随班级",
+    "use": "归属"
+   },
+   {
+    "f": "group_name",
+    "cn": "组名",
+    "type": "string(30)",
+    "rule": "如「第3实训组」",
+    "req": "必填",
+    "src": "教师录入",
+    "life": "随班级",
+    "use": "展示"
+   },
+   {
+    "f": "member_ids",
+    "cn": "成员",
+    "type": "array\\<uuid\\>",
+    "rule": "2–10 人，外键 → student_profile",
+    "req": "必填",
+    "src": "教师录入",
+    "life": "随班级，可调",
+    "use": "小组任务、互评"
+   },
+   {
+    "f": "leader_id",
+    "cn": "组长",
+    "type": "uuid",
+    "rule": "外键 → student_profile，须在成员内",
+    "req": "选填",
+    "src": "教师录入",
+    "life": "随小组",
+    "use": "组内协作"
+   }
+  ]
+ },
+ {
+  "code": "B1",
+  "cn": "试讲任务",
+  "en": "trial_task",
+  "fields": [
+   {
+    "f": "task_id",
+    "cn": "任务ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "任务创建至归档后 3 年",
+    "use": "主键"
+   },
+   {
+    "f": "title",
+    "cn": "任务名称",
+    "type": "string(100)",
+    "rule": "2–50 字符",
+    "req": "必填",
+    "src": "教师录入",
+    "life": "随任务",
+    "use": "列表展示"
+   },
+   {
+    "f": "publisher_id",
+    "cn": "发布人",
+    "type": "uuid",
+    "rule": "外键 → teacher_profile",
+    "req": "必填",
+    "src": "系统采集（登录态）",
+    "life": "随任务",
+    "use": "责任归属"
+   },
+   {
+    "f": "class_ids",
+    "cn": "面向班级",
+    "type": "array\\<uuid\\>",
+    "rule": "≥1",
+    "req": "必填",
+    "src": "教师录入",
+    "life": "随任务",
+    "use": "分发范围"
+   },
+   {
+    "f": "subject_id",
+    "cn": "学科",
+    "type": "uuid",
+    "rule": "外键 → subject",
+    "req": "必填",
+    "src": "教师录入",
+    "life": "随任务",
+    "use": "题目与评测策略"
+   },
+   {
+    "f": "stage",
+    "cn": "学段",
+    "type": "enum",
+    "rule": "幼教 / 小学 / 初中 / 高中 / 中职",
+    "req": "必填",
+    "src": "教师录入",
+    "life": "随任务",
+    "use": "教材与题库筛选"
+   },
+   {
+    "f": "textbook_version",
+    "cn": "教材版本",
+    "type": "string(50)",
+    "rule": "如「部编版」「人教版」「北师大版」",
+    "req": "必填",
+    "src": "教师录入",
+    "life": "随任务",
+    "use": "题目定位"
+   },
+   {
+    "f": "topic_ids",
+    "cn": "指定题目",
+    "type": "array\\<uuid\\>",
+    "rule": "外键 → trial_topic，为空则学生自选",
+    "req": "选填",
+    "src": "教师录入",
+    "life": "随任务",
+    "use": "抽题/指定题"
+   },
+   {
+    "f": "mode",
+    "cn": "试讲模式",
+    "type": "enum",
+    "rule": "自由试讲 / 情景模拟 / 结构化面试",
+    "req": "必填",
+    "src": "教师录入",
+    "life": "随任务",
+    "use": "决定虚拟课堂行为脚本"
+   },
+   {
+    "f": "duration_limit",
+    "cn": "时长上限",
+    "type": "int",
+    "rule": "5–45 分钟，默认 10",
+    "req": "必填",
+    "src": "教师录入",
+    "life": "随任务",
+    "use": "计时与超时判定"
+   },
+   {
+    "f": "rubric_id",
+    "cn": "评分标准",
+    "type": "uuid",
+    "rule": "外键 → rubric",
+    "req": "必填",
+    "src": "教师录入（默认系统预置）",
+    "life": "随任务",
+    "use": "评分依据"
+   },
+   {
+    "f": "allow_retry",
+    "cn": "允许重做次数",
+    "type": "int",
+    "rule": "0–10，默认 3",
+    "req": "选填",
+    "src": "教师录入",
+    "life": "随任务",
+    "use": "训练次数控制"
+   },
+   {
+    "f": "require_video",
+    "cn": "必须录像",
+    "type": "bool",
+    "rule": "默认 true",
+    "req": "选填",
+    "src": "教师录入",
+    "life": "随任务",
+    "use": "是否强制开启录制"
+   },
+   {
+    "f": "deadline",
+    "cn": "截止时间",
+    "type": "datetime",
+    "rule": "须晚于发布时间",
+    "req": "必填",
+    "src": "教师录入",
+    "life": "随任务",
+    "use": "逾期判定"
+   },
+   {
+    "f": "status",
+    "cn": "任务状态",
+    "type": "enum",
+    "rule": "草稿 / 已发布 / 进行中 / 已截止 / 已批阅",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随任务",
+    "use": "流程控制"
+   },
+   {
+    "f": "created_at",
+    "cn": "发布时间",
+    "type": "datetime",
+    "rule": "—",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随任务",
+    "use": "排序、统计"
+   }
+  ]
+ },
+ {
+  "code": "B2",
+  "cn": "评分标准",
+  "en": "rubric",
+  "fields": [
+   {
+    "f": "rubric_id",
+    "cn": "评分标准ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "创建后永久（不可删，仅停用）",
+    "use": "主键"
+   },
+   {
+    "f": "rubric_name",
+    "cn": "名称",
+    "type": "string(50)",
+    "rule": "如「教资面试通用评分表」",
+    "req": "必填",
+    "src": "管理员配置 / 教师录入",
+    "life": "随标准",
+    "use": "选择展示"
+   },
+   {
+    "f": "scope",
+    "cn": "适用范围",
+    "type": "enum",
+    "rule": "系统预置 / 校级 / 教师自定义",
+    "req": "必填",
+    "src": "系统生成 / 教师录入",
+    "life": "随标准",
+    "use": "可见性与复用范围"
+   },
+   {
+    "f": "subject_id",
+    "cn": "适用学科",
+    "type": "uuid",
+    "rule": "为空表示通用",
+    "req": "选填",
+    "src": "教师录入",
+    "life": "随标准",
+    "use": "匹配筛选"
+   },
+   {
+    "f": "stage",
+    "cn": "适用学段",
+    "type": "enum",
+    "rule": "为空表示通用",
+    "req": "选填",
+    "src": "教师录入",
+    "life": "随标准",
+    "use": "匹配筛选"
+   },
+   {
+    "f": "total_score",
+    "cn": "总分",
+    "type": "decimal(5,2)",
+    "rule": "固定 100.00",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随标准",
+    "use": "分制基准"
+   },
+   {
+    "f": "dimension_weights",
+    "cn": "六维权重",
+    "type": "json",
+    "rule": "内容/表达/教态/互动/板书PPT/时间，六项之和 = 1.0",
+    "req": "必填",
+    "src": "管理员配置 / 教师录入",
+    "life": "随标准",
+    "use": "加权总分计算"
+   },
+   {
+    "f": "version",
+    "cn": "版本号",
+    "type": "int",
+    "rule": "从 1 递增",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随标准",
+    "use": "报告可追溯评分口径"
+   },
+   {
+    "f": "is_template",
+    "cn": "是否模板",
+    "type": "bool",
+    "rule": "—",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随标准",
+    "use": "快速套用"
+   }
+  ]
+ },
+ {
+  "code": "B3",
+  "cn": "评分细则项",
+  "en": "rubric_item",
+  "fields": [
+   {
+    "f": "item_id",
+    "cn": "细则项ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随标准",
+    "use": "主键"
+   },
+   {
+    "f": "rubric_id",
+    "cn": "所属标准",
+    "type": "uuid",
+    "rule": "外键 → rubric",
+    "req": "必填",
+    "src": "继承",
+    "life": "随标准",
+    "use": "归属"
+   },
+   {
+    "f": "dimension",
+    "cn": "所属维度",
+    "type": "enum",
+    "rule": "教学内容 / 教学表达 / 教姿教态 / 互动控场 / 板书PPT / 时间管理",
+    "req": "必填",
+    "src": "管理员配置",
+    "life": "随标准",
+    "use": "雷达图六轴"
+   },
+   {
+    "f": "item_name",
+    "cn": "评分项名",
+    "type": "string(50)",
+    "rule": "如「知识点准确性」",
+    "req": "必填",
+    "src": "管理员配置 / 教师录入",
+    "life": "随标准",
+    "use": "明细展示"
+   },
+   {
+    "f": "max_score",
+    "cn": "该项满分",
+    "type": "decimal(5,2)",
+    "rule": "0–100",
+    "req": "必填",
+    "src": "管理员配置",
+    "life": "随标准",
+    "use": "得分归一"
+   },
+   {
+    "f": "scoring_desc",
+    "cn": "评分描述",
+    "type": "text",
+    "rule": "优秀/良好/合格/待改进四档说明",
+    "req": "选填",
+    "src": "管理员配置",
+    "life": "随标准",
+    "use": "教师人工评分参照"
+   },
+   {
+    "f": "ai_enabled",
+    "cn": "是否AI评分",
+    "type": "bool",
+    "rule": "默认 true",
+    "req": "系统自动",
+    "src": "管理员配置",
+    "life": "随标准",
+    "use": "决定该子项是否由模型打分 ❓哪些项AI可评"
+   },
+   {
+    "f": "weight_in_dimension",
+    "cn": "维度内权重",
+    "type": "decimal(4,3)",
+    "rule": "0–1，同维度内求和 = 1",
+    "req": "必填",
+    "src": "管理员配置",
+    "life": "随标准",
+    "use": "维度得分计算"
+   }
+  ]
+ },
+ {
+  "code": "B4",
+  "cn": "试讲题目",
+  "en": "trial_topic",
+  "fields": [
+   {
+    "f": "topic_id",
+    "cn": "题目ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "长期保留",
+    "use": "主键"
+   },
+   {
+    "f": "subject_id",
+    "cn": "学科",
+    "type": "uuid",
+    "rule": "外键 → subject",
+    "req": "必填",
+    "src": "题库导入 / 教师录入",
+    "life": "长期保留",
+    "use": "分类检索"
+   },
+   {
+    "f": "stage",
+    "cn": "学段",
+    "type": "enum",
+    "rule": "幼教 / 小学 / 初中 / 高中 / 中职",
+    "req": "必填",
+    "src": "题库导入",
+    "life": "长期保留",
+    "use": "筛选"
+   },
+   {
+    "f": "textbook_version",
+    "cn": "教材版本",
+    "type": "string(50)",
+    "rule": "—",
+    "req": "必填",
+    "src": "题库导入",
+    "life": "长期保留",
+    "use": "按教材查题"
+   },
+   {
+    "f": "book_volume",
+    "cn": "册次",
+    "type": "string(20)",
+    "rule": "如「七年级上册」",
+    "req": "选填",
+    "src": "题库导入",
+    "life": "长期保留",
+    "use": "精确定位"
+   },
+   {
+    "f": "chapter",
+    "cn": "章节",
+    "type": "string(100)",
+    "rule": "如「第三单元第2课」",
+    "req": "选填",
+    "src": "题库导入",
+    "life": "长期保留",
+    "use": "精确定位"
+   },
+   {
+    "f": "topic_title",
+    "cn": "题目标题",
+    "type": "string(200)",
+    "rule": "—",
+    "req": "必填",
+    "src": "题库导入",
+    "life": "长期保留",
+    "use": "展示"
+   },
+   {
+    "f": "content_text",
+    "cn": "题面内容",
+    "type": "text",
+    "rule": "≤ 5000 字符，可含公式/图片",
+    "req": "必填",
+    "src": "题库导入",
+    "life": "长期保留",
+    "use": "学生备课、AI内容评测基准"
+   },
+   {
+    "f": "requirements",
+    "cn": "试讲要求",
+    "type": "text",
+    "rule": "如「含板书设计、体现启发式」",
+    "req": "选填",
+    "src": "题库导入 / 教师录入",
+    "life": "长期保留",
+    "use": "评分约束"
+   },
+   {
+    "f": "difficulty",
+    "cn": "难度",
+    "type": "int",
+    "rule": "1–5",
+    "req": "必填",
+    "src": "题库导入",
+    "life": "长期保留",
+    "use": "阶梯训练推荐"
+   },
+   {
+    "f": "source",
+    "cn": "来源",
+    "type": "enum",
+    "rule": "教资真题 / 技能大赛真题 / 平台题库 / 教师自建",
+    "req": "必填",
+    "src": "题库导入",
+    "life": "长期保留",
+    "use": "真题标识、版权控制"
+   },
+   {
+    "f": "exam_year",
+    "cn": "真题年份",
+    "type": "int",
+    "rule": "2015–当前年",
+    "req": "条件必填（source=真题时）",
+    "src": "题库导入",
+    "life": "长期保留",
+    "use": "真题检索"
+   },
+   {
+    "f": "usage_count",
+    "cn": "使用次数",
+    "type": "int",
+    "rule": "≥0，冗余",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "实时累加",
+    "use": "热门推荐"
+   }
+  ]
+ },
+ {
+  "code": "B5",
+  "cn": "结构化/教资面试题库",
+  "en": "structured_question",
+  "fields": [
+   {
+    "f": "q_id",
+    "cn": "题目ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "长期保留",
+    "use": "主键"
+   },
+   {
+    "f": "category",
+    "cn": "类别",
+    "type": "enum",
+    "rule": "职业认知 / 心理素质 / 仪表仪态 / 言语表达 / 思维品质 / 教育教学 / 应急应变 / 人际沟通 / 组织管理 / 时政热点",
+    "req": "必填",
+    "src": "题库导入",
+    "life": "长期保留",
+    "use": "结构化面试分类抽题"
+   },
+   {
+    "f": "q_text",
+    "cn": "题干",
+    "type": "text",
+    "rule": "≤ 1000 字符",
+    "req": "必填",
+    "src": "题库导入",
+    "life": "长期保留",
+    "use": "展示与作答"
+   },
+   {
+    "f": "answer_outline",
+    "cn": "参考要点",
+    "type": "text",
+    "rule": "≤ 2000 字符",
+    "req": "选填",
+    "src": "题库导入",
+    "life": "长期保留",
+    "use": "AI 评分参照、示范答案"
+   },
+   {
+    "f": "source",
+    "cn": "来源",
+    "type": "enum",
+    "rule": "教资真题 / 模拟题",
+    "req": "必填",
+    "src": "题库导入",
+    "life": "长期保留",
+    "use": "真题标识"
+   },
+   {
+    "f": "exam_year",
+    "cn": "年份",
+    "type": "int",
+    "rule": "2015–当前年",
+    "req": "条件必填（真题）",
+    "src": "题库导入",
+    "life": "长期保留",
+    "use": "真题检索"
+   },
+   {
+    "f": "region",
+    "cn": "考区",
+    "type": "string(30)",
+    "rule": "如「四川」",
+    "req": "选填",
+    "src": "题库导入",
+    "life": "长期保留",
+    "use": "地区真题分布"
+   },
+   {
+    "f": "difficulty",
+    "cn": "难度",
+    "type": "int",
+    "rule": "1–5",
+    "req": "必填",
+    "src": "题库导入",
+    "life": "长期保留",
+    "use": "抽题难度控制"
+   },
+   {
+    "f": "tags",
+    "cn": "标签",
+    "type": "array\\<string\\>",
+    "rule": "如「课堂突发」「家校沟通」",
+    "req": "选填",
+    "src": "题库导入",
+    "life": "长期保留",
+    "use": "薄弱项定向推送"
+   }
+  ]
+ },
+ {
+  "code": "B6",
+  "cn": "教案/板书模板",
+  "en": "lesson_template",
+  "fields": [
+   {
+    "f": "template_id",
+    "cn": "模板ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "长期保留",
+    "use": "主键"
+   },
+   {
+    "f": "template_type",
+    "cn": "模板类型",
+    "type": "enum",
+    "rule": "教案 / 板书设计 / 说课稿",
+    "req": "必填",
+    "src": "管理员配置",
+    "life": "长期保留",
+    "use": "分类"
+   },
+   {
+    "f": "subject_id",
+    "cn": "学科",
+    "type": "uuid",
+    "rule": "为空表示通用",
+    "req": "选填",
+    "src": "管理员配置",
+    "life": "长期保留",
+    "use": "匹配推荐"
+   },
+   {
+    "f": "stage",
+    "cn": "学段",
+    "type": "enum",
+    "rule": "为空表示通用",
+    "req": "选填",
+    "src": "管理员配置",
+    "life": "长期保留",
+    "use": "匹配推荐"
+   },
+   {
+    "f": "template_name",
+    "cn": "模板名",
+    "type": "string(50)",
+    "rule": "—",
+    "req": "必填",
+    "src": "管理员配置",
+    "life": "长期保留",
+    "use": "展示"
+   },
+   {
+    "f": "content",
+    "cn": "模板内容",
+    "type": "json / text",
+    "rule": "结构化章节：教学目标/重难点/过程/板书",
+    "req": "必填",
+    "src": "管理员配置",
+    "life": "长期保留",
+    "use": "学生套用备课"
+   },
+   {
+    "f": "file_url",
+    "cn": "附件",
+    "type": "url",
+    "rule": "docx / pdf ≤ 20MB",
+    "req": "选填",
+    "src": "管理员配置",
+    "life": "长期保留",
+    "use": "下载"
+   },
+   {
+    "f": "usage_count",
+    "cn": "使用次数",
+    "type": "int",
+    "rule": "≥0",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "实时累加",
+    "use": "热门排序"
+   }
+  ]
+ },
+ {
+  "code": "B7",
+  "cn": "优秀试讲范例",
+  "en": "exemplar",
+  "fields": [
+   {
+    "f": "exemplar_id",
+    "cn": "范例ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "长期保留，下架后留标",
+    "use": "主键"
+   },
+   {
+    "f": "topic_id",
+    "cn": "关联题目",
+    "type": "uuid",
+    "rule": "外键 → trial_topic",
+    "req": "选填",
+    "src": "管理员配置",
+    "life": "长期保留",
+    "use": "同题对照学习"
+   },
+   {
+    "f": "video_url",
+    "cn": "范例视频",
+    "type": "url",
+    "rule": "mp4 ≤ 2GB",
+    "req": "必填",
+    "src": "管理员配置（上传）",
+    "life": "长期保留",
+    "use": "示范播放"
+   },
+   {
+    "f": "transcript",
+    "cn": "逐字稿",
+    "type": "text",
+    "rule": "带时间戳",
+    "req": "选填",
+    "src": "管理员配置 / AI 生成",
+    "life": "长期保留",
+    "use": "逐句对照、跟读素材"
+   },
+   {
+    "f": "highlight_tags",
+    "cn": "亮点标签",
+    "type": "array\\<string\\>",
+    "rule": "如「导入巧妙」「追问设计」",
+    "req": "选填",
+    "src": "教师录入 / AI 生成",
+    "life": "长期保留",
+    "use": "定向学习"
+   },
+   {
+    "f": "ref_score",
+    "cn": "参考得分",
+    "type": "decimal(5,2)",
+    "rule": "0–100",
+    "req": "选填",
+    "src": "AI 生成 / 教师录入",
+    "life": "长期保留",
+    "use": "目标锚定"
+   },
+   {
+    "f": "status",
+    "cn": "状态",
+    "type": "enum",
+    "rule": "上架 / 下架",
+    "req": "系统自动",
+    "src": "管理员配置",
+    "life": "长期保留",
+    "use": "可见性"
+   }
+  ]
+ },
+ {
+  "code": "C1",
+  "cn": "虚拟课堂会话",
+  "en": "session",
+  "fields": [
+   {
+    "f": "session_id",
+    "cn": "场次ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "创建至报告归档后 3 年",
+    "use": "主键，串联录制/评测/批阅"
+   },
+   {
+    "f": "task_id",
+    "cn": "关联任务",
+    "type": "uuid",
+    "rule": "外键 → trial_task，自由练习时可空",
+    "req": "选填",
+    "src": "继承",
+    "life": "随场次",
+    "use": "成绩回传任务"
+   },
+   {
+    "f": "user_id",
+    "cn": "试讲人",
+    "type": "uuid",
+    "rule": "外键 → user",
+    "req": "必填",
+    "src": "系统采集（登录态）",
+    "life": "随场次",
+    "use": "归属"
+   },
+   {
+    "f": "mode",
+    "cn": "模式",
+    "type": "enum",
+    "rule": "自由试讲 / 情景模拟 / 结构化面试",
+    "req": "必填",
+    "src": "用户输入",
+    "life": "随场次",
+    "use": "课堂行为策略"
+   },
+   {
+    "f": "scenario_id",
+    "cn": "情景脚本",
+    "type": "uuid",
+    "rule": "外键 → scenario",
+    "req": "条件必填（mode=情景模拟）",
+    "src": "用户输入",
+    "life": "随场次",
+    "use": "事件时间轴加载"
+   },
+   {
+    "f": "topic_id",
+    "cn": "试讲题目",
+    "type": "uuid",
+    "rule": "外键 → trial_topic",
+    "req": "条件必填（mode≠结构化面试）",
+    "src": "用户输入",
+    "life": "随场次",
+    "use": "内容评测基准"
+   },
+   {
+    "f": "student_count",
+    "cn": "虚拟学生人数",
+    "type": "int",
+    "rule": "1–60，默认 30",
+    "req": "必填",
+    "src": "用户输入",
+    "life": "随场次",
+    "use": "课堂渲染与互动密度"
+   },
+   {
+    "f": "behavior_intensity",
+    "cn": "行为强度",
+    "type": "enum",
+    "rule": "低 / 中 / 高",
+    "req": "必填",
+    "src": "用户输入",
+    "life": "随场次",
+    "use": "纪律事件频率"
+   },
+   {
+    "f": "classroom_theme",
+    "cn": "课堂环境",
+    "type": "enum",
+    "rule": "黑板 / PPT投影 / 多媒体教室 / 幼儿园活动室",
+    "req": "必填",
+    "src": "用户输入",
+    "life": "随场次",
+    "use": "场景渲染"
+   },
+   {
+    "f": "bgm_level",
+    "cn": "氛围音",
+    "type": "enum",
+    "rule": "关闭 / 轻微 / 标准",
+    "req": "选填，默认「轻微」",
+    "src": "用户输入",
+    "life": "随场次",
+    "use": "沉浸感"
+   },
+   {
+    "f": "planned_duration",
+    "cn": "计划时长",
+    "type": "int",
+    "rule": "5–45 分钟",
+    "req": "必填",
+    "src": "继承（task）/ 用户输入",
+    "life": "随场次",
+    "use": "计时与环节占比基准"
+   },
+   {
+    "f": "actual_duration",
+    "cn": "实际时长",
+    "type": "int",
+    "rule": "秒，>0",
+    "req": "系统自动",
+    "src": "系统采集",
+    "life": "随场次",
+    "use": "时间管理评分"
+   },
+   {
+    "f": "start_at",
+    "cn": "/ `end_at` 起止时间",
+    "type": "datetime",
+    "rule": "end_at > start_at",
+    "req": "系统自动",
+    "src": "系统采集",
+    "life": "随场次",
+    "use": "计时、超时判定"
+   },
+   {
+    "f": "status",
+    "cn": "场次状态",
+    "type": "enum",
+    "rule": "未开始 / 进行中 / 已暂停 / 已完成 / 异常中断",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随场次",
+    "use": "流程控制"
+   },
+   {
+    "f": "device_info",
+    "cn": "设备信息",
+    "type": "json",
+    "rule": "浏览器/摄像头/麦克风/分辨率",
+    "req": "系统自动",
+    "src": "系统采集",
+    "life": "随场次",
+    "use": "画质音质归因、故障排查"
+   }
+  ]
+ },
+ {
+  "code": "C2",
+  "cn": "虚拟学生实例",
+  "en": "virtual_student",
+  "fields": [
+   {
+    "f": "vs_id",
+    "cn": "虚拟学生ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随场次",
+    "use": "主键"
+   },
+   {
+    "f": "session_id",
+    "cn": "所属场次",
+    "type": "uuid",
+    "rule": "外键 → session",
+    "req": "必填",
+    "src": "继承",
+    "life": "随场次",
+    "use": "归属"
+   },
+   {
+    "f": "seat_no",
+    "cn": "座位号",
+    "type": "int",
+    "rule": "1–60，场内唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随场次",
+    "use": "渲染定位、眼神互动判定"
+   },
+   {
+    "f": "vs_name",
+    "cn": "姓名",
+    "type": "string(20)",
+    "rule": "从姓名库随机，场内不重复",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随场次",
+    "use": "点名互动"
+   },
+   {
+    "f": "persona",
+    "cn": "人设",
+    "type": "enum",
+    "rule": "专注型 / 活跃型 / 走神型 / 质疑型 / 沉默型 / 调皮型",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随场次",
+    "use": "行为生成策略"
+   },
+   {
+    "f": "engagement_base",
+    "cn": "基础专注度",
+    "type": "int",
+    "rule": "0–100",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随场次动态衰减/回升",
+    "use": "走神事件触发阈值"
+   },
+   {
+    "f": "avatar_key",
+    "cn": "形象资源",
+    "type": "string(50)",
+    "rule": "对应形象包",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随场次",
+    "use": "渲染"
+   }
+  ]
+ },
+ {
+  "code": "C3",
+  "cn": "课堂行为事件",
+  "en": "behavior_event",
+  "fields": [
+   {
+    "f": "event_id",
+    "cn": "事件ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随场次，评测后归档",
+    "use": "主键"
+   },
+   {
+    "f": "session_id",
+    "cn": "所属场次",
+    "type": "uuid",
+    "rule": "外键 → session",
+    "req": "必填",
+    "src": "继承",
+    "life": "随场次",
+    "use": "归属"
+   },
+   {
+    "f": "vs_id",
+    "cn": "触发学生",
+    "type": "uuid",
+    "rule": "外键 → virtual_student，系统事件可空",
+    "req": "条件必填",
+    "src": "系统生成",
+    "life": "随场次",
+    "use": "定位互动对象"
+   },
+   {
+    "f": "event_type",
+    "cn": "事件类型",
+    "type": "enum",
+    "rule": "举手 / 提问 / 回答正确 / 回答错误 / 回答不完整 / 走神 / 小声说话 / 吵闹 / 质疑老师 / 设备故障",
+    "req": "必填",
+    "src": "系统生成（脚本/随机） / 用户触发",
+    "life": "随场次",
+    "use": "互动与控场评测原始输入"
+   },
+   {
+    "f": "offset_ms",
+    "cn": "触发时刻",
+    "type": "int",
+    "rule": "相对 session 开始，≥0",
+    "req": "系统自动",
+    "src": "系统采集",
+    "life": "随场次",
+    "use": "时间轴对齐（复盘定位）"
+   },
+   {
+    "f": "payload",
+    "cn": "事件内容",
+    "type": "json",
+    "rule": "提问文本 / 答案文本 / 正确标记 / 音量等级",
+    "req": "选填",
+    "src": "系统生成（LLM） / 题库",
+    "life": "随场次",
+    "use": "渲染气泡、内容评测"
+   },
+   {
+    "f": "handled",
+    "cn": "是否被处理",
+    "type": "bool",
+    "rule": "默认 false",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随场次",
+    "use": "控场响应率计算"
+   },
+   {
+    "f": "response_ms",
+    "cn": "响应时延",
+    "type": "int",
+    "rule": "≥0 毫秒，未处理为 null",
+    "req": "系统自动",
+    "src": "系统采集（ASR 对齐）",
+    "life": "随场次",
+    "use": "应变速度评分"
+   },
+   {
+    "f": "teacher_utterance",
+    "cn": "教师应对话术",
+    "type": "text",
+    "rule": "ASR 转写该时段文本",
+    "req": "系统自动",
+    "src": "系统采集（ASR）",
+    "life": "随场次",
+    "use": "应急话术质量评分"
+   }
+  ]
+ },
+ {
+  "code": "C4",
+  "cn": "情景脚本",
+  "en": "scenario",
+  "fields": [
+   {
+    "f": "scenario_id",
+    "cn": "情景ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "长期保留",
+    "use": "主键"
+   },
+   {
+    "f": "scenario_name",
+    "cn": "名称",
+    "type": "string(50)",
+    "rule": "如「学生当众质疑结论」",
+    "req": "必填",
+    "src": "管理员配置 / 教师录入",
+    "life": "长期保留",
+    "use": "选择展示"
+   },
+   {
+    "f": "scenario_type",
+    "cn": "类型",
+    "type": "enum",
+    "rule": "常规课堂 / 突发情景 / 结构化面试",
+    "req": "必填",
+    "src": "管理员配置",
+    "life": "长期保留",
+    "use": "模式匹配"
+   },
+   {
+    "f": "difficulty",
+    "cn": "难度",
+    "type": "int",
+    "rule": "1–5",
+    "req": "必填",
+    "src": "管理员配置",
+    "life": "长期保留",
+    "use": "阶梯训练"
+   },
+   {
+    "f": "event_script",
+    "cn": "事件时间轴",
+    "type": "json",
+    "rule": "`[{offset_ms, event_type, payload}]`",
+    "req": "必填",
+    "src": "管理员配置 / AI 生成",
+    "life": "长期保留",
+    "use": "驱动虚拟学生行为"
+   },
+   {
+    "f": "expected_skill",
+    "cn": "考察能力",
+    "type": "enum",
+    "rule": "控场 / 应变 / 引导 / 表达 / 专业知识",
+    "req": "必填",
+    "src": "管理员配置",
+    "life": "长期保留",
+    "use": "高阶训练目标"
+   },
+   {
+    "f": "subject_id",
+    "cn": "适用学科",
+    "type": "uuid",
+    "rule": "为空表示通用",
+    "req": "选填",
+    "src": "管理员配置",
+    "life": "长期保留",
+    "use": "匹配推荐"
+   }
+  ]
+ },
+ {
+  "code": "C5",
+  "cn": "实时消息",
+  "en": "live_message",
+  "fields": [
+   {
+    "f": "msg_id",
+    "cn": "消息ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "会话期实时，结束后随场次归档",
+    "use": "主键"
+   },
+   {
+    "f": "session_id",
+    "cn": "所属场次",
+    "type": "uuid",
+    "rule": "外键 → session",
+    "req": "必填",
+    "src": "继承",
+    "life": "随场次",
+    "use": "归属"
+   },
+   {
+    "f": "sender_type",
+    "cn": "发送方类型",
+    "type": "enum",
+    "rule": "虚拟学生 / 系统 / 指导教师 / AI教练",
+    "req": "必填",
+    "src": "系统生成",
+    "life": "随场次",
+    "use": "消息路由与渲染样式"
+   },
+   {
+    "f": "sender_id",
+    "cn": "发送方ID",
+    "type": "uuid",
+    "rule": "虚拟学生为 vs_id，教师为 user_id",
+    "req": "必填",
+    "src": "系统生成",
+    "life": "随场次",
+    "use": "身份展示"
+   },
+   {
+    "f": "msg_type",
+    "cn": "消息类型",
+    "type": "enum",
+    "rule": "文本 / 语音 / 事件 / 提示 / 指导",
+    "req": "必填",
+    "src": "系统生成",
+    "life": "随场次",
+    "use": "渲染组件选择"
+   },
+   {
+    "f": "content",
+    "cn": "内容",
+    "type": "text",
+    "rule": "≤ 2000 字符",
+    "req": "必填",
+    "src": "系统生成（LLM） / 用户输入",
+    "life": "随场次",
+    "use": "课堂互动、在线指导"
+   },
+   {
+    "f": "sent_at",
+    "cn": "发送时间",
+    "type": "datetime",
+    "rule": "—",
+    "req": "系统自动",
+    "src": "系统采集",
+    "life": "随场次",
+    "use": "顺序与延迟"
+   },
+   {
+    "f": "is_read",
+    "cn": "是否已读",
+    "type": "bool",
+    "rule": "—",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随场次",
+    "use": "指导触达统计"
+   }
+  ]
+ },
+ {
+  "code": "D1",
+  "cn": "录制文件",
+  "en": "recording",
+  "fields": [
+   {
+    "f": "recording_id",
+    "cn": "录制ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "默认 180 天，可续期至 3 年",
+    "use": "主键"
+   },
+   {
+    "f": "session_id",
+    "cn": "所属场次",
+    "type": "uuid",
+    "rule": "外键 → session",
+    "req": "必填",
+    "src": "继承",
+    "life": "随场次",
+    "use": "归属"
+   },
+   {
+    "f": "track_type",
+    "cn": "轨道类型",
+    "type": "enum",
+    "rule": "人像 / 屏幕(PPT) / 板书 / 音频 / 合成",
+    "req": "必填",
+    "src": "系统生成",
+    "life": "随录制",
+    "use": "多轨存储与合成"
+   },
+   {
+    "f": "file_url",
+    "cn": "文件地址",
+    "type": "url",
+    "rule": "对象存储，mp4/webm/m4a",
+    "req": "必填",
+    "src": "系统采集（上传）",
+    "life": "随录制",
+    "use": "回看、AI 分析输入"
+   },
+   {
+    "f": "duration_ms",
+    "cn": "时长",
+    "type": "int",
+    "rule": ">0，与 session 实际时长偏差 ≤5s",
+    "req": "系统自动",
+    "src": "系统采集",
+    "life": "随录制",
+    "use": "完整性校验"
+   },
+   {
+    "f": "size_mb",
+    "cn": "文件大小",
+    "type": "decimal(10,2)",
+    "rule": "单轨 ≤ 2GB",
+    "req": "系统自动",
+    "src": "系统采集",
+    "life": "随录制",
+    "use": "存储配额、计费"
+   },
+   {
+    "f": "resolution",
+    "cn": "分辨率",
+    "type": "string(20)",
+    "rule": "如「1920x1080」",
+    "req": "系统自动",
+    "src": "系统采集",
+    "life": "随录制",
+    "use": "画质（板书 OCR 可行性）"
+   },
+   {
+    "f": "format",
+    "cn": "封装格式",
+    "type": "string(10)",
+    "rule": "mp4 / webm / m4a",
+    "req": "系统自动",
+    "src": "系统采集",
+    "life": "随录制",
+    "use": "播放兼容"
+   },
+   {
+    "f": "storage_region",
+    "cn": "存储位置",
+    "type": "enum",
+    "rule": "本地 / 云端",
+    "req": "必填",
+    "src": "用户输入（默认云端）",
+    "life": "随录制",
+    "use": "归档策略"
+   },
+   {
+    "f": "upload_status",
+    "cn": "上传状态",
+    "type": "enum",
+    "rule": "上传中 / 成功 / 失败 / 已转码",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随录制",
+    "use": "断点续传、失败重试"
+   },
+   {
+    "f": "checksum",
+    "cn": "校验值",
+    "type": "string(64)",
+    "rule": "SHA-256",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随录制",
+    "use": "完整性校验、防篡改"
+   },
+   {
+    "f": "retention_until",
+    "cn": "保留到期日",
+    "type": "date",
+    "rule": "默认创建日 +180 天",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随录制",
+    "use": "自动清理"
+   },
+   {
+    "f": "merged_url",
+    "cn": "合成视频",
+    "type": "url",
+    "rule": "多轨合成后产物",
+    "req": "条件必填（track_type=合成）",
+    "src": "系统生成（转码）",
+    "life": "随录制",
+    "use": "一键回看、分享"
+   }
+  ]
+ },
+ {
+  "code": "D2",
+  "cn": "回放标记",
+  "en": "playback_marker",
+  "fields": [
+   {
+    "f": "marker_id",
+    "cn": "标记ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随录制",
+    "use": "主键"
+   },
+   {
+    "f": "recording_id",
+    "cn": "关联录制",
+    "type": "uuid",
+    "rule": "外键 → recording",
+    "req": "必填",
+    "src": "继承",
+    "life": "随录制",
+    "use": "归属"
+   },
+   {
+    "f": "offset_ms",
+    "cn": "时间锚点",
+    "type": "int",
+    "rule": "≥0 且 ≤ duration_ms",
+    "req": "必填",
+    "src": "系统生成 / 用户输入",
+    "life": "随录制",
+    "use": "跳转定位"
+   },
+   {
+    "f": "marker_type",
+    "cn": "标记类型",
+    "type": "enum",
+    "rule": "AI问题点 / 教师批注 / 学生自评 / 亮点",
+    "req": "必填",
+    "src": "系统生成 / 用户输入",
+    "life": "随录制",
+    "use": "分类筛选"
+   },
+   {
+    "f": "comment",
+    "cn": "批注内容",
+    "type": "text",
+    "rule": "≤ 500 字符",
+    "req": "选填",
+    "src": "用户输入 / 教师录入 / AI 生成",
+    "life": "随录制",
+    "use": "复盘说明"
+   },
+   {
+    "f": "author_id",
+    "cn": "批注人",
+    "type": "uuid",
+    "rule": "AI 生成时为 null",
+    "req": "条件必填",
+    "src": "系统采集（登录态）",
+    "life": "随录制",
+    "use": "责任与来源展示"
+   },
+   {
+    "f": "linked_issue_id",
+    "cn": "关联问题项",
+    "type": "uuid",
+    "rule": "外键 → issue_item",
+    "req": "选填",
+    "src": "继承",
+    "life": "随录制",
+    "use": "问题与视频片段互跳"
+   }
+  ]
+ },
+ {
+  "code": "D3",
+  "cn": "观摩记录",
+  "en": "observation",
+  "fields": [
+   {
+    "f": "observation_id",
+    "cn": "观摩ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随场次",
+    "use": "主键"
+   },
+   {
+    "f": "session_id",
+    "cn": "观摩场次",
+    "type": "uuid",
+    "rule": "外键 → session",
+    "req": "必填",
+    "src": "继承",
+    "life": "随场次",
+    "use": "归属"
+   },
+   {
+    "f": "teacher_id",
+    "cn": "观摩教师",
+    "type": "uuid",
+    "rule": "外键 → teacher_profile",
+    "req": "必填",
+    "src": "系统采集（登录态）",
+    "life": "随场次",
+    "use": "权限与统计"
+   },
+   {
+    "f": "join_at",
+    "cn": "/ `leave_at` 进出时间",
+    "type": "datetime",
+    "rule": "leave_at ≥ join_at",
+    "req": "系统自动",
+    "src": "系统采集",
+    "life": "随场次",
+    "use": "观摩时长统计"
+   },
+   {
+    "f": "watch_duration_ms",
+    "cn": "观看时长",
+    "type": "int",
+    "rule": "≥0",
+    "req": "系统自动",
+    "src": "系统采集",
+    "life": "随场次",
+    "use": "指导投入度"
+   },
+   {
+    "f": "guidance_count",
+    "cn": "实时指导条数",
+    "type": "int",
+    "rule": "≥0",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随场次",
+    "use": "指导活跃度"
+   },
+   {
+    "f": "is_live",
+    "cn": "是否直播观摩",
+    "type": "bool",
+    "rule": "—",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随场次",
+    "use": "区分直播/回看指导"
+   }
+  ]
+ },
+ {
+  "code": "E1",
+  "cn": "评测报告",
+  "en": "evaluation_report",
+  "fields": [
+   {
+    "f": "report_id",
+    "cn": "报告ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随场次，归档后保留 3 年",
+    "use": "主键"
+   },
+   {
+    "f": "session_id",
+    "cn": "所属场次",
+    "type": "uuid",
+    "rule": "外键 → session，1:1",
+    "req": "必填",
+    "src": "继承",
+    "life": "随报告",
+    "use": "归属"
+   },
+   {
+    "f": "user_id",
+    "cn": "试讲人",
+    "type": "uuid",
+    "rule": "外键 → user",
+    "req": "必填",
+    "src": "继承",
+    "life": "随报告",
+    "use": "历史曲线、班级统计"
+   },
+   {
+    "f": "rubric_id",
+    "cn": "采用标准",
+    "type": "uuid",
+    "rule": "外键 → rubric",
+    "req": "必填",
+    "src": "继承（task）",
+    "life": "随报告",
+    "use": "评分口径追溯"
+   },
+   {
+    "f": "rubric_version",
+    "cn": "标准版本",
+    "type": "int",
+    "rule": "记录当时版本",
+    "req": "系统自动",
+    "src": "继承",
+    "life": "随报告",
+    "use": "口径变更后可比性"
+   },
+   {
+    "f": "ai_total_score",
+    "cn": "AI总分",
+    "type": "decimal(5,2)",
+    "rule": "0–100，六维加权",
+    "req": "系统自动",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "基础分"
+   },
+   {
+    "f": "grade",
+    "cn": "等级",
+    "type": "enum",
+    "rule": "优秀(≥90) / 良好(80–89) / 合格(60–79) / 待改进(<60)",
+    "req": "系统自动",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "快速判断 ❓分数线待确认"
+   },
+   {
+    "f": "teacher_score",
+    "cn": "教师评分",
+    "type": "decimal(5,2)",
+    "rule": "0–100",
+    "req": "选填",
+    "src": "教师录入",
+    "life": "随报告",
+    "use": "人工复核"
+   },
+   {
+    "f": "final_score",
+    "cn": "最终得分",
+    "type": "decimal(5,2)",
+    "rule": "0–100；有教师分取教师分，否则 AI 分",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随报告",
+    "use": "成绩、排行、证书"
+   },
+   {
+    "f": "ai_model_version",
+    "cn": "模型版本",
+    "type": "string(30)",
+    "rule": "如 `eval-v2.3`",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随报告",
+    "use": "结果可复现、模型迭代对比"
+   },
+   {
+    "f": "status",
+    "cn": "报告状态",
+    "type": "enum",
+    "rule": "计算中 / 已完成 / 失败 / 已教师复核",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随报告",
+    "use": "流程控制"
+   },
+   {
+    "f": "generated_at",
+    "cn": "生成时间",
+    "type": "datetime",
+    "rule": "—",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随报告",
+    "use": "时效展示"
+   },
+   {
+    "f": "reviewed_at",
+    "cn": "复核时间",
+    "type": "datetime",
+    "rule": "—",
+    "req": "选填",
+    "src": "系统采集",
+    "life": "随报告",
+    "use": "复核时效"
+   }
+  ]
+ },
+ {
+  "code": "E2",
+  "cn": "维度得分",
+  "en": "dimension_score",
+  "fields": [
+   {
+    "f": "score_id",
+    "cn": "得分ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随报告",
+    "use": "主键"
+   },
+   {
+    "f": "report_id",
+    "cn": "所属报告",
+    "type": "uuid",
+    "rule": "外键 → evaluation_report",
+    "req": "必填",
+    "src": "继承",
+    "life": "随报告",
+    "use": "归属"
+   },
+   {
+    "f": "dimension",
+    "cn": "维度",
+    "type": "enum",
+    "rule": "教学内容 / 教学表达 / 教姿教态 / 互动控场 / 板书PPT / 时间管理",
+    "req": "必填",
+    "src": "系统生成",
+    "life": "随报告",
+    "use": "雷达图六轴"
+   },
+   {
+    "f": "score",
+    "cn": "得分",
+    "type": "decimal(5,2)",
+    "rule": "0–100",
+    "req": "系统自动",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "雷达图数值"
+   },
+   {
+    "f": "max_score",
+    "cn": "满分",
+    "type": "decimal(5,2)",
+    "rule": "100.00",
+    "req": "系统自动",
+    "src": "继承（rubric）",
+    "life": "随报告",
+    "use": "归一计算"
+   },
+   {
+    "f": "weight",
+    "cn": "权重",
+    "type": "decimal(4,3)",
+    "rule": "0–1，来自 rubric",
+    "req": "系统自动",
+    "src": "继承",
+    "life": "随报告",
+    "use": "加权总分"
+   },
+   {
+    "f": "ai_confidence",
+    "cn": "置信度",
+    "type": "decimal(4,3)",
+    "rule": "0–1",
+    "req": "系统自动",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "低置信项提示人工复核"
+   },
+   {
+    "f": "evidence",
+    "cn": "证据片段",
+    "type": "json",
+    "rule": "`[{offset_ms, text, reason}]`",
+    "req": "选填",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "分数可解释、定位复盘"
+   }
+  ]
+ },
+ {
+  "code": "E3",
+  "cn": "问题项",
+  "en": "issue_item",
+  "fields": [
+   {
+    "f": "issue_id",
+    "cn": "问题ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随报告",
+    "use": "主键"
+   },
+   {
+    "f": "report_id",
+    "cn": "所属报告",
+    "type": "uuid",
+    "rule": "外键 → evaluation_report",
+    "req": "必填",
+    "src": "继承",
+    "life": "随报告",
+    "use": "归属"
+   },
+   {
+    "f": "dimension",
+    "cn": "所属维度",
+    "type": "enum",
+    "rule": "同六维",
+    "req": "必填",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "归类统计"
+   },
+   {
+    "f": "issue_type",
+    "cn": "问题类型",
+    "type": "enum",
+    "rule": "语速过快 / 语速过慢 / 口头禅 / 知识点错误 / 讲解不完整 / 逻辑不清 / 互动不足 / 提问设计差 / 反馈缺失 / 纪律未处理 / 板书混乱 / 字迹潦草 / PPT 依赖过度 / 环节超时 / 环节缺失 / 眼神回避 / 站姿不稳 / 音量过低",
+    "req": "必填",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "问题定位与统计"
+   },
+   {
+    "f": "severity",
+    "cn": "严重程度",
+    "type": "enum",
+    "rule": "高 / 中 / 低",
+    "req": "系统自动",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "改进优先级排序"
+   },
+   {
+    "f": "offset_start_ms",
+    "cn": "/ `offset_end_ms` 时间段",
+    "type": "int",
+    "rule": "0 ≤ start < end",
+    "req": "系统自动",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "视频跳转定位"
+   },
+   {
+    "f": "description",
+    "cn": "问题描述",
+    "type": "text",
+    "rule": "≤ 300 字符",
+    "req": "必填",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "展示"
+   },
+   {
+    "f": "evidence_text",
+    "cn": "原文证据",
+    "type": "text",
+    "rule": "ASR 转写片段",
+    "req": "选填",
+    "src": "系统采集（ASR）+ AI 生成",
+    "life": "随报告",
+    "use": "佐证、逐句建议输入"
+   }
+  ]
+ },
+ {
+  "code": "E4",
+  "cn": "口头禅命中",
+  "en": "filler_word_hit",
+  "fields": [
+   {
+    "f": "hit_id",
+    "cn": "命中ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随报告",
+    "use": "主键"
+   },
+   {
+    "f": "report_id",
+    "cn": "所属报告",
+    "type": "uuid",
+    "rule": "外键 → evaluation_report",
+    "req": "必填",
+    "src": "继承",
+    "life": "随报告",
+    "use": "归属"
+   },
+   {
+    "f": "word",
+    "cn": "口头禅词",
+    "type": "string(20)",
+    "rule": "嗯 / 啊 / 那个 / 这个 / 就是 / 然后 / 对吧 / 是吧 / 怎么说 / 自定义词表",
+    "req": "必填",
+    "src": "系统采集（ASR 匹配）",
+    "life": "随报告",
+    "use": "分类统计"
+   },
+   {
+    "f": "count",
+    "cn": "出现次数",
+    "type": "int",
+    "rule": "≥0",
+    "req": "系统自动",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "表达扣分"
+   },
+   {
+    "f": "per_minute",
+    "cn": "每分钟频次",
+    "type": "decimal(5,2)",
+    "rule": "次/分钟",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随报告",
+    "use": "归一比较（不同时长可比）"
+   },
+   {
+    "f": "offsets_ms",
+    "cn": "命中时刻",
+    "type": "array\\<int\\>",
+    "rule": "时间戳数组",
+    "req": "系统自动",
+    "src": "系统采集",
+    "life": "随报告",
+    "use": "逐句定位与跟读训练"
+   },
+   {
+    "f": "is_custom",
+    "cn": "是否自定义词",
+    "type": "bool",
+    "rule": "—",
+    "req": "系统自动",
+    "src": "教师录入",
+    "life": "随报告",
+    "use": "个性化评测 ❓是否开放自定义"
+   }
+  ]
+ },
+ {
+  "code": "E5",
+  "cn": "语音表达指标",
+  "en": "speech_metric",
+  "fields": [
+   {
+    "f": "metric_id",
+    "cn": "指标ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随报告",
+    "use": "主键"
+   },
+   {
+    "f": "report_id",
+    "cn": "所属报告",
+    "type": "uuid",
+    "rule": "外键 → evaluation_report",
+    "req": "必填",
+    "src": "继承",
+    "life": "随报告",
+    "use": "归属"
+   },
+   {
+    "f": "mandarin_score",
+    "cn": "普通话标准度",
+    "type": "decimal(5,2)",
+    "rule": "0–100",
+    "req": "系统自动",
+    "src": "AI 生成（发音评测）",
+    "life": "随报告",
+    "use": "表达维度子项"
+   },
+   {
+    "f": "speed_wpm",
+    "cn": "语速",
+    "type": "int",
+    "rule": "60–400 字/分钟",
+    "req": "系统自动",
+    "src": "系统采集（ASR）+ AI 生成",
+    "life": "随报告",
+    "use": "过快/过慢判定"
+   },
+   {
+    "f": "pause_count",
+    "cn": "停顿次数",
+    "type": "int",
+    "rule": "≥0",
+    "req": "系统自动",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "流畅度"
+   },
+   {
+    "f": "avg_pause_ms",
+    "cn": "平均停顿",
+    "type": "int",
+    "rule": "毫秒",
+    "req": "系统自动",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "节奏把控"
+   },
+   {
+    "f": "volume_avg_db",
+    "cn": "平均音量",
+    "type": "decimal(5,2)",
+    "rule": "dB",
+    "req": "系统自动",
+    "src": "系统采集（音频分析）",
+    "life": "随报告",
+    "use": "音量过低判定"
+   },
+   {
+    "f": "volume_stability",
+    "cn": "音量稳定性",
+    "type": "decimal(5,2)",
+    "rule": "0–100",
+    "req": "系统自动",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "表达稳定性"
+   },
+   {
+    "f": "fluency_score",
+    "cn": "流畅度",
+    "type": "decimal(5,2)",
+    "rule": "0–100",
+    "req": "系统自动",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "表达维度子项"
+   },
+   {
+    "f": "asr_text",
+    "cn": "全量转写文本",
+    "type": "text",
+    "rule": "带时间戳",
+    "req": "系统自动",
+    "src": "系统采集（ASR）",
+    "life": "随报告",
+    "use": "所有文本类评测的基础输入"
+   }
+  ]
+ },
+ {
+  "code": "E6",
+  "cn": "教姿教态指标",
+  "en": "posture_metric",
+  "fields": [
+   {
+    "f": "metric_id",
+    "cn": "指标ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随报告",
+    "use": "主键"
+   },
+   {
+    "f": "report_id",
+    "cn": "所属报告",
+    "type": "uuid",
+    "rule": "外键 → evaluation_report",
+    "req": "必填",
+    "src": "继承",
+    "life": "随报告",
+    "use": "归属"
+   },
+   {
+    "f": "stand_stability",
+    "cn": "站姿稳定性",
+    "type": "decimal(5,2)",
+    "rule": "0–100",
+    "req": "系统自动",
+    "src": "AI 生成（视觉）",
+    "life": "随报告",
+    "use": "教态子项"
+   },
+   {
+    "f": "gesture_score",
+    "cn": "手势自然度",
+    "type": "decimal(5,2)",
+    "rule": "0–100",
+    "req": "系统自动",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "教态子项"
+   },
+   {
+    "f": "eye_contact_ratio",
+    "cn": "眼神注视率",
+    "type": "decimal(5,2)",
+    "rule": "0–1",
+    "req": "系统自动",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "与「学生」互动感"
+   },
+   {
+    "f": "smile_ratio",
+    "cn": "微笑占比",
+    "type": "decimal(5,2)",
+    "rule": "0–1",
+    "req": "系统自动",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "面部表情"
+   },
+   {
+    "f": "movement_score",
+    "cn": "走动合理性",
+    "type": "decimal(5,2)",
+    "rule": "0–100",
+    "req": "系统自动",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "讲台范围与走动轨迹"
+   },
+   {
+    "f": "frames_analyzed",
+    "cn": "分析帧数",
+    "type": "int",
+    "rule": "≥0",
+    "req": "系统自动",
+    "src": "系统采集",
+    "life": "随报告",
+    "use": "置信度校正（人像遮挡时降权）"
+   },
+   {
+    "f": "detect_confidence",
+    "cn": "检测置信度",
+    "type": "decimal(4,3)",
+    "rule": "0–1",
+    "req": "系统自动",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "低置信时提示人工复核"
+   }
+  ]
+ },
+ {
+  "code": "E7",
+  "cn": "板书/PPT 呈现指标",
+  "en": "visual_aid_metric",
+  "fields": [
+   {
+    "f": "metric_id",
+    "cn": "指标ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随报告",
+    "use": "主键"
+   },
+   {
+    "f": "report_id",
+    "cn": "所属报告",
+    "type": "uuid",
+    "rule": "外键 → evaluation_report",
+    "req": "必填",
+    "src": "继承",
+    "life": "随报告",
+    "use": "归属"
+   },
+   {
+    "f": "board_structure_score",
+    "cn": "板书结构分",
+    "type": "decimal(5,2)",
+    "rule": "0–100",
+    "req": "系统自动",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "板书结构评价"
+   },
+   {
+    "f": "handwriting_score",
+    "cn": "字迹工整度",
+    "type": "decimal(5,2)",
+    "rule": "0–100，未开启 OCR 时为 null",
+    "req": "条件必填",
+    "src": "AI 生成（OCR）",
+    "life": "随报告",
+    "use": "可选能力"
+   },
+   {
+    "f": "ocr_enabled",
+    "cn": "是否启用OCR",
+    "type": "bool",
+    "rule": "默认 false",
+    "req": "系统自动",
+    "src": "系统生成 / 教师配置",
+    "life": "随报告",
+    "use": "控制是否计算字迹分"
+   },
+   {
+    "f": "ocr_text",
+    "cn": "板书识别文本",
+    "type": "text",
+    "rule": "—",
+    "req": "条件必填（ocr_enabled）",
+    "src": "系统采集（OCR）",
+    "life": "随报告",
+    "use": "板书内容准确性校验"
+   },
+   {
+    "f": "ppt_slide_count",
+    "cn": "PPT页数",
+    "type": "int",
+    "rule": "≥0",
+    "req": "系统自动",
+    "src": "系统采集（屏幕轨）",
+    "life": "随报告",
+    "use": "PPT 使用合理性"
+   },
+   {
+    "f": "ppt_rationality_score",
+    "cn": "PPT合理性",
+    "type": "decimal(5,2)",
+    "rule": "0–100",
+    "req": "系统自动",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "呈现维度子项"
+   },
+   {
+    "f": "board_time_ratio",
+    "cn": "板书时间占比",
+    "type": "decimal(4,3)",
+    "rule": "0–1",
+    "req": "系统自动",
+    "src": "系统采集 + AI 生成",
+    "life": "随报告",
+    "use": "背对学生时长判定"
+   }
+  ]
+ },
+ {
+  "code": "E8",
+  "cn": "互动控场指标",
+  "en": "interaction_metric",
+  "fields": [
+   {
+    "f": "metric_id",
+    "cn": "指标ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随报告",
+    "use": "主键"
+   },
+   {
+    "f": "report_id",
+    "cn": "所属报告",
+    "type": "uuid",
+    "rule": "外键 → evaluation_report",
+    "req": "必填",
+    "src": "继承",
+    "life": "随报告",
+    "use": "归属"
+   },
+   {
+    "f": "question_count",
+    "cn": "提问次数",
+    "type": "int",
+    "rule": "≥0",
+    "req": "系统自动",
+    "src": "AI 生成（ASR 语义）",
+    "life": "随报告",
+    "use": "互动频次"
+   },
+   {
+    "f": "open_question_ratio",
+    "cn": "开放性问题占比",
+    "type": "decimal(4,3)",
+    "rule": "0–1",
+    "req": "系统自动",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "提问设计质量"
+   },
+   {
+    "f": "wait_time_avg_ms",
+    "cn": "平均候答时间",
+    "type": "int",
+    "rule": "毫秒",
+    "req": "系统自动",
+    "src": "系统采集 + AI 生成",
+    "life": "随报告",
+    "use": "是否给足思考时间"
+   },
+   {
+    "f": "feedback_quality_score",
+    "cn": "反馈评价质量",
+    "type": "decimal(5,2)",
+    "rule": "0–100",
+    "req": "系统自动",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "反馈评价子项"
+   },
+   {
+    "f": "encourage_count",
+    "cn": "鼓励性语言次数",
+    "type": "int",
+    "rule": "≥0",
+    "req": "系统自动",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "鼓励性语言检测"
+   },
+   {
+    "f": "discipline_events",
+    "cn": "纪律事件数",
+    "type": "int",
+    "rule": "≥0",
+    "req": "系统自动",
+    "src": "继承（behavior_event）",
+    "life": "随报告",
+    "use": "控场基数"
+   },
+   {
+    "f": "discipline_handled_ratio",
+    "cn": "纪律处理率",
+    "type": "decimal(4,3)",
+    "rule": "0–1",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随报告",
+    "use": "课堂纪律处理评分"
+   },
+   {
+    "f": "pacing_score",
+    "cn": "节奏把控分",
+    "type": "decimal(5,2)",
+    "rule": "0–100",
+    "req": "系统自动",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "节奏把控子项"
+   }
+  ]
+ },
+ {
+  "code": "E9",
+  "cn": "环节时长",
+  "en": "segment_timing",
+  "fields": [
+   {
+    "f": "timing_id",
+    "cn": "计时ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随报告",
+    "use": "主键"
+   },
+   {
+    "f": "report_id",
+    "cn": "所属报告",
+    "type": "uuid",
+    "rule": "外键 → evaluation_report",
+    "req": "必填",
+    "src": "继承",
+    "life": "随报告",
+    "use": "归属"
+   },
+   {
+    "f": "segment",
+    "cn": "教学环节",
+    "type": "enum",
+    "rule": "导入 / 新授 / 练习 / 小结 / 作业 / 其他",
+    "req": "必填",
+    "src": "AI 生成（ASR 分段）",
+    "life": "随报告",
+    "use": "环节完整性校验"
+   },
+   {
+    "f": "start_ms",
+    "cn": "/ `end_ms` 起止",
+    "type": "int",
+    "rule": "0 ≤ start < end",
+    "req": "系统自动",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "时间轴"
+   },
+   {
+    "f": "duration_ms",
+    "cn": "环节时长",
+    "type": "int",
+    "rule": ">0",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随报告",
+    "use": "占比计算"
+   },
+   {
+    "f": "actual_ratio",
+    "cn": "实际占比",
+    "type": "decimal(4,3)",
+    "rule": "0–1，各环节求和 = 1",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随报告",
+    "use": "时间分配评价"
+   },
+   {
+    "f": "plan_ratio",
+    "cn": "建议占比",
+    "type": "decimal(4,3)",
+    "rule": "0–1，来自 rubric 或学段模板",
+    "req": "系统自动",
+    "src": "继承 / 管理员配置",
+    "life": "随报告",
+    "use": "偏差对比 ❓建议占比由谁定"
+   },
+   {
+    "f": "deviation_flag",
+    "cn": "偏差标记",
+    "type": "enum",
+    "rule": "正常 / 超时 / 不足 / 缺失",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随报告",
+    "use": "时间管理问题定位"
+   }
+  ]
+ },
+ {
+  "code": "E10",
+  "cn": "改进建议",
+  "en": "suggestion",
+  "fields": [
+   {
+    "f": "suggestion_id",
+    "cn": "建议ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随报告",
+    "use": "主键"
+   },
+   {
+    "f": "report_id",
+    "cn": "所属报告",
+    "type": "uuid",
+    "rule": "外键 → evaluation_report",
+    "req": "必填",
+    "src": "继承",
+    "life": "随报告",
+    "use": "归属"
+   },
+   {
+    "f": "issue_id",
+    "cn": "关联问题",
+    "type": "uuid",
+    "rule": "外键 → issue_item，可空（整体建议）",
+    "req": "选填",
+    "src": "继承",
+    "life": "随报告",
+    "use": "建议与问题对应"
+   },
+   {
+    "f": "suggestion_type",
+    "cn": "建议类型",
+    "type": "enum",
+    "rule": "优化话术 / 示范片段 / 逐句建议 / 专项练习",
+    "req": "必填",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "展示形式"
+   },
+   {
+    "f": "content_text",
+    "cn": "建议内容",
+    "type": "text",
+    "rule": "≤ 1000 字符",
+    "req": "必填",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "学生阅读"
+   },
+   {
+    "f": "original_text",
+    "cn": "原始表述",
+    "type": "text",
+    "rule": "ASR 原句",
+    "req": "条件必填（type=逐句建议）",
+    "src": "系统采集（ASR）",
+    "life": "随报告",
+    "use": "前后对照"
+   },
+   {
+    "f": "optimized_text",
+    "cn": "优化表述",
+    "type": "text",
+    "rule": "—",
+    "req": "条件必填（type=优化话术/逐句建议）",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "可直接替换的话术"
+   },
+   {
+    "f": "sample_audio_url",
+    "cn": "示范音频",
+    "type": "url",
+    "rule": "TTS 合成",
+    "req": "选填",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "跟读模仿 ❓是否做TTS"
+   },
+   {
+    "f": "priority",
+    "cn": "优先级",
+    "type": "int",
+    "rule": "1–5，1 最高",
+    "req": "系统自动",
+    "src": "AI 生成",
+    "life": "随报告",
+    "use": "排序展示"
+   },
+   {
+    "f": "is_accepted",
+    "cn": "学生是否采纳",
+    "type": "bool",
+    "rule": "—",
+    "req": "选填",
+    "src": "用户输入",
+    "life": "随报告",
+    "use": "建议有效性回流"
+   }
+  ]
+ },
+ {
+  "code": "F1",
+  "cn": "教师批阅",
+  "en": "teacher_review",
+  "fields": [
+   {
+    "f": "review_id",
+    "cn": "批阅ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随场次归档后 3 年",
+    "use": "主键"
+   },
+   {
+    "f": "session_id",
+    "cn": "被批场次",
+    "type": "uuid",
+    "rule": "外键 → session",
+    "req": "必填",
+    "src": "继承",
+    "life": "随场次",
+    "use": "归属"
+   },
+   {
+    "f": "report_id",
+    "cn": "关联报告",
+    "type": "uuid",
+    "rule": "外键 → evaluation_report",
+    "req": "必填",
+    "src": "继承",
+    "life": "随报告",
+    "use": "AI 分与人工分对照"
+   },
+   {
+    "f": "teacher_id",
+    "cn": "批阅教师",
+    "type": "uuid",
+    "rule": "外键 → teacher_profile",
+    "req": "必填",
+    "src": "系统采集（登录态）",
+    "life": "随批阅",
+    "use": "责任归属、工作量统计"
+   },
+   {
+    "f": "item_scores",
+    "cn": "细则项得分",
+    "type": "json",
+    "rule": "`{item_id: score}`，须覆盖 rubric_item",
+    "req": "条件必填",
+    "src": "教师录入",
+    "life": "随批阅",
+    "use": "明细评分、维度回算"
+   },
+   {
+    "f": "total_score",
+    "cn": "教师总分",
+    "type": "decimal(5,2)",
+    "rule": "0–100",
+    "req": "必填",
+    "src": "系统生成（加权）/ 教师录入",
+    "life": "随批阅",
+    "use": "最终成绩来源"
+   },
+   {
+    "f": "comment_text",
+    "cn": "文字点评",
+    "type": "text",
+    "rule": "≤ 2000 字符",
+    "req": "选填",
+    "src": "教师录入",
+    "life": "随批阅",
+    "use": "质性反馈"
+   },
+   {
+    "f": "voice_comment_url",
+    "cn": "语音点评",
+    "type": "url",
+    "rule": "m4a ≤ 10MB，时长 ≤ 5 分钟",
+    "req": "选填",
+    "src": "教师录入（录制的语音）",
+    "life": "随批阅",
+    "use": "高效批阅"
+   },
+   {
+    "f": "status",
+    "cn": "批阅状态",
+    "type": "enum",
+    "rule": "待批阅 / 已批阅 / 退回重做",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随批阅",
+    "use": "流程控制"
+   },
+   {
+    "f": "reviewed_at",
+    "cn": "批阅时间",
+    "type": "datetime",
+    "rule": "—",
+    "req": "条件必填（已批阅）",
+    "src": "系统采集",
+    "life": "随批阅",
+    "use": "批阅时效考核"
+   },
+   {
+    "f": "is_batch",
+    "cn": "是否批量操作",
+    "type": "bool",
+    "rule": "—",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随批阅",
+    "use": "批量批阅行为分析"
+   }
+  ]
+ },
+ {
+  "code": "G1",
+  "cn": "训练记录",
+  "en": "training_record",
+  "fields": [
+   {
+    "f": "train_id",
+    "cn": "训练ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随用户，毕业后 3 年",
+    "use": "主键"
+   },
+   {
+    "f": "user_id",
+    "cn": "训练人",
+    "type": "uuid",
+    "rule": "外键 → user",
+    "req": "必填",
+    "src": "系统采集（登录态）",
+    "life": "随用户",
+    "use": "归属"
+   },
+   {
+    "f": "train_mode",
+    "cn": "训练模式",
+    "type": "enum",
+    "rule": "跟读训练 / 无提示完整试讲 / 突发情景模拟 / 模拟考核",
+    "req": "必填",
+    "src": "用户输入",
+    "life": "随记录",
+    "use": "阶梯层级（入门/进阶/高阶/考核）"
+   },
+   {
+    "f": "level",
+    "cn": "阶梯层级",
+    "type": "enum",
+    "rule": "入门 / 进阶 / 高阶 / 考核",
+    "req": "系统自动",
+    "src": "继承（train_mode 映射）",
+    "life": "随记录",
+    "use": "成长路径展示"
+   },
+   {
+    "f": "material_id",
+    "cn": "训练素材",
+    "type": "uuid",
+    "rule": "外键 → follow_along_material / trial_topic / scenario",
+    "req": "条件必填（跟读/情景）",
+    "src": "用户输入",
+    "life": "随记录",
+    "use": "训练内容"
+   },
+   {
+    "f": "duration_ms",
+    "cn": "训练时长",
+    "type": "int",
+    "rule": ">0",
+    "req": "系统自动",
+    "src": "系统采集",
+    "life": "随记录",
+    "use": "投入度统计"
+   },
+   {
+    "f": "score",
+    "cn": "训练得分",
+    "type": "decimal(5,2)",
+    "rule": "0–100，跟读训练为发音分",
+    "req": "选填",
+    "src": "AI 生成",
+    "life": "随记录",
+    "use": "训练成效"
+   },
+   {
+    "f": "session_id",
+    "cn": "关联场次",
+    "type": "uuid",
+    "rule": "完整试讲/情景/考核时关联 session",
+    "req": "选填",
+    "src": "继承",
+    "life": "随记录",
+    "use": "与正式评测打通"
+   },
+   {
+    "f": "completed_at",
+    "cn": "完成时间",
+    "type": "datetime",
+    "rule": "—",
+    "req": "系统自动",
+    "src": "系统采集",
+    "life": "随记录",
+    "use": "时间轴、连续天数"
+   },
+   {
+    "f": "next_recommend",
+    "cn": "下一步推荐",
+    "type": "json",
+    "rule": "推荐模式 + 素材ID + 理由",
+    "req": "选填",
+    "src": "AI 生成",
+    "life": "随记录",
+    "use": "自适应训练路径"
+   }
+  ]
+ },
+ {
+  "code": "G2",
+  "cn": "跟读训练素材",
+  "en": "follow_along_material",
+  "fields": [
+   {
+    "f": "material_id",
+    "cn": "素材ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "长期保留",
+    "use": "主键"
+   },
+   {
+    "f": "subject_id",
+    "cn": "学科",
+    "type": "uuid",
+    "rule": "外键 → subject",
+    "req": "选填",
+    "src": "管理员配置",
+    "life": "长期保留",
+    "use": "分类"
+   },
+   {
+    "f": "stage",
+    "cn": "学段",
+    "type": "enum",
+    "rule": "幼教 / 小学 / 初中 / 高中 / 中职",
+    "req": "选填",
+    "src": "管理员配置",
+    "life": "长期保留",
+    "use": "分类"
+   },
+   {
+    "f": "material_text",
+    "cn": "跟读文本",
+    "type": "text",
+    "rule": "≤ 1000 字符",
+    "req": "必填",
+    "src": "管理员配置 / AI 生成",
+    "life": "长期保留",
+    "use": "显示与比对"
+   },
+   {
+    "f": "audio_url",
+    "cn": "标准音频",
+    "type": "url",
+    "rule": "m4a/mp3",
+    "req": "必填",
+    "src": "管理员配置 / AI 生成（TTS）",
+    "life": "长期保留",
+    "use": "示范跟读"
+   },
+   {
+    "f": "focus",
+    "cn": "训练重点",
+    "type": "enum",
+    "rule": "语音 / 语调 / 语速 / 停顿 / 重音",
+    "req": "必填",
+    "src": "管理员配置",
+    "life": "长期保留",
+    "use": "专项纠正"
+   },
+   {
+    "f": "difficulty",
+    "cn": "难度",
+    "type": "int",
+    "rule": "1–5",
+    "req": "必填",
+    "src": "管理员配置",
+    "life": "长期保留",
+    "use": "阶梯推荐"
+   }
+  ]
+ },
+ {
+  "code": "G3",
+  "cn": "模拟考核",
+  "en": "mock_exam",
+  "fields": [
+   {
+    "f": "exam_id",
+    "cn": "考核ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "长期保留（考核档案）",
+    "use": "主键"
+   },
+   {
+    "f": "user_id",
+    "cn": "考生",
+    "type": "uuid",
+    "rule": "外键 → user",
+    "req": "必填",
+    "src": "系统采集（登录态）",
+    "life": "长期保留",
+    "use": "归属"
+   },
+   {
+    "f": "task_id",
+    "cn": "关联任务",
+    "type": "uuid",
+    "rule": "外键 → trial_task",
+    "req": "选填",
+    "src": "继承",
+    "life": "长期保留",
+    "use": "考核成绩回传"
+   },
+   {
+    "f": "question_ids",
+    "cn": "抽题组合",
+    "type": "json",
+    "rule": "结构化题 + 试讲题 ID 数组",
+    "req": "必填",
+    "src": "系统生成（随机抽题）",
+    "life": "长期保留",
+    "use": "全真模拟"
+   },
+   {
+    "f": "countdown_s",
+    "cn": "倒计时",
+    "type": "int",
+    "rule": "与真实面试一致，如备课 1200s / 试讲 600s",
+    "req": "必填",
+    "src": "管理员配置 / 继承",
+    "life": "长期保留",
+    "use": "全真计时 ❓各学段具体时长"
+   },
+   {
+    "f": "examiner_rubric_id",
+    "cn": "考官评分表",
+    "type": "uuid",
+    "rule": "外键 → rubric",
+    "req": "必填",
+    "src": "管理员配置",
+    "life": "长期保留",
+    "use": "按官方标准评分"
+   },
+   {
+    "f": "full_video_required",
+    "cn": "须全程录像",
+    "type": "bool",
+    "rule": "默认 true",
+    "req": "系统自动",
+    "src": "管理员配置",
+    "life": "长期保留",
+    "use": "考核留痕"
+   },
+   {
+    "f": "final_score",
+    "cn": "考核得分",
+    "type": "decimal(5,2)",
+    "rule": "0–100",
+    "req": "选填",
+    "src": "系统生成 / 教师录入",
+    "life": "长期保留",
+    "use": "结果"
+   },
+   {
+    "f": "result",
+    "cn": "考核结果",
+    "type": "enum",
+    "rule": "通过 / 不通过",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "长期保留",
+    "use": "达标判定"
+   },
+   {
+    "f": "cert_eligible",
+    "cn": "是否具备发证资格",
+    "type": "bool",
+    "rule": "—",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "长期保留",
+    "use": "证书生成前置条件"
+   },
+   {
+    "f": "exam_at",
+    "cn": "考核时间",
+    "type": "datetime",
+    "rule": "—",
+    "req": "系统自动",
+    "src": "系统采集",
+    "life": "长期保留",
+    "use": "考核档案"
+   }
+  ]
+ },
+ {
+  "code": "H1",
+  "cn": "班级统计",
+  "en": "class_stats",
+  "fields": [
+   {
+    "f": "stat_id",
+    "cn": "统计ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "滚动保留 3 年",
+    "use": "主键"
+   },
+   {
+    "f": "class_id",
+    "cn": "班级",
+    "type": "uuid",
+    "rule": "外键 → class",
+    "req": "必填",
+    "src": "继承",
+    "life": "随班级",
+    "use": "归属"
+   },
+   {
+    "f": "period_type",
+    "cn": "统计周期",
+    "type": "enum",
+    "rule": "日 / 周 / 月 / 学期",
+    "req": "必填",
+    "src": "系统生成",
+    "life": "随统计",
+    "use": "周期切换"
+   },
+   {
+    "f": "period_key",
+    "cn": "周期键",
+    "type": "string(20)",
+    "rule": "如 `2026-W37` / `2026-09`",
+    "req": "必填",
+    "src": "系统生成",
+    "life": "随统计",
+    "use": "唯一索引"
+   },
+   {
+    "f": "avg_score",
+    "cn": "平均分",
+    "type": "decimal(5,2)",
+    "rule": "0–100",
+    "req": "系统自动",
+    "src": "系统生成（聚合）",
+    "life": "随统计",
+    "use": "班级整体水平"
+   },
+   {
+    "f": "dimension_avgs",
+    "cn": "六维均值",
+    "type": "json",
+    "rule": "`{dimension: score}`",
+    "req": "系统自动",
+    "src": "系统生成（聚合）",
+    "life": "随统计",
+    "use": "薄弱维度识别"
+   },
+   {
+    "f": "weakest_dimension",
+    "cn": "最薄弱维度",
+    "type": "enum",
+    "rule": "六维之一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随统计",
+    "use": "教研重点"
+   },
+   {
+    "f": "submission_rate",
+    "cn": "提交率",
+    "type": "decimal(4,3)",
+    "rule": "0–1",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随统计",
+    "use": "完成度管理"
+   },
+   {
+    "f": "active_count",
+    "cn": "活跃人数",
+    "type": "int",
+    "rule": "≥0",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随统计",
+    "use": "参与度"
+   }
+  ]
+ },
+ {
+  "code": "H2",
+  "cn": "排行榜",
+  "en": "leaderboard",
+  "fields": [
+   {
+    "f": "lb_id",
+    "cn": "榜单记录ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "按周期重建，历史留 1 年",
+    "use": "主键"
+   },
+   {
+    "f": "scope",
+    "cn": "榜单范围",
+    "type": "enum",
+    "rule": "班级 / 年级 / 专业 / 全校",
+    "req": "必填",
+    "src": "系统生成",
+    "life": "随榜单",
+    "use": "竞技范围"
+   },
+   {
+    "f": "scope_id",
+    "cn": "范围ID",
+    "type": "uuid",
+    "rule": "对应 class/major/school",
+    "req": "必填",
+    "src": "系统生成",
+    "life": "随榜单",
+    "use": "归属"
+   },
+   {
+    "f": "period_key",
+    "cn": "周期",
+    "type": "string(20)",
+    "rule": "—",
+    "req": "必填",
+    "src": "系统生成",
+    "life": "随榜单",
+    "use": "周期榜"
+   },
+   {
+    "f": "user_id",
+    "cn": "上榜人",
+    "type": "uuid",
+    "rule": "外键 → user",
+    "req": "必填",
+    "src": "继承",
+    "life": "随榜单",
+    "use": "展示"
+   },
+   {
+    "f": "rank",
+    "cn": "名次",
+    "type": "int",
+    "rule": "≥1",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随榜单",
+    "use": "排名展示"
+   },
+   {
+    "f": "score",
+    "cn": "榜单分数",
+    "type": "decimal(5,2)",
+    "rule": "0–100",
+    "req": "系统自动",
+    "src": "系统生成（聚合）",
+    "life": "随榜单",
+    "use": "排序依据"
+   },
+   {
+    "f": "improvement_delta",
+    "cn": "进步幅度",
+    "type": "decimal(5,2)",
+    "rule": "可正可负",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随榜单",
+    "use": "进步榜（鼓励性）❓是否单独设进步榜"
+   }
+  ]
+ },
+ {
+  "code": "H3",
+  "cn": "达标证书",
+  "en": "certificate",
+  "fields": [
+   {
+    "f": "cert_id",
+    "cn": "证书ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "永久",
+    "use": "主键"
+   },
+   {
+    "f": "user_id",
+    "cn": "持证人",
+    "type": "uuid",
+    "rule": "外键 → user",
+    "req": "必填",
+    "src": "继承",
+    "life": "永久",
+    "use": "归属"
+   },
+   {
+    "f": "skill",
+    "cn": "认证技能",
+    "type": "enum",
+    "rule": "教学表达 / 课堂互动 / 课堂控场 / 时间管理 / 板书呈现 / 综合教学能力",
+    "req": "必填",
+    "src": "系统生成（达标判定）",
+    "life": "永久",
+    "use": "技能维度证书"
+   },
+   {
+    "f": "level",
+    "cn": "达标等级",
+    "type": "enum",
+    "rule": "达标 / 良好 / 优秀",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "永久",
+    "use": "分级认证"
+   },
+   {
+    "f": "threshold_score",
+    "cn": "达标分数线",
+    "type": "decimal(5,2)",
+    "rule": "0–100",
+    "req": "系统自动",
+    "src": "管理员配置",
+    "life": "永久",
+    "use": "判定依据留痕"
+   },
+   {
+    "f": "evidence_report_ids",
+    "cn": "佐证报告",
+    "type": "array\\<uuid\\>",
+    "rule": "外键 → evaluation_report，≥1",
+    "req": "必填",
+    "src": "系统生成",
+    "life": "永久",
+    "use": "可追溯"
+   },
+   {
+    "f": "serial_no",
+    "cn": "证书编号",
+    "type": "string(30)",
+    "rule": "规则：`CERT-YYYYMM-8位随机`，唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "永久",
+    "use": "验真查询"
+   },
+   {
+    "f": "issue_date",
+    "cn": "发证日期",
+    "type": "date",
+    "rule": "—",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "永久",
+    "use": "展示"
+   },
+   {
+    "f": "expire_date",
+    "cn": "有效期至",
+    "type": "date",
+    "rule": "空表示长期有效",
+    "req": "选填",
+    "src": "管理员配置",
+    "life": "永久",
+    "use": "有效期管理 ❓是否设有效期"
+   },
+   {
+    "f": "verify_url",
+    "cn": "验真地址",
+    "type": "url",
+    "rule": "公开可查",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "永久",
+    "use": "外部核验"
+   },
+   {
+    "f": "status",
+    "cn": "状态",
+    "type": "enum",
+    "rule": "有效 / 已过期 / 已撤销",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "永久",
+    "use": "展示控制"
+   }
+  ]
+ },
+ {
+  "code": "H4",
+  "cn": "进步曲线",
+  "en": "progress_record",
+  "fields": [
+   {
+    "f": "progress_id",
+    "cn": "记录ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随用户，毕业后 3 年",
+    "use": "主键"
+   },
+   {
+    "f": "user_id",
+    "cn": "用户",
+    "type": "uuid",
+    "rule": "外键 → user",
+    "req": "必填",
+    "src": "继承",
+    "life": "随用户",
+    "use": "归属"
+   },
+   {
+    "f": "dimension",
+    "cn": "维度",
+    "type": "enum",
+    "rule": "六维 / 综合",
+    "req": "必填",
+    "src": "系统生成",
+    "life": "随记录",
+    "use": "分维度曲线"
+   },
+   {
+    "f": "stat_date",
+    "cn": "统计日期",
+    "type": "date",
+    "rule": "—",
+    "req": "必填",
+    "src": "系统生成",
+    "life": "随记录",
+    "use": "X 轴"
+   },
+   {
+    "f": "score",
+    "cn": "得分",
+    "type": "decimal(5,2)",
+    "rule": "0–100",
+    "req": "系统自动",
+    "src": "系统生成（聚合）",
+    "life": "随记录",
+    "use": "Y 轴"
+   },
+   {
+    "f": "session_count",
+    "cn": "累计试讲次数",
+    "type": "int",
+    "rule": "≥0",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随记录",
+    "use": "投入-产出对照"
+   },
+   {
+    "f": "delta_vs_last",
+    "cn": "环比变化",
+    "type": "decimal(5,2)",
+    "rule": "可正可负",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随记录",
+    "use": "进步/退步提示"
+   }
+  ]
+ },
+ {
+  "code": "H5",
+  "cn": "薄弱项与专项推送",
+  "en": "weakness_push",
+  "fields": [
+   {
+    "f": "push_id",
+    "cn": "推送ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "保留 1 年",
+    "use": "主键"
+   },
+   {
+    "f": "user_id",
+    "cn": "用户",
+    "type": "uuid",
+    "rule": "外键 → user",
+    "req": "必填",
+    "src": "继承",
+    "life": "随推送",
+    "use": "归属"
+   },
+   {
+    "f": "dimension",
+    "cn": "薄弱维度",
+    "type": "enum",
+    "rule": "六维之一",
+    "req": "必填",
+    "src": "系统生成（聚合判定）",
+    "life": "随推送",
+    "use": "定向训练"
+   },
+   {
+    "f": "issue_type",
+    "cn": "薄弱问题类型",
+    "type": "enum",
+    "rule": "同 issue_item.issue_type",
+    "req": "选填",
+    "src": "AI 生成",
+    "life": "随推送",
+    "use": "细化到问题"
+   },
+   {
+    "f": "severity",
+    "cn": "严重程度",
+    "type": "enum",
+    "rule": "高 / 中 / 低",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随推送",
+    "use": "推送优先级"
+   },
+   {
+    "f": "recommend_train_mode",
+    "cn": "推荐训练模式",
+    "type": "enum",
+    "rule": "跟读训练 / 无提示完整试讲 / 突发情景模拟",
+    "req": "必填",
+    "src": "AI 生成",
+    "life": "随推送",
+    "use": "训练路径"
+   },
+   {
+    "f": "recommend_material_id",
+    "cn": "推荐素材",
+    "type": "uuid",
+    "rule": "外键",
+    "req": "选填",
+    "src": "AI 生成",
+    "life": "随推送",
+    "use": "一键开始"
+   },
+   {
+    "f": "pushed_at",
+    "cn": "推送时间",
+    "type": "datetime",
+    "rule": "—",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随推送",
+    "use": "频次控制（避免骚扰）"
+   },
+   {
+    "f": "is_clicked",
+    "cn": "是否点击",
+    "type": "bool",
+    "rule": "—",
+    "req": "系统自动",
+    "src": "系统采集",
+    "life": "随推送",
+    "use": "推荐效果"
+   },
+   {
+    "f": "is_resolved",
+    "cn": "是否改善",
+    "type": "bool",
+    "rule": "—",
+    "req": "系统自动",
+    "src": "系统生成（下次评测对比）",
+    "life": "随推送",
+    "use": "闭环验证"
+   }
+  ]
+ },
+ {
+  "code": "I1",
+  "cn": "导出任务",
+  "en": "export_task",
+  "fields": [
+   {
+    "f": "export_id",
+    "cn": "导出ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "文件保留 7 天",
+    "use": "主键"
+   },
+   {
+    "f": "operator_id",
+    "cn": "操作人",
+    "type": "uuid",
+    "rule": "外键 → user（教师/管理员）",
+    "req": "必填",
+    "src": "系统采集（登录态）",
+    "life": "随任务",
+    "use": "权限与审计"
+   },
+   {
+    "f": "export_scope",
+    "cn": "导出范围",
+    "type": "enum",
+    "rule": "班级成绩 / 训练报告 / 排行榜 / 学生个人档案 / 评测明细",
+    "req": "必填",
+    "src": "用户输入",
+    "life": "随任务",
+    "use": "数据集选择"
+   },
+   {
+    "f": "filter",
+    "cn": "过滤条件",
+    "type": "json",
+    "rule": "班级/时间段/任务/维度",
+    "req": "选填",
+    "src": "用户输入",
+    "life": "随任务",
+    "use": "精准导出"
+   },
+   {
+    "f": "format",
+    "cn": "导出格式",
+    "type": "enum",
+    "rule": "xlsx / csv / pdf",
+    "req": "必填",
+    "src": "用户输入",
+    "life": "随任务",
+    "use": "文件类型"
+   },
+   {
+    "f": "file_url",
+    "cn": "结果文件",
+    "type": "url",
+    "rule": "—",
+    "req": "条件必填（成功后）",
+    "src": "系统生成",
+    "life": "生成后 7 天自动删除",
+    "use": "下载"
+   },
+   {
+    "f": "status",
+    "cn": "状态",
+    "type": "enum",
+    "rule": "排队中 / 生成中 / 成功 / 失败",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随任务",
+    "use": "进度展示"
+   },
+   {
+    "f": "expire_at",
+    "cn": "过期时间",
+    "type": "datetime",
+    "rule": "生成时间 +7 天",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "随任务",
+    "use": "自动清理"
+   }
+  ]
+ },
+ {
+  "code": "I2",
+  "cn": "审计日志",
+  "en": "audit_log",
+  "fields": [
+   {
+    "f": "log_id",
+    "cn": "日志ID",
+    "type": "uuid",
+    "rule": "全局唯一",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "保留 180 天",
+    "use": "主键"
+   },
+   {
+    "f": "user_id",
+    "cn": "操作人",
+    "type": "uuid",
+    "rule": "外键 → user",
+    "req": "必填",
+    "src": "系统采集（登录态）",
+    "life": "180 天",
+    "use": "溯源"
+   },
+   {
+    "f": "action",
+    "cn": "操作类型",
+    "type": "enum",
+    "rule": "登录 / 发布任务 / 修改评分 / 批阅 / 导出 / 删除录制 / 撤销证书 / 变更权限",
+    "req": "必填",
+    "src": "系统生成",
+    "life": "180 天",
+    "use": "行为审计"
+   },
+   {
+    "f": "target_type",
+    "cn": "对象类型",
+    "type": "string(30)",
+    "rule": "如 `trial_task` / `certificate`",
+    "req": "必填",
+    "src": "系统生成",
+    "life": "180 天",
+    "use": "定位"
+   },
+   {
+    "f": "target_id",
+    "cn": "对象ID",
+    "type": "uuid",
+    "rule": "—",
+    "req": "必填",
+    "src": "系统生成",
+    "life": "180 天",
+    "use": "定位"
+   },
+   {
+    "f": "ip",
+    "cn": "IP地址",
+    "type": "string(45)",
+    "rule": "支持 IPv6",
+    "req": "系统自动",
+    "src": "系统采集",
+    "life": "180 天",
+    "use": "安全审计"
+   },
+   {
+    "f": "user_agent",
+    "cn": "客户端",
+    "type": "string(255)",
+    "rule": "—",
+    "req": "系统自动",
+    "src": "系统采集",
+    "life": "180 天",
+    "use": "环境追溯"
+   },
+   {
+    "f": "created_at",
+    "cn": "操作时间",
+    "type": "datetime",
+    "rule": "—",
+    "req": "系统自动",
+    "src": "系统生成",
+    "life": "180 天",
+    "use": "时间线"
+   }
+  ]
+ }
+]

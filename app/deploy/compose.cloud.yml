@@ -1,0 +1,30 @@
+# 3.2.0 A1 单 API 部署入口；复用已经按 G1 准备的 SQL，不自动建库或迁移。
+name: aiteach
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      MEDIA_ROOT: /app/runtime/media
+      QUEUE_BACKEND: memory
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ../../runtime/media:/app/runtime/media
+    ports:
+      - "127.0.0.1:8000:8000"
+
+  frontend:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ../frontend/dist:/srv/frontend:ro
+    depends_on:
+      api:
+        condition: service_healthy

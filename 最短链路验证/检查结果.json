@@ -1,0 +1,68 @@
+{
+  "status": "passed",
+  "generated_at": "2026-10-28T13:02:08.583634+08:00",
+  "checks": [
+    {
+      "name": "文档文件和版本",
+      "status": "passed",
+      "detail": {
+        "markdown": 14,
+        "version": "3.2.0"
+      }
+    },
+    {
+      "name": "链接、代码围栏和表格",
+      "status": "passed",
+      "detail": {
+        "relative_links": 42
+      }
+    },
+    {
+      "name": "接口、DTO、权限及最短路由",
+      "status": "passed",
+      "detail": {
+        "endpoints": 150,
+        "dtos": 186,
+        "essential_routes": 16
+      }
+    },
+    {
+      "name": "数据库字典及已知约束冲突",
+      "status": "passed",
+      "detail": {
+        "entities": 61,
+        "scope": "仅字典和两类已知错误扫描，没有执行DDL"
+      }
+    },
+    {
+      "name": "FR需求追踪",
+      "status": "passed",
+      "detail": {
+        "FR": 41,
+        "scope": "检查追踪编号存在，不代表用例已执行或覆盖充分"
+      }
+    },
+    {
+      "name": "评分参考函数边界",
+      "status": "passed",
+      "detail": {
+        "assertion_groups": 10,
+        "scope": "评分纯函数参考执行，未执行应用业务"
+      }
+    },
+    {
+      "name": "设计文档未被检查脚本改写",
+      "status": "passed",
+      "detail": null
+    }
+  ],
+  "application_present": true,
+  "not_run": [
+    "真实SQL建库与升级",
+    "应用HTTP/WS/浏览器",
+    "真实上传与媒体对齐",
+    "真实GLM模型",
+    "效果与性能"
+  ],
+  "meaning": "passed仅表示所列静态检查和参考函数检查通过，不是开发文档完整正确或系统验收通过"
+}

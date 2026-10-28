@@ -1,0 +1,14 @@
+SELECT 0
+DEL sess:11111111-1111-4111-8111-111111111111:state
+DEL sess:11111111-1111-4111-8111-111111111111:seq
+DEL lb:class:22222222-2222-4222-8222-222222222222:2026-W43
+DEL lock:eval:11111111-1111-4111-8111-111111111111
+DEL cache:topic:33333333-3333-4333-8333-333333333333
+HSET sess:11111111-1111-4111-8111-111111111111:state session_id 11111111-1111-4111-8111-111111111111 task_id aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa user_id bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb mode free scenario_id '' topic_id 33333333-3333-4333-8333-333333333333 student_count 30 behavior_intensity mid classroom_theme blackboard bgm_level light planned_duration_s 600 actual_duration_s 0 start_at_ms 1770000000000 end_at_ms 0 status running device_info '{"browser":"Chrome","camera":"ok","mic":"ok","resolution":"1920x1080"}' consent_id cccccccc-cccc-4ccc-8ccc-cccccccccccc timer_started_at_ms 1770000000000 timer_paused_total_ms 0 timer_last_tick_at_ms 1770000005000 engagement_avg 82.50 last_heartbeat_at_ms 1770000005000 updated_at_ms 1770000005000 version 1
+EXPIRE sess:11111111-1111-4111-8111-111111111111:state 3600
+SET sess:11111111-1111-4111-8111-111111111111:seq 0 EX 3600
+ZADD lb:class:22222222-2222-4222-8222-222222222222:2026-W43 88.50 bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb 92.00 dddddddd-dddd-4ddd-8ddd-dddddddddddd
+EXPIRE lb:class:22222222-2222-4222-8222-222222222222:2026-W43 604800
+SET lock:eval:11111111-1111-4111-8111-111111111111 seed-lock-token-000000000000 NX EX 1800
+DEL lock:eval:11111111-1111-4111-8111-111111111111
+SET cache:topic:33333333-3333-4333-8333-333333333333 '{"schema_version":"1.0","topic_id":"33333333-3333-4333-8333-333333333333","subject_id":"eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee","stage":"初中","textbook_version":"部编版","book_volume":"七年级上册","chapter":"第三单元第2课","topic_title":"示例题面","content_text":"示例内容","requirements":"含板书设计","difficulty":3,"source":"平台题库","exam_year":0,"usage_count":12,"cached_at_ms":1770000000000}' EX 3600

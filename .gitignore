@@ -1,0 +1,74 @@
+# ============================================================
+# 师范专业 AI 试讲台系统 — 根忽略规则
+# 设计基线：3.2.0    维护人：A（组长/平台集成）
+# 注意：app 子目录内的忽略规则不能覆盖本文件对 runtime/ 的约束
+# ============================================================
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+.venv/
+venv/
+env/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+pip-wheel-metadata/
+build/
+
+# ---- Node / 前端 ----
+node_modules/
+dist/
+dist-ssr/
+.vite/
+.turbo/
+coverage/
+playwright-report/
+test-results/
+blob-report/
+*.tsbuildinfo
+
+# ---- 环境与密钥：只保留样例 ----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# ---- 运行态与验收证据：不进 Git ----
+runtime/
+artifacts/
+*.log
+!**/logs/.gitkeep
+
+# ---- 编辑器 / 系统 ----
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+Thumbs.db
+Desktop.ini
+.DS_Store
+.workbuddy/
+
+# ---- 真实媒体文件：私有，禁止入库 ----
+*.mp4
+*.webm
+*.mkv
+*.mov
+*.wav
+*.m4a
+*.mp3
+
+# ---- 本地数据库与备份 ----
+*.sqlite
+*.sqlite3
+*.bak
+*.dump

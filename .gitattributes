@@ -1,0 +1,28 @@
+# ============================================================
+# 行尾与编码规则（全组统一，写入 ADR-010）
+# 文本：UTF-8 / LF；PowerShell 脚本：CRLF
+# ============================================================
+
+* text=auto eol=lf
+
+# Windows 脚本统一 CRLF，避免双击执行与解析差异
+*.ps1  text eol=crlf
+*.psm1 text eol=crlf
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+
+# 二进制，禁止自动换行转换
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.webp  binary
+*.mp4   binary
+*.webm  binary
+*.wav   binary
+*.xlsx  binary
+*.docx  binary
+*.pdf   binary
+*.zip   binary
+*.whl   binary

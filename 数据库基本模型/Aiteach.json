@@ -1,0 +1,256 @@
+{
+  "schema_version": "1.0.0",
+  "name": "ai_teach_redis_schema",
+  "redis_version": "7",
+  "key_separator": ":",
+  "conventions": {
+    "uuid": "lowercase 36-char UUID with hyphens",
+    "ttl_unit": "seconds",
+    "hash_fields": "snake_case",
+    "redis_value_note": "所有值以字符串序列化存储；integer/decimal/json 为逻辑类型",
+    "json_value": "UTF-8 JSON string; must include schema_version",
+    "zset_score": "numeric decimal 0-100, two decimal places",
+    "period": "YYYY-Www | YYYY-MM | YYYY-S1",
+    "seed": "fixed example UUIDs; do not use in production"
+  },
+  "patterns": [
+    {
+      "name": "session_state",
+      "source": "docx §6 sess:{session_id}:state; md C1 trial_session",
+      "key_pattern": "sess:{session_id}:state",
+      "type": "hash",
+      "ttl_seconds": 3600,
+      "ttl_policy": "session_active_plus_1h; refresh on heartbeat/state write",
+      "placeholders": {
+        "session_id": {
+          "type": "uuid",
+          "required": true,
+          "source": "classroom.trial_session.session_id"
+        }
+      },
+      "fields": [
+        {"name": "session_id", "type": "uuid", "required": true, "source": "trial_session.session_id", "description": "场次ID"},
+        {"name": "task_id", "type": "uuid", "required": false, "source": "trial_session.task_id", "description": "任务ID，自由练习为空"},
+        {"name": "user_id", "type": "uuid", "required": true, "source": "trial_session.user_id", "description": "试讲人"},
+        {"name": "mode", "type": "enum", "required": true, "values": ["free", "scenario", "structured"], "source": "trial_session.mode"},
+        {"name": "scenario_id", "type": "uuid", "required": false, "source": "trial_session.scenario_id", "description": "情景模拟时必填"},
+        {"name": "topic_id", "type": "uuid", "required": false, "source": "trial_session.topic_id", "description": "非结构化面试时必填"},
+        {"name": "student_count", "type": "integer", "required": true, "min": 1, "max": 60, "source": "trial_session.student_count"},
+        {"name": "behavior_intensity", "type": "enum", "required": true, "values": ["low", "mid", "high"], "source": "trial_session.behavior_intensity"},
+        {"name": "classroom_theme", "type": "enum", "required": true, "values": ["blackboard", "ppt", "multimedia", "kindergarten"], "source": "trial_session.classroom_theme"},
+        {"name": "bgm_level", "type": "enum", "required": true, "values": ["off", "light", "standard"], "source": "trial_session.bgm_level"},
+        {"name": "planned_duration_s", "type": "integer", "required": true, "min": 300, "max": 2700, "source": "trial_session.planned_duration"},
+        {"name": "actual_duration_s", "type": "integer", "required": true, "min": 0, "source": "runtime timer"},
+        {"name": "start_at_ms", "type": "integer", "required": false, "source": "runtime", "description": "epoch ms"},
+        {"name": "end_at_ms", "type": "integer", "required": false, "source": "runtime", "description": "epoch ms"},
+        {"name": "status", "type": "enum", "required": true, "values": ["not_started", "running", "paused", "finished", "aborted"], "source": "trial_session.status"},
+        {"name": "device_info", "type": "json", "required": false, "source": "trial_session.device_info"},
+        {"name": "consent_id", "type": "uuid", "required": true, "source": "trial_session.consent_id"},
+        {"name": "timer_started_at_ms", "type": "integer", "required": false, "source": "runtime"},
+        {"name": "timer_paused_total_ms", "type": "integer", "required": true, "min": 0, "source": "runtime"},
+        {"name": "timer_last_tick_at_ms", "type": "integer", "required": false, "source": "runtime"},
+        {"name": "engagement_avg", "type": "decimal", "required": true, "min": 0, "max": 100, "format": "0.00", "source": "runtime aggregate"},
+        {"name": "last_heartbeat_at_ms", "type": "integer", "required": true, "source": "runtime"},
+        {"name": "updated_at_ms", "type": "integer", "required": true, "source": "runtime"},
+        {"name": "version", "type": "integer", "required": true, "min": 1, "source": "runtime optimistic lock"}
+      ],
+      "example_key": "sess:11111111-1111-4111-8111-111111111111:state",
+      "example_value": {
+        "session_id": "11111111-1111-4111-8111-111111111111",
+        "task_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "user_id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+        "mode": "free",
+        "scenario_id": "",
+        "topic_id": "33333333-3333-4333-8333-333333333333",
+        "student_count": "30",
+        "behavior_intensity": "mid",
+        "classroom_theme": "blackboard",
+        "bgm_level": "light",
+        "planned_duration_s": "600",
+        "actual_duration_s": "0",
+        "start_at_ms": "1770000000000",
+        "end_at_ms": "0",
+        "status": "running",
+        "device_info": "{\"browser\":\"Chrome\",\"camera\":\"ok\",\"mic\":\"ok\",\"resolution\":\"1920x1080\"}",
+        "consent_id": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+        "timer_started_at_ms": "1770000000000",
+        "timer_paused_total_ms": "0",
+        "timer_last_tick_at_ms": "1770000005000",
+        "engagement_avg": "82.50",
+        "last_heartbeat_at_ms": "1770000005000",
+        "updated_at_ms": "1770000005000",
+        "version": "1"
+      },
+      "write_commands": ["HSET <key> <field> <value> ...", "EXPIRE <key> 3600"],
+      "read_commands": ["HGETALL <key>", "HGET <key> <field>"],
+      "rebuild_policy": "seed_example_key"
+    },
+    {
+      "name": "session_sequence",
+      "source": "docx §6 sess:{session_id}:seq",
+      "key_pattern": "sess:{session_id}:seq",
+      "type": "string_integer",
+      "ttl_seconds": 3600,
+      "ttl_policy": "session_active_plus_1h; same TTL as session_state",
+      "placeholders": {
+        "session_id": {
+          "type": "uuid",
+          "required": true,
+          "source": "classroom.trial_session.session_id"
+        }
+      },
+      "value_schema": {
+        "type": "integer",
+        "min": 0,
+        "max": 9007199254740991,
+        "initial": 0,
+        "semantics": "INCR before each WS publish; first published seq=1"
+      },
+      "example_key": "sess:11111111-1111-4111-8111-111111111111:seq",
+      "example_value": 0,
+      "write_commands": ["SET <key> 0 EX 3600", "INCR <key>"],
+      "read_commands": ["GET <key>"],
+      "rebuild_policy": "seed_example_key"
+    },
+    {
+      "name": "leaderboard",
+      "source": "docx §6 lb:{scope}:{scope_id}:{period}",
+      "key_pattern": "lb:{scope}:{scope_id}:{period}",
+      "type": "zset",
+      "ttl_seconds": 604800,
+      "ttl_policy": "period_end_plus_7d; seed uses 7d example TTL",
+      "placeholders": {
+        "scope": {"type": "enum", "required": true, "values": ["class", "grade", "major", "school"]},
+        "scope_id": {"type": "uuid", "required": true, "source": "class.class_id / major.major_id / school_id"},
+        "period": {"type": "string", "required": true, "pattern": "^\\d{4}-(W\\d{2}|\\d{2}|S[12])$", "example": "2026-W43"}
+      },
+      "member_schema": {
+        "name": "user_id",
+        "type": "uuid",
+        "source": "identity_org.user.user_id"
+      },
+      "score_schema": {
+        "type": "number",
+        "min": 0,
+        "max": 100,
+        "format": "decimal(5,2)",
+        "sort": "desc"
+      },
+      "example_key": "lb:class:22222222-2222-4222-8222-222222222222:2026-W43",
+      "example_members": [
+        {"member": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb", "score": 88.50},
+        {"member": "dddddddd-dddd-4ddd-8ddd-dddddddddddd", "score": 92.00}
+      ],
+      "write_commands": ["ZADD <key> <score> <user_id> ...", "EXPIRE <key> 604800"],
+      "read_commands": ["ZREVRANGE <key> 0 -1 WITHSCORES", "ZREVRANK <key> <user_id>"],
+      "rebuild_policy": "seed_example_key; production rebuild by aggregation job"
+    },
+    {
+      "name": "eval_lock",
+      "source": "docx §6 lock:eval:{session_id} SETNX+TTL30m",
+      "key_pattern": "lock:eval:{session_id}",
+      "type": "string_lock",
+      "ttl_seconds": 1800,
+      "ttl_policy": "fixed_30m; not refreshed; release by token compare",
+      "placeholders": {
+        "session_id": {
+          "type": "uuid",
+          "required": true,
+          "source": "classroom.trial_session.session_id"
+        }
+      },
+      "value_schema": {
+        "type": "string",
+        "min_length": 16,
+        "max_length": 128,
+        "description": "unique lock token, e.g. worker_id:uuid; must not be '1'"
+      },
+      "acquire_command": "SET lock:eval:{session_id} {token} NX EX 1800",
+      "release_lua": "if redis.call('get',KEYS[1])==ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end",
+      "example_key": "lock:eval:11111111-1111-4111-8111-111111111111",
+      "example_value": "seed-lock-token-000000000000",
+      "rebuild_policy": "runtime_only; seed may SET NX EX for demo then DEL; production seed must not leave lock"
+    },
+    {
+      "name": "topic_cache",
+      "source": "docx §6 cache:topic:{topic_id} String(JSON)",
+      "key_pattern": "cache:topic:{topic_id}",
+      "type": "string_json",
+      "ttl_seconds": 3600,
+      "ttl_policy": "fixed_1h; refresh on cache hit/write",
+      "placeholders": {
+        "topic_id": {
+          "type": "uuid",
+          "required": true,
+          "source": "task_content.trial_topic.topic_id"
+        }
+      },
+      "value_schema": {
+        "type": "object",
+        "required": [
+          "schema_version",
+          "topic_id",
+          "subject_id",
+          "stage",
+          "textbook_version",
+          "topic_title",
+          "content_text",
+          "difficulty",
+          "source",
+          "usage_count",
+          "cached_at_ms"
+        ],
+        "properties": {
+          "schema_version": {"type": "string", "const": "1.0"},
+          "topic_id": {"type": "uuid"},
+          "subject_id": {"type": "uuid"},
+          "stage": {"type": "enum", "values": ["幼教", "小学", "初中", "高中", "中职"]},
+          "textbook_version": {"type": "string", "max_length": 50},
+          "book_volume": {"type": "string", "max_length": 20},
+          "chapter": {"type": "string", "max_length": 100},
+          "topic_title": {"type": "string", "max_length": 200},
+          "content_text": {"type": "string", "max_length": 5000},
+          "requirements": {"type": "string"},
+          "difficulty": {"type": "integer", "min": 1, "max": 5},
+          "source": {"type": "enum", "values": ["教资真题", "技能大赛真题", "平台题库", "教师自建"]},
+          "exam_year": {"type": "integer", "min": 0, "max": 2100},
+          "usage_count": {"type": "integer", "min": 0},
+          "cached_at_ms": {"type": "integer", "min": 0}
+        }
+      },
+      "example_key": "cache:topic:33333333-3333-4333-8333-333333333333",
+      "example_value": {
+        "schema_version": "1.0",
+        "topic_id": "33333333-3333-4333-8333-333333333333",
+        "subject_id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+        "stage": "初中",
+        "textbook_version": "部编版",
+        "book_volume": "七年级上册",
+        "chapter": "第三单元第2课",
+        "topic_title": "示例题面",
+        "content_text": "示例内容",
+        "requirements": "含板书设计",
+        "difficulty": 3,
+        "source": "平台题库",
+        "exam_year": 0,
+        "usage_count": 12,
+        "cached_at_ms": 1770000000000
+      },
+      "write_commands": ["SET <key> '<json>' EX 3600"],
+      "read_commands": ["GET <key>"],
+      "rebuild_policy": "seed_example_key"
+    },
+    {
+      "name": "task_broker_external",
+      "source": "docx §6 celery/arq broker",
+      "key_pattern": "arq:queue",
+      "alternate_patterns": ["celery", "_kombu.binding.celery", "arq:job:{job_id}"],
+      "type": "framework_managed",
+      "external": true,
+      "managed_by": "ARQ 或 Celery 框架",
+      "ttl_seconds": null,
+      "description": "任务队列由框架管理，不纳入业务键空间：ARQ 为 arq:queue(ZSET, member=job_id, score=unix_ms) 与 arq:in-progress:{job_id}；Celery 为 celery list 与 _kombu.*",
+      "seed": "disabled_framework_managed"
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "document_version": "3.2.0",
+  "generated_at": "2026-10-28T13:05:56.428031+08:00",
+  "status": "passed",
+  "scope": "现行设计文档静态检查及10组评分纯函数参考检查；不代表业务实现或系统验收通过",
+  "evidence": "最短链路验证/检查结果.json",
+  "evidence_sha256": "609e0cf011df71a467787e74d4df95fb7ce8d7777bdd03b698a1f20c49e43e84",
+  "checks": [
+    {
+      "name": "文档文件和版本",
+      "status": "passed",
+      "detail": {
+        "markdown": 14,
+        "version": "3.2.0"
+      }
+    },
+    {
+      "name": "链接、代码围栏和表格",
+      "status": "passed",
+      "detail": {
+        "relative_links": 42
+      }
+    },
+    {
+      "name": "接口、DTO、权限及最短路由",
+      "status": "passed",
+      "detail": {
+        "endpoints": 150,
+        "dtos": 186,
+        "essential_routes": 16
+      }
+    },
+    {
+      "name": "数据库字典及已知约束冲突",
+      "status": "passed",
+      "detail": {
+        "entities": 61,
+        "scope": "仅字典和两类已知错误扫描，没有执行DDL"
+      }
+    },
+    {
+      "name": "FR需求追踪",
+      "status": "passed",
+      "detail": {
+        "FR": 41,
+        "scope": "检查追踪编号存在，不代表用例已执行或覆盖充分"
+      }
+    },
+    {
+      "name": "评分参考函数边界",
+      "status": "passed",
+      "detail": {
+        "assertion_groups": 10,
+        "scope": "评分纯函数参考执行，未执行应用业务"
+      }
+    },
+    {
+      "name": "设计文档未被检查脚本改写",
+      "status": "passed",
+      "detail": null
+    }
+  ],
+  "not_run": [
+    "真实SQL建库与升级",
+    "应用HTTP/WS/浏览器",
+    "真实上传与媒体对齐",
+    "真实GLM模型",
+    "效果与性能",
+    "Docker/Compose原生校验、构建与部署",
+    "完整双方言迁移、G1–G6验收"
+  ],
+  "implementation_gates": {
+    "G1": "待实施验证",
+    "G2": "待实施验证",
+    "G3": "待实施验证",
+    "G4": "待实施验证",
+    "G5": "待实施验证",
+    "G6": "待实施验证"
+  }
+}

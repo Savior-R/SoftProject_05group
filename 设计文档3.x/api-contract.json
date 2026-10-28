@@ -1,0 +1,2513 @@
+{
+  "schema": "ai-teach-design-dsl/1.0",
+  "document_version": "3.2.0",
+  "date": "2026-10-27",
+  "base_path": "/api/v1",
+  "status": "design_only_not_generated_openapi",
+  "type_syntax": {
+    "optional": "?",
+    "nullable": "|null",
+    "array": "array<T>",
+    "partial": "Partial<T>",
+    "page": "Page<T>"
+  },
+  "permissions": {
+    "me:read": "四角色",
+    "me:update": "四角色",
+    "consent:write": "四角色",
+    "class:read": "学生本班/教师管辖/教研管理员本院/系统管理员全校",
+    "class:write": "教师管辖/教研管理员本院/系统管理员全校",
+    "group:write": "教师管辖/教研管理员本院/系统管理员全校",
+    "user:manage": "教研管理员本院学生/教师（仅创建教师）/系统管理员全校",
+    "permission:change": "系统管理员",
+    "task:read": "学生已分配/教师管辖/教研管理员本院/系统管理员全校只读",
+    "task:write": "教师本人且管辖/教研管理员本院",
+    "task:publish": "教师本人且管辖/教研管理员本院",
+    "rubric:read": "四角色可用标准",
+    "rubric:write": "教师本人/教研管理员本院/系统管理员共享标准",
+    "resource:write": "教师本人/教研管理员本院/系统管理员全校",
+    "session:create": "学生本人",
+    "session:control": "学生本人",
+    "session:observe": "教师管辖/教研管理员本院",
+    "session:guidance": "教师管辖",
+    "report:read:self": "四角色本人",
+    "report:read:any": "教师管辖/教研管理员本院/系统管理员全校",
+    "report:review": "教师管辖且仅修改本人批阅",
+    "report:recalculate": "教师管辖/教研管理员本院/系统管理员全校",
+    "report:set_primary": "教师管辖",
+    "training:read": "学生本人",
+    "training:write": "学生本人",
+    "cert:read:self": "四角色本人",
+    "cert:manage": "教研管理员本院/系统管理员全校",
+    "export:create": "教师管辖/教研管理员本院/系统管理员全校",
+    "audit:read": "教研管理员本院/系统管理员全校",
+    "stats:read:class": "教师管辖/教研管理员本院/系统管理员全校"
+  },
+  "enums": {
+    "Role": "student,teacher,org_admin,sys_admin",
+    "Stage": "preschool,primary,junior_high,senior_high,vocational",
+    "Dimension": "content,expression,posture,interaction,board_ppt,time_management",
+    "Persona": "focused,active,distracted,challenger,quiet,naughty",
+    "SessionMode": "free,scenario,structured",
+    "SessionStatus": "not_started,running,paused,finished,aborted",
+    "TaskStatus": "draft,published,ongoing,closed,reviewed",
+    "ReportStatus": "calculating,partial,finished,failed,teacher_reviewed",
+    "TrackType": "portrait,screen,board,audio,merged",
+    "Grade": "excellent,good,pass,fail",
+    "Alignment": "verified,approximate,unavailable",
+    "CertSkill": "expression,interaction,control,timing,board,comprehensive",
+    "BehaviorType": "raise_hand,ask,answer_right,answer_wrong,answer_partial,distracted,whisper,noisy,challenge,device_fault",
+    "QuestionCategory": "career_cognition,psychology,appearance,verbal_expression,thinking_quality,education_teaching,emergency_response,interpersonal,organization,topical",
+    "TargetCert": "kindergarten,primary,junior_high,senior_high,vocational,none"
+  },
+  "endpoints": [
+    {
+      "method": "POST",
+      "path": "/auth/login",
+      "permission": "公开",
+      "scope": "手机号+密码；锁定检查",
+      "request": "LoginIn",
+      "response": "AuthOut",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/auth/sms-code",
+      "permission": "公开",
+      "scope": "手机号/IP限流；生产短信适配器",
+      "request": "SmsIn",
+      "response": "SmsOut",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/auth/register",
+      "permission": "公开",
+      "scope": "只允许student；院系/班级匹配",
+      "request": "RegisterIn",
+      "response": "AuthOut",
+      "version": "P0",
+      "status": 201
+    },
+    {
+      "method": "POST",
+      "path": "/auth/reset-password",
+      "permission": "公开",
+      "scope": "短信一次性验证；不返回账号是否存在",
+      "request": "ResetPasswordIn",
+      "response": "Ack",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/auth/refresh",
+      "permission": "refresh",
+      "scope": "SQL security_session有效，refresh轮换CAS",
+      "request": "RefreshIn",
+      "response": "TokenOut",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/auth/logout",
+      "permission": "已登录",
+      "scope": "撤销当前sid及refresh",
+      "request": "Empty",
+      "response": "Empty",
+      "version": "P0",
+      "status": 204
+    },
+    {
+      "method": "POST",
+      "path": "/me/change-password",
+      "permission": "me:update",
+      "scope": "本人；强制改密状态允许访问",
+      "request": "ChangePasswordIn",
+      "response": "ReauthOut",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/me",
+      "permission": "me:read",
+      "scope": "本人",
+      "request": "Empty",
+      "response": "MeOut",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "PATCH",
+      "path": "/me/profile",
+      "permission": "me:update",
+      "scope": "本人可改白名单字段",
+      "request": "ProfilePatch",
+      "response": "MeOut",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/me/consent",
+      "permission": "consent:write",
+      "scope": "本人明示授权",
+      "request": "ConsentIn",
+      "response": "ConsentOut",
+      "version": "P0",
+      "status": 201
+    },
+    {
+      "method": "POST",
+      "path": "/me/consent/revoke",
+      "permission": "consent:write",
+      "scope": "本人；同时abort running/paused",
+      "request": "ReasonIn",
+      "response": "ConsentOut",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/departments",
+      "permission": "class:read",
+      "scope": "学生本人院系；教师/org_admin本院；sys全校",
+      "request": "PageQuery",
+      "response": "Page<Department>",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/departments",
+      "permission": "user:manage",
+      "scope": "仅sys_admin",
+      "request": "DepartmentIn",
+      "response": "Department",
+      "version": "P0",
+      "status": 201
+    },
+    {
+      "method": "PATCH",
+      "path": "/departments/{department_id}",
+      "permission": "user:manage",
+      "scope": "仅sys_admin",
+      "request": "Partial<DepartmentIn>",
+      "response": "Department",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/majors",
+      "permission": "class:read",
+      "scope": "所属院系范围；注册公开选项另见registration-options",
+      "request": "ResourceQuery",
+      "response": "Page<Major>",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/majors",
+      "permission": "class:write",
+      "scope": "org_admin本院/sys全校",
+      "request": "MajorIn",
+      "response": "Major",
+      "version": "P0",
+      "status": 201
+    },
+    {
+      "method": "PATCH",
+      "path": "/majors/{major_id}",
+      "permission": "class:write",
+      "scope": "org_admin本院/sys全校",
+      "request": "Partial<MajorIn>",
+      "response": "Major",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/subjects",
+      "permission": "rubric:read",
+      "scope": "全部启用学科",
+      "request": "ResourceQuery",
+      "response": "Page<Subject>",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/subjects",
+      "permission": "resource:write",
+      "scope": "org_admin/sys_admin",
+      "request": "SubjectIn",
+      "response": "Subject",
+      "version": "P0",
+      "status": 201
+    },
+    {
+      "method": "PATCH",
+      "path": "/subjects/{subject_id}",
+      "permission": "resource:write",
+      "scope": "org_admin/sys_admin",
+      "request": "Partial<SubjectIn>",
+      "response": "Subject",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/auth/registration-options",
+      "permission": "公开",
+      "scope": "只返enabled院系/专业/班级/学科ID名称；不返成员",
+      "request": "Empty",
+      "response": "RegistrationOptions",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/classes",
+      "permission": "class:read",
+      "scope": "学生本班/教师管辖/org本院/sys全校",
+      "request": "ResourceQuery",
+      "response": "Page<Class>",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/classes",
+      "permission": "class:write",
+      "scope": "教师仅本院且自任advisor；管理员按院系",
+      "request": "ClassIn",
+      "response": "Class",
+      "version": "P0",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/classes/{class_id}",
+      "permission": "class:read",
+      "scope": "同上且资源校验",
+      "request": "Empty",
+      "response": "Class",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "PATCH",
+      "path": "/classes/{class_id}",
+      "permission": "class:write",
+      "scope": "教师管辖/org本院/sys全校",
+      "request": "Partial<ClassIn>",
+      "response": "Class",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/classes/{class_id}/students",
+      "permission": "class:read",
+      "scope": "教师管辖/org本院/sys全校；学生不得拉全名单",
+      "request": "PageQuery",
+      "response": "Page<StudentRow>",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/classes/import",
+      "permission": "class:write",
+      "scope": "教师管辖/org本院/sys全校；不能导入覆盖其他角色",
+      "request": "StudentImportForm",
+      "response": "ImportOut",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/classes/{class_id}/groups",
+      "permission": "class:read",
+      "scope": "本班/管辖/院系",
+      "request": "PageQuery",
+      "response": "Page<Group>",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/classes/{class_id}/groups",
+      "permission": "group:write",
+      "scope": "教师管辖/org本院/sys全校",
+      "request": "GroupIn",
+      "response": "Group",
+      "version": "P0",
+      "status": 201
+    },
+    {
+      "method": "PATCH",
+      "path": "/classes/{class_id}/groups/{group_id}",
+      "permission": "group:write",
+      "scope": "同上；成员同班且不得跨组重复",
+      "request": "Partial<GroupIn>",
+      "response": "Group",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/users",
+      "permission": "user:manage",
+      "scope": "org本院教师/学生；sys全校",
+      "request": "UserQuery",
+      "response": "Page<UserRow>",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/users",
+      "permission": "user:manage",
+      "scope": "org只创建本院teacher；sys可创建其他管理员",
+      "request": "UserCreateIn",
+      "response": "UserCreatedOut",
+      "version": "P0",
+      "status": 201
+    },
+    {
+      "method": "PATCH",
+      "path": "/users/{user_id}",
+      "permission": "user:manage",
+      "scope": "org不能修改sys/org或跨院账号；role不可改",
+      "request": "UserPatch",
+      "response": "UserRow",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/users/{user_id}/reset-password",
+      "permission": "user:manage",
+      "scope": "同上；撤销旧会话",
+      "request": "Empty",
+      "response": "UserCreatedOut",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "PATCH",
+      "path": "/admin/users/{user_id}/status",
+      "permission": "user:manage",
+      "scope": "org仅本院student/teacher；sys不能停用最后一个有效sys_admin",
+      "request": "UserStatusIn",
+      "response": "UserRow",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "PATCH",
+      "path": "/admin/users/{user_id}/permissions",
+      "permission": "permission:change",
+      "scope": "仅sys_admin；仅分配角色允许权限子集",
+      "request": "PermissionIn",
+      "response": "ReauthOut",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/tasks",
+      "permission": "task:read",
+      "scope": "学生分配任务/教师管辖/org本院/sys只读",
+      "request": "TaskQuery",
+      "response": "Page<Task>",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/tasks",
+      "permission": "task:write",
+      "scope": "教师本人且班级全管辖/org本院",
+      "request": "TaskIn",
+      "response": "Task",
+      "version": "P0",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/tasks/{task_id}",
+      "permission": "task:read",
+      "scope": "同上",
+      "request": "Empty",
+      "response": "Task",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "PATCH",
+      "path": "/tasks/{task_id}",
+      "permission": "task:write",
+      "scope": "本人draft；已发布不可改",
+      "request": "Partial<TaskIn>",
+      "response": "Task",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/tasks/{task_id}/publish",
+      "permission": "task:publish",
+      "scope": "本人/本院，校验published rubric和名单快照",
+      "request": "Empty",
+      "response": "Task",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/tasks/{task_id}/close",
+      "permission": "task:publish",
+      "scope": "本人/本院published或ongoing",
+      "request": "Empty",
+      "response": "Task",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/tasks/{task_id}/submissions",
+      "permission": "report:read:any",
+      "scope": "教师管辖/org本院/sys全校",
+      "request": "PageQuery",
+      "response": "SubmissionPage",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/rubrics",
+      "permission": "rubric:read",
+      "scope": "system/school共享或本院published teacher标准；学生只published，教师另可读本人draft",
+      "request": "RubricQuery",
+      "response": "Page<Rubric>",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/rubrics",
+      "permission": "rubric:write",
+      "scope": "teacher仅teacher scope；org仅本院teacher；sys维护system/school共享",
+      "request": "RubricIn",
+      "response": "Rubric",
+      "version": "P0",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/rubrics/{rubric_id}",
+      "permission": "rubric:read",
+      "scope": "可用范围或本人draft",
+      "request": "Empty",
+      "response": "Rubric",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "PATCH",
+      "path": "/rubrics/{rubric_id}",
+      "permission": "rubric:write",
+      "scope": "本人draft原地编辑；published派生新draft",
+      "request": "Partial<RubricIn>",
+      "response": "RubricMutationOut",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/rubrics/{rubric_id}/publish",
+      "permission": "rubric:write",
+      "scope": "本人draft完整六维校验",
+      "request": "Empty",
+      "response": "Rubric",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/rubrics/{rubric_id}/disable",
+      "permission": "rubric:write",
+      "scope": "本人；不改变历史快照",
+      "request": "ReasonIn",
+      "response": "Rubric",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/topics",
+      "permission": "task:read",
+      "scope": "已启用资源，学生不返回structured参考答案",
+      "request": "ResourceQuery",
+      "response": "Page<Topic>",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/topics/{topic_id}",
+      "permission": "task:read",
+      "scope": "同列表资源范围",
+      "request": "Empty",
+      "response": "Topic",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/topics",
+      "permission": "resource:write",
+      "scope": "教师本人资源/org本院/sys全校",
+      "request": "TopicIn",
+      "response": "Topic",
+      "version": "P0",
+      "status": 201
+    },
+    {
+      "method": "PATCH",
+      "path": "/topics/{topic_id}",
+      "permission": "resource:write",
+      "scope": "教师仅自己资源；管理员范围内",
+      "request": "Partial<TopicIn>",
+      "response": "Topic",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/structured-questions",
+      "permission": "task:read",
+      "scope": "已启用资源，学生不返回structured参考答案",
+      "request": "ResourceQuery",
+      "response": "Page<StructuredQuestion>",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/structured-questions/{q_id}",
+      "permission": "task:read",
+      "scope": "同列表资源范围",
+      "request": "Empty",
+      "response": "StructuredQuestion",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/structured-questions",
+      "permission": "resource:write",
+      "scope": "教师本人资源/org本院/sys全校",
+      "request": "StructuredQuestionIn",
+      "response": "StructuredQuestion",
+      "version": "P0",
+      "status": 201
+    },
+    {
+      "method": "PATCH",
+      "path": "/structured-questions/{q_id}",
+      "permission": "resource:write",
+      "scope": "教师仅自己资源；管理员范围内",
+      "request": "Partial<StructuredQuestionIn>",
+      "response": "StructuredQuestion",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/templates",
+      "permission": "task:read",
+      "scope": "已启用资源，学生不返回structured参考答案",
+      "request": "ResourceQuery",
+      "response": "Page<Template>",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/templates/{template_id}",
+      "permission": "task:read",
+      "scope": "同列表资源范围",
+      "request": "Empty",
+      "response": "Template",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/templates",
+      "permission": "resource:write",
+      "scope": "教师本人资源/org本院/sys全校",
+      "request": "TemplateIn",
+      "response": "Template",
+      "version": "P0",
+      "status": 201
+    },
+    {
+      "method": "PATCH",
+      "path": "/templates/{template_id}",
+      "permission": "resource:write",
+      "scope": "教师仅自己资源；管理员范围内",
+      "request": "Partial<TemplateIn>",
+      "response": "Template",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/exemplars",
+      "permission": "task:read",
+      "scope": "已启用资源，学生不返回structured参考答案",
+      "request": "ResourceQuery",
+      "response": "Page<Exemplar>",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/exemplars/{exemplar_id}",
+      "permission": "task:read",
+      "scope": "同列表资源范围",
+      "request": "Empty",
+      "response": "Exemplar",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/exemplars",
+      "permission": "resource:write",
+      "scope": "教师本人资源/org本院/sys全校",
+      "request": "ExemplarIn",
+      "response": "Exemplar",
+      "version": "P0",
+      "status": 201
+    },
+    {
+      "method": "PATCH",
+      "path": "/exemplars/{exemplar_id}",
+      "permission": "resource:write",
+      "scope": "教师仅自己资源；管理员范围内",
+      "request": "Partial<ExemplarIn>",
+      "response": "Exemplar",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/topics/import",
+      "permission": "resource:write",
+      "scope": "教师本人/org本院/sys全校",
+      "request": "TopicImportForm",
+      "response": "ImportOut",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/structured-questions/import",
+      "permission": "resource:write",
+      "scope": "同上",
+      "request": "QuestionImportForm",
+      "response": "ImportOut",
+      "version": "P1",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/scenarios",
+      "permission": "task:read",
+      "scope": "启用情景",
+      "request": "ResourceQuery",
+      "response": "Page<Scenario>",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/scenarios/{scenario_id}",
+      "permission": "task:read",
+      "scope": "启用情景",
+      "request": "Empty",
+      "response": "Scenario",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/scenarios",
+      "permission": "resource:write",
+      "scope": "org本院或sys；教师通过资源提交审核",
+      "request": "ScenarioIn",
+      "response": "Scenario",
+      "version": "P0",
+      "status": 201
+    },
+    {
+      "method": "PATCH",
+      "path": "/scenarios/{scenario_id}",
+      "permission": "resource:write",
+      "scope": "org本院或sys",
+      "request": "Partial<ScenarioIn>",
+      "response": "Scenario",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/sessions",
+      "permission": "report:read:self|report:read:any",
+      "scope": "本人/管辖/院系",
+      "request": "SessionQuery",
+      "response": "Page<Session>",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/sessions",
+      "permission": "session:create",
+      "scope": "student本人；任务绑定且有效授权",
+      "request": "SessionIn",
+      "response": "SessionCreated",
+      "version": "P0",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/sessions/{session_id}",
+      "permission": "session:control|session:observe|report:read:any",
+      "scope": "本人/管辖/院系",
+      "request": "Empty",
+      "response": "Session",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/ws-ticket",
+      "permission": "session:control|session:observe",
+      "scope": "本人或已授权observation；票据60秒一次性",
+      "request": "WsTicketIn",
+      "response": "WsTicketOut",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/submit",
+      "permission": "session:control",
+      "scope": "本人finished且必需轨完成；幂等",
+      "request": "SessionSubmitIn",
+      "response": "AttemptAccepted",
+      "version": "P0",
+      "status": 202
+    },
+    {
+      "method": "GET",
+      "path": "/sessions/{session_id}/events",
+      "permission": "session:control|session:observe",
+      "scope": "本人/管辖/院系",
+      "request": "EventQuery",
+      "response": "Page<BehaviorEvent>",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/sessions/{session_id}/messages",
+      "permission": "session:control|session:observe",
+      "scope": "按audience过滤，教师私信仅目标与发送者",
+      "request": "MessageQuery",
+      "response": "MessagePage",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/observe",
+      "permission": "session:observe",
+      "scope": "管辖/院系；活动观摩最多4",
+      "request": "Empty",
+      "response": "Observation",
+      "version": "P0",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/sessions/{session_id}/observations",
+      "permission": "session:control|session:observe",
+      "scope": "本人/管辖/院系",
+      "request": "PageQuery",
+      "response": "Page<Observation>",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/observations/{observation_id}/leave",
+      "permission": "session:observe",
+      "scope": "只可退出本人observation",
+      "request": "Empty",
+      "response": "Observation",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/sessions/{session_id}/rtc-config",
+      "permission": "session:control|session:observe",
+      "scope": "本人/当前有效观摩，动态TURN凭据",
+      "request": "Empty",
+      "response": "RtcConfig",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/recordings/init",
+      "permission": "session:control",
+      "scope": "本人not_started/running，来自冻结轨道清单",
+      "request": "RecordingInitIn",
+      "response": "RecordingInitOut",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/recordings",
+      "permission": "report:read:self|report:read:any",
+      "scope": "本人/管辖/院系，真实录制列表",
+      "request": "RecordingQuery",
+      "response": "Page<Recording>",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/recordings/{recording_id}/play-url",
+      "permission": "report:read:self|report:read:any",
+      "scope": "本人/管辖/院系，私有URL不超过5分钟",
+      "request": "Empty",
+      "response": "PlayUrlOut",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "DELETE",
+      "path": "/recordings/{recording_id}",
+      "permission": "session:control",
+      "scope": "本人且当前无有效锁，正在分析拒绝删除",
+      "request": "Empty",
+      "response": "Ack",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/recordings/{recording_id}/extend",
+      "permission": "session:control",
+      "scope": "本人，最长创建日起3年",
+      "request": "ExtendIn",
+      "response": "Recording",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/recordings/{recording_id}/markers",
+      "permission": "report:read:self|report:read:any",
+      "scope": "本人/管辖/院系",
+      "request": "PageQuery",
+      "response": "Page<Marker>",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/recordings/{recording_id}/markers",
+      "permission": "session:control|report:review",
+      "scope": "本人自评/管辖教师批注，不允许伪造ai_issue",
+      "request": "MarkerIn",
+      "response": "Marker",
+      "version": "P0",
+      "status": 201
+    },
+    {
+      "method": "DELETE",
+      "path": "/recordings/{recording_id}/markers/{marker_id}",
+      "permission": "session:control|report:review",
+      "scope": "仅创建者可删self_review/teacher_comment，审计",
+      "request": "Empty",
+      "response": "Empty",
+      "version": "P0",
+      "status": 204
+    },
+    {
+      "method": "POST",
+      "path": "/media-uploads/init",
+      "permission": "report:review|training:write|resource:write|me:update",
+      "scope": "用途决定review本人/训练本人/资源范围/avatar本人",
+      "request": "MediaInitIn",
+      "response": "Upload",
+      "version": "P0",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/media-uploads/{upload_id}",
+      "permission": "已登录",
+      "scope": "仅owner，系统恢复器用内部服务凭据",
+      "request": "Empty",
+      "response": "Upload",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/media-uploads/{upload_id}/part-urls",
+      "permission": "已登录",
+      "scope": "仅owner且s3模式",
+      "request": "PartUrlsIn",
+      "response": "PartUrlsOut",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/media-uploads/{upload_id}/parts/{part_no}",
+      "permission": "已登录",
+      "scope": "仅owner且local模式；请求体原始二进制",
+      "request": "BinaryPart",
+      "response": "Part",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/media-uploads/{upload_id}/parts",
+      "permission": "已登录",
+      "scope": "仅owner，服务器与S3对账后返回",
+      "request": "PageQuery",
+      "response": "Page<Part>",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/media-uploads/{upload_id}/complete",
+      "permission": "已登录",
+      "scope": "仅owner，校验连续分片与实际SHA256/FFprobe",
+      "request": "UploadCompleteIn",
+      "response": "Upload",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "DELETE",
+      "path": "/media-uploads/{upload_id}",
+      "permission": "已登录",
+      "scope": "仅owner，uploading可中止；completed经业务删除",
+      "request": "Empty",
+      "response": "Empty",
+      "version": "P0",
+      "status": 204
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/start",
+      "permission": "session:control",
+      "scope": "student本人；start事务校验授权/任务/唯一活动/次数",
+      "request": "Empty",
+      "response": "Session",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/pause",
+      "permission": "session:control",
+      "scope": "student本人；start事务校验授权/任务/唯一活动/次数",
+      "request": "Empty",
+      "response": "Session",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/resume",
+      "permission": "session:control",
+      "scope": "student本人；start事务校验授权/任务/唯一活动/次数",
+      "request": "Empty",
+      "response": "Session",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/finish",
+      "permission": "session:control",
+      "scope": "student本人；start事务校验授权/任务/唯一活动/次数",
+      "request": "Empty",
+      "response": "Session",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/sessions/{session_id}/abort",
+      "permission": "session:control",
+      "scope": "student本人；start事务校验授权/任务/唯一活动/次数",
+      "request": "ReasonIn",
+      "response": "Session",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/reports/{session_id}",
+      "permission": "report:read:self|report:read:any",
+      "scope": "本人/管辖/院系",
+      "request": "Empty",
+      "response": "Report",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/reports/{session_id}/radar",
+      "permission": "report:read:self|report:read:any",
+      "scope": "同上；班级样本<5不返均值",
+      "request": "Empty",
+      "response": "RadarOut",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/reports/{session_id}/attempts",
+      "permission": "report:read:self|report:read:any",
+      "scope": "同上，原始provider响应不向学生暴露",
+      "request": "PageQuery",
+      "response": "Page<Attempt>",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/reports/{session_id}/attempts/{attempt_id}",
+      "permission": "report:read:self|report:read:any",
+      "scope": "同上；attempt必须属于该report",
+      "request": "Empty",
+      "response": "AttemptDetail",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/reports/{session_id}/recalculate",
+      "permission": "report:recalculate",
+      "scope": "管辖/院系；analysis授权、文件可用、24h配额",
+      "request": "RecalculateIn",
+      "response": "AttemptAccepted",
+      "version": "P0",
+      "status": 202
+    },
+    {
+      "method": "GET",
+      "path": "/reports/{session_id}/teacher-reviews",
+      "permission": "report:read:self|report:read:any",
+      "scope": "本人/管辖/院系",
+      "request": "PageQuery",
+      "response": "Page<Review>",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/reports/{session_id}/teacher-reviews",
+      "permission": "report:review",
+      "scope": "教师管辖且同一教师每报告一条，创建pending",
+      "request": "ReviewDraftIn",
+      "response": "Review",
+      "version": "P0",
+      "status": 201
+    },
+    {
+      "method": "PATCH",
+      "path": "/reports/{session_id}/teacher-reviews/{review_id}",
+      "permission": "report:review",
+      "scope": "只可修改本人pending；已reviewed用submit改分",
+      "request": "Partial<ReviewDraftIn>",
+      "response": "Review",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/reports/{session_id}/teacher-reviews/{review_id}/submit",
+      "permission": "report:review",
+      "scope": "本人pending/reviewed，全细则校验并算总分",
+      "request": "ReviewSubmitIn",
+      "response": "ReviewResult",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/reports/{session_id}/teacher-reviews/{review_id}/return",
+      "permission": "report:review",
+      "scope": "本人pending/reviewed，原因必填",
+      "request": "ReasonRequired",
+      "response": "ReviewResult",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/reports/{session_id}/teacher-reviews/{review_id}/reopen",
+      "permission": "report:review",
+      "scope": "本人returned→pending，不自动设主批",
+      "request": "Empty",
+      "response": "Review",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/reports/{session_id}/teacher-reviews/{review_id}/set-primary",
+      "permission": "report:set_primary",
+      "scope": "管辖且目标reviewed；同事务替换旧主批",
+      "request": "Empty",
+      "response": "ReviewResult",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/reports/{session_id}/suggestions",
+      "permission": "report:read:self|report:read:any",
+      "scope": "本人/管辖/院系",
+      "request": "SuggestionQuery",
+      "response": "Page<Suggestion>",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "PATCH",
+      "path": "/suggestions/{suggestion_id}",
+      "permission": "me:update",
+      "scope": "学生仅本人建议采纳状态",
+      "request": "SuggestionAcceptIn",
+      "response": "Suggestion",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/admin/reviews/batch",
+      "permission": "report:review",
+      "scope": "本人pending/reviewed，最多100，逐条事务",
+      "request": "BatchReviewIn",
+      "response": "BatchReviewOut",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/admin/classes/{class_id}/stats",
+      "permission": "stats:read:class",
+      "scope": "教师管辖/org本院/sys全校",
+      "request": "StatsQuery",
+      "response": "ClassStats",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/admin/exports",
+      "permission": "export:create",
+      "scope": "实际filter内全部资源均在范围；异步",
+      "request": "ExportIn",
+      "response": "Export",
+      "version": "P0",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/admin/exports/{export_id}",
+      "permission": "export:create",
+      "scope": "创建者且仍有原数据范围权限",
+      "request": "Empty",
+      "response": "Export",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/admin/audit-logs",
+      "permission": "audit:read",
+      "scope": "org本院/sys全校",
+      "request": "AuditQuery",
+      "response": "Page<Audit>",
+      "version": "P0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/training/materials",
+      "permission": "training:read",
+      "scope": "student可用素材",
+      "request": "ResourceQuery",
+      "response": "Page<TrainingMaterial>",
+      "version": "P1",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/training",
+      "permission": "training:read",
+      "scope": "本人",
+      "request": "TrainingQuery",
+      "response": "Page<Training>",
+      "version": "P1",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/training/start",
+      "permission": "training:write",
+      "scope": "本人，material类型匹配",
+      "request": "TrainingStartIn",
+      "response": "Training",
+      "version": "P1",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/training/{train_id}",
+      "permission": "training:read",
+      "scope": "本人",
+      "request": "Empty",
+      "response": "Training",
+      "version": "P1",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/training/{train_id}/complete",
+      "permission": "training:write",
+      "scope": "本人running，只收上传/场次引用；服务端评测",
+      "request": "TrainingCompleteIn",
+      "response": "Training",
+      "version": "P1",
+      "status": 202
+    },
+    {
+      "method": "POST",
+      "path": "/training/{train_id}/abort",
+      "permission": "training:write",
+      "scope": "本人running/submitted/evaluating",
+      "request": "ReasonIn",
+      "response": "Training",
+      "version": "P1",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/exams",
+      "permission": "training:write",
+      "scope": "student本人；正式考核固定20/10/5",
+      "request": "ExamCreateIn",
+      "response": "Exam",
+      "version": "P1",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/exams",
+      "permission": "training:read",
+      "scope": "本人",
+      "request": "PageQuery",
+      "response": "Page<Exam>",
+      "version": "P1",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/exams/{exam_id}",
+      "permission": "training:read",
+      "scope": "本人，未结束不泄漏answer_outline",
+      "request": "Empty",
+      "response": "Exam",
+      "version": "P1",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/exams/{exam_id}/advance",
+      "permission": "training:write",
+      "scope": "本人；服务端deadline判断，提前进入须明确confirm",
+      "request": "ExamAdvanceIn",
+      "response": "Exam",
+      "version": "P1",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/exams/{exam_id}/submit",
+      "permission": "training:write",
+      "scope": "本人defense阶段，媒体就绪后异步",
+      "request": "ExamSubmitIn",
+      "response": "Exam",
+      "version": "P1",
+      "status": 202
+    },
+    {
+      "method": "POST",
+      "path": "/exams/{exam_id}/abort",
+      "permission": "training:write",
+      "scope": "本人非终态",
+      "request": "ReasonIn",
+      "response": "Exam",
+      "version": "P1",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/leaderboard",
+      "permission": "stats:read:class|training:read",
+      "scope": "学生本班/本院合法届次，教师管辖，管理员范围",
+      "request": "LeaderboardQuery",
+      "response": "Leaderboard",
+      "version": "P1",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/certificates",
+      "permission": "cert:read:self|cert:manage",
+      "scope": "本人或管理员范围",
+      "request": "CertificateQuery",
+      "response": "Page<Certificate>",
+      "version": "P1",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/certificates",
+      "permission": "cert:manage",
+      "scope": "org本院/sys全校，服务端达标检查",
+      "request": "CertificateIssueIn",
+      "response": "Certificate",
+      "version": "P1",
+      "status": 201
+    },
+    {
+      "method": "POST",
+      "path": "/certificates/{cert_id}/revoke",
+      "permission": "cert:manage",
+      "scope": "管理员范围，终态不可逆",
+      "request": "ReasonRequired",
+      "response": "Certificate",
+      "version": "P1",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/certificates/{cert_id}/review",
+      "permission": "cert:manage",
+      "scope": "管理员范围pending_review，保留/撤销留痕",
+      "request": "CertificateReviewIn",
+      "response": "Certificate",
+      "version": "P1",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/certificates/{serial}/verify",
+      "permission": "公开",
+      "scope": "脱敏验真、速率限制",
+      "request": "Empty",
+      "response": "CertificateVerify",
+      "version": "P1",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/me/progress",
+      "permission": "training:read",
+      "scope": "student本人",
+      "request": "ProgressQuery",
+      "response": "ProgressOut",
+      "version": "P1",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/me/weakness",
+      "permission": "training:read",
+      "scope": "student本人",
+      "request": "PageQuery",
+      "response": "Page<Weakness>",
+      "version": "P1",
+      "status": 200
+    },
+    {
+      "method": "PATCH",
+      "path": "/me/weakness/{push_id}",
+      "permission": "training:write",
+      "scope": "本人",
+      "request": "WeaknessPatch",
+      "response": "Weakness",
+      "version": "P1",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/suggestions/{suggestion_id}/tts",
+      "permission": "training:write",
+      "scope": "本人建议，P1云端合成且有效analysis授权",
+      "request": "Empty",
+      "response": "TtsOut",
+      "version": "P1",
+      "status": 202
+    },
+    {
+      "method": "GET",
+      "path": "/internal/users/{user_id}/scopes",
+      "permission": "内部服务凭据",
+      "scope": "服务身份+最小范围，禁止来自公网",
+      "request": "Empty",
+      "response": "ScopeOut",
+      "version": "internal",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/internal/rubrics/{rubric_id}/snapshot",
+      "permission": "内部服务凭据",
+      "scope": "服务身份+最小范围，禁止来自公网",
+      "request": "Empty",
+      "response": "Rubric",
+      "version": "internal",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/internal/classes/{class_id}/students",
+      "permission": "内部服务凭据",
+      "scope": "服务身份+最小范围，禁止来自公网",
+      "request": "PageQuery",
+      "response": "Page<StudentRow>",
+      "version": "internal",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/internal/events/replay",
+      "permission": "内部服务凭据",
+      "scope": "仅运维服务账户；指定event_id，不接受伪造score载荷",
+      "request": "ReplayIn",
+      "response": "Ack",
+      "version": "internal",
+      "status": 202
+    },
+    {
+      "method": "GET",
+      "path": "/health/live",
+      "permission": "运维探针",
+      "scope": "受网络策略限制，响应仅状态，不公开依赖secret",
+      "request": "Empty",
+      "response": "Health",
+      "version": "ops",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/health/ready",
+      "permission": "运维探针",
+      "scope": "受网络策略限制，响应仅状态，不公开依赖secret",
+      "request": "Empty",
+      "response": "Health",
+      "version": "ops",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/exams/{exam_id}/grade",
+      "permission": "report:review",
+      "scope": "管辖学生、is_examiner=true的教师，submitted且媒体/时间轴合格",
+      "request": "ExamGradeIn",
+      "response": "Exam",
+      "version": "P1",
+      "status": 200
+    }
+  ],
+  "dtos": {
+    "Empty": {
+      "fields": "无请求体；响应204时无响应体",
+      "rules": ""
+    },
+    "Ack": {
+      "fields": "ok:bool; request_id:string",
+      "rules": ""
+    },
+    "ReasonIn": {
+      "fields": "reason?:string[0..500]",
+      "rules": ""
+    },
+    "ReasonRequired": {
+      "fields": "reason:string[1..500]",
+      "rules": ""
+    },
+    "PageQuery": {
+      "fields": "page?:int>=1=1; page_size?:int[1..100]=20; sort?:string=-created_at",
+      "rules": ""
+    },
+    "ResourceQuery": {
+      "fields": "extends:PageQuery; department_id?:uuid; subject_id?:uuid; stage?:Stage; keyword?:string<=100; status?:string; difficulty?:array<int[1..5]>; source?:string; textbook_version?:string; book_volume?:string; chapter?:string; template_type?:string; scenario_type?:string; focus?:string; category?:string; exam_year?:int; region?:string",
+      "rules": ""
+    },
+    "LoginIn": {
+      "fields": "phone:string/^1[3-9][0-9]{9}$/; password:string[8..72bytes]",
+      "rules": ""
+    },
+    "SmsIn": {
+      "fields": "phone:string; scene:enum(register,reset_password)",
+      "rules": ""
+    },
+    "SmsOut": {
+      "fields": "sent:bool; cooldown_s:int=60",
+      "rules": ""
+    },
+    "RegisterIn": {
+      "fields": "phone:string; sms_code:string[6]; password:string[8..32]; real_name:string[2..20]; role:const(student); student_no:string<=30; major_id:uuid; class_id:uuid; subject_id:uuid; grade:enum(freshman,sophomore,junior,senior,graduate); stage_pref:Stage; target_cert:TargetCert",
+      "rules": ""
+    },
+    "ResetPasswordIn": {
+      "fields": "phone:string; sms_code:string[6]; new_password:string[8..32]",
+      "rules": ""
+    },
+    "ChangePasswordIn": {
+      "fields": "old_password:string; new_password:string[8..32]",
+      "rules": ""
+    },
+    "RefreshIn": {
+      "fields": "refresh_token:string",
+      "rules": ""
+    },
+    "TokenOut": {
+      "fields": "access_token:string; refresh_token:string; expires_in:int=7200; token_type:const(Bearer); must_change_password:bool",
+      "rules": ""
+    },
+    "AuthOut": {
+      "fields": "extends:TokenOut; user:UserRow",
+      "rules": ""
+    },
+    "ReauthOut": {
+      "fields": "reauth_required:bool=true; auth_version:int",
+      "rules": ""
+    },
+    "ProfilePatch": {
+      "fields": "real_name?:string[2..20]; avatar_upload_id?:uuid; stage_pref?:Stage; target_cert?:TargetCert; title?:enum(assistant,lecturer,associate_professor,professor,researcher,external_mentor)",
+      "rules": ""
+    },
+    "ConsentIn": {
+      "fields": "consent_scope:array<enum(portrait,voice,analysis,archive)>; consent_text_version:string<=20",
+      "rules": ""
+    },
+    "ConsentOut": {
+      "fields": "consent_id:uuid; consent_scope:array<string>; signed_at:datetime; revoked_at:datetime|null",
+      "rules": ""
+    },
+    "DepartmentIn": {
+      "fields": "department_code:string[1..30]; department_name:string[1..100]; status?:enum(enabled,disabled)=enabled",
+      "rules": ""
+    },
+    "Department": {
+      "fields": "department_id:uuid; department_code:string; department_name:string; status:string; created_at:datetime; updated_at:datetime",
+      "rules": ""
+    },
+    "MajorIn": {
+      "fields": "major_name:string[1..50]; department_id:uuid; status?:enum(enabled,disabled)=enabled",
+      "rules": ""
+    },
+    "Major": {
+      "fields": "major_id:uuid; major_name:string; department_id:uuid; school_id:null; status:string",
+      "rules": ""
+    },
+    "SubjectIn": {
+      "fields": "subject_name:string[1..30]; stage_range:array<Stage>[1..5]; ai_prompt_key?:string<=100|null",
+      "rules": ""
+    },
+    "Subject": {
+      "fields": "subject_id:uuid; subject_name:string; stage_range:array<Stage>; ai_prompt_key:string|null",
+      "rules": ""
+    },
+    "ClassIn": {
+      "fields": "class_name:string[2..50]; enroll_year:int[2000..2100]; major_id:uuid; department_id:uuid; advisor_ids:array<uuid>; manager_ids:array<uuid>; status?:enum(active,graduated,archived)=active",
+      "rules": ""
+    },
+    "Class": {
+      "fields": "class_id:uuid; class_name:string; enroll_year:int; major_id:uuid; department_id:uuid; student_count:int; advisor_ids:array<uuid>; manager_ids:array<uuid>; status:string",
+      "rules": ""
+    },
+    "GroupIn": {
+      "fields": "group_name:string[1..30]; member_ids:array<uuid>[2..10]; leader_id:uuid",
+      "rules": ""
+    },
+    "Group": {
+      "fields": "group_id:uuid; class_id:uuid; group_name:string; member_ids:array<uuid>; leader_id:uuid; member_count:int",
+      "rules": ""
+    },
+    "UserQuery": {
+      "fields": "extends:PageQuery; role?:Role; status?:enum(active,disabled,locked); class_id?:uuid; department_id?:uuid; keyword?:string",
+      "rules": ""
+    },
+    "UserCreateIn": {
+      "fields": "phone:string; real_name:string[2..20]; role:enum(teacher,org_admin,sys_admin); department_id:uuid|null; initial_password?:string[8..32]; title?:string; subject_ids?:array<uuid>[1..5]; managed_class_ids?:array<uuid>; advisor_class_ids?:array<uuid>",
+      "rules": ""
+    },
+    "UserPatch": {
+      "fields": "real_name?:string[2..20]; title?:string; is_examiner?:bool; subject_ids?:array<uuid>[1..5]; managed_class_ids?:array<uuid>; advisor_class_ids?:array<uuid>; class_id?:uuid; major_id?:uuid; grade?:string; subject_id?:uuid",
+      "rules": ""
+    },
+    "UserCreatedOut": {
+      "fields": "user_id:uuid; profile_id:uuid; generated_password:string|null; must_change_password:bool=true",
+      "rules": ""
+    },
+    "UserStatusIn": {
+      "fields": "status:enum(active,disabled,locked); reason:string[1..500]; locked_until?:datetime|null",
+      "rules": ""
+    },
+    "PermissionIn": {
+      "fields": "permission_codes:array<string>; reason:string[1..500]",
+      "rules": ""
+    },
+    "UserRow": {
+      "fields": "user_id:uuid; real_name:string; role:Role; phone_masked:string; department_id:uuid|null; status:string; profile_id:uuid; must_change_password:bool; locked_until:datetime|null; created_at:datetime",
+      "rules": ""
+    },
+    "StudentRow": {
+      "fields": "user_id:uuid; profile_id:uuid; student_no:string; real_name:string; class_id:uuid; major_id:uuid; department_id:uuid; grade:string; subject_id:uuid; stage_pref:Stage",
+      "rules": ""
+    },
+    "MeOut": {
+      "fields": "extends:UserRow; permission_codes:array<string>; auth_version:int; student_profile:StudentRow|null; teacher_profile:TeacherProfile|null; consent:ConsentOut|null",
+      "rules": ""
+    },
+    "TeacherProfile": {
+      "fields": "teacher_id:uuid; title:string; is_examiner:bool; subject_ids:array<uuid>; managed_class_ids:array<uuid>; advisor_class_ids:array<uuid>",
+      "rules": ""
+    },
+    "RegistrationOptions": {
+      "fields": "departments:array<Department>; majors:array<Major>; classes:array<ClassOption>; subjects:array<Subject>",
+      "rules": ""
+    },
+    "ClassOption": {
+      "fields": "class_id:uuid; class_name:string; enroll_year:int; major_id:uuid; department_id:uuid",
+      "rules": ""
+    },
+    "StudentImportForm": {
+      "fields": "file:binary(xlsx)<=10MiB; class_id:uuid; dry_run?:bool=false; fail_fast?:bool=false",
+      "rules": ""
+    },
+    "TopicImportForm": {
+      "fields": "file:binary(xlsx)<=10MiB; dry_run?:bool=false; fail_fast?:bool=false",
+      "rules": ""
+    },
+    "QuestionImportForm": {
+      "fields": "file:binary(xlsx)<=10MiB; dry_run?:bool=false; fail_fast?:bool=false",
+      "rules": ""
+    },
+    "ImportOut": {
+      "fields": "dry_run:bool; total_rows:int; success_rows:int; failed_rows:int; errors:array<ImportError>; created_ids:array<uuid>; updated_ids:array<uuid>",
+      "rules": ""
+    },
+    "ImportError": {
+      "fields": "row:int; col:string; value:string; reason:string",
+      "rules": ""
+    },
+    "TaskQuery": {
+      "fields": "extends:ResourceQuery; class_id?:uuid; publisher_id?:uuid; deadline_from?:datetime; deadline_to?:datetime",
+      "rules": ""
+    },
+    "TaskIn": {
+      "fields": "title:string[2..50]; subject_id:uuid; stage:Stage; textbook_version:string<=50; mode:SessionMode; duration_limit_s:int[300..2700]; rubric_id:uuid; allow_retry:int[0..10]=3; require_video:bool; deadline:datetime; class_ids:array<uuid>[1..]; topic_ids:array<uuid>; scenario_id?:uuid|null; structured_q_ids?:array<uuid>",
+      "rules": ""
+    },
+    "Task": {
+      "fields": "task_id:uuid; title:string; subject_id:uuid; stage:Stage; textbook_version:string; mode:SessionMode; duration_limit_s:int; rubric_id:uuid; allow_retry:int; require_video:bool; deadline:datetime; class_ids:array<uuid>; topic_ids:array<uuid>; scenario_id:uuid|null; structured_q_ids:array<uuid>; publisher_id:uuid|null; created_by:uuid; status:TaskStatus; my_attempts:int; my_remaining_retries:int; created_at:datetime; published_at:datetime|null",
+      "rules": ""
+    },
+    "SubmissionPage": {
+      "fields": "items:array<Submission>; total:int; page:int; page_size:int; summary:SubmissionSummary",
+      "rules": ""
+    },
+    "Submission": {
+      "fields": "student:StudentRow; attempt_count:int; remaining_retries:int; latest_session:Session|null; effective_session_id:uuid|null; final_score:number|null",
+      "rules": ""
+    },
+    "SubmissionSummary": {
+      "fields": "expected:int; submitted:int; submission_rate:number[0..1]",
+      "rules": ""
+    },
+    "RubricQuery": {
+      "fields": "extends:ResourceQuery; scope?:enum(system,school,teacher); latest_only?:bool=true",
+      "rules": ""
+    },
+    "RubricIn": {
+      "fields": "rubric_name:string[2..50]; scope:enum(system,school,teacher); department_id:uuid|null; subject_id:uuid|null; stage:Stage|null; total_score:const(100); dimension_weights:DimensionWeights; grade_bands:GradeBands; items:array<RubricItemIn>[6..]; is_template?:bool=false",
+      "rules": ""
+    },
+    "DimensionWeights": {
+      "fields": "content:number[0..1]; expression:number[0..1]; posture:number[0..1]; interaction:number[0..1]; board_ppt:number[0..1]; time_management:number[0..1]",
+      "rules": ""
+    },
+    "GradeBands": {
+      "fields": "pass:number[0..100]; good:number[0..100]; excellent:number[0..100]",
+      "rules": ""
+    },
+    "RubricItemIn": {
+      "fields": "item_id?:uuid; dimension:Dimension; item_name:string[1..50]; max_score:number(0..100]; scoring_desc:string[1..2000]; weight_in_dimension:number[0..1]; scored_by:enum(ai,human,ai_then_human); ai_enabled?:bool",
+      "rules": ""
+    },
+    "Rubric": {
+      "fields": "extends:RubricIn; rubric_id:uuid; root_rubric_id:uuid; version:int>=1; status:enum(draft,published,disabled); publisher_id:uuid; created_at:datetime; usage_count:int",
+      "rules": ""
+    },
+    "RubricMutationOut": {
+      "fields": "rubric:Rubric; created_new_version:bool",
+      "rules": ""
+    },
+    "TopicIn": {
+      "fields": "subject_id:uuid; stage:Stage; textbook_version:string<=50; book_volume?:string<=20; chapter?:string<=100; topic_title:string[1..200]; content_text:string[1..5000]; requirements?:string; difficulty:int[1..5]; source:enum(teacher_cert_exam,skill_competition,platform,teacher_created); exam_year?:int|null; status?:enum(enabled,disabled)=enabled",
+      "rules": ""
+    },
+    "Topic": {
+      "fields": "extends:TopicIn; topic_id:uuid; usage_count:int; created_at:datetime",
+      "rules": ""
+    },
+    "StructuredQuestionIn": {
+      "fields": "category:QuestionCategory; q_text:string[1..1000]; answer_outline?:string[0..2000]; source:enum(teacher_cert_exam,mock); exam_year?:int|null; region?:string; difficulty:int[1..5]; tags:array<string>",
+      "rules": ""
+    },
+    "StructuredQuestion": {
+      "fields": "extends:StructuredQuestionIn; q_id:uuid; created_at:datetime",
+      "rules": ""
+    },
+    "TemplateIn": {
+      "fields": "template_type:enum(lesson_plan,board_design,teaching_plan); subject_id:uuid|null; stage:Stage|null; template_name:string[1..50]; content_json:TemplateBody; file_upload_id?:uuid|null",
+      "rules": ""
+    },
+    "Template": {
+      "fields": "template_id:uuid; template_type:string; subject_id:uuid|null; stage:Stage|null; template_name:string; content_json:TemplateBody; file_url:string|null; usage_count:int",
+      "rules": ""
+    },
+    "TemplateBody": {
+      "fields": "schema_version:const(1.0); sections:array<TemplateSection>",
+      "rules": ""
+    },
+    "TemplateSection": {
+      "fields": "key:string; title:string; type:enum(text,list,table,image); value:string|array<object>|object",
+      "rules": ""
+    },
+    "ExemplarIn": {
+      "fields": "topic_id:uuid; media_upload_id:uuid; transcript:string; highlight_tags:array<string>; ref_score:number[0..100]; status:enum(pending,published,disabled)",
+      "rules": ""
+    },
+    "Exemplar": {
+      "fields": "exemplar_id:uuid; topic_id:uuid; video_url:string; transcript:string; highlight_tags:array<string>; ref_score:number; status:string",
+      "rules": ""
+    },
+    "ScenarioIn": {
+      "fields": "title:string[1..100]; scenario_type:string; description:string; subject_id:uuid|null; stage:Stage|null; expected_skill:Dimension; difficulty:int[1..5]; event_script:ScenarioScript; status?:enum(enabled,disabled)=enabled",
+      "rules": ""
+    },
+    "Scenario": {
+      "fields": "extends:ScenarioIn; scenario_id:uuid",
+      "rules": ""
+    },
+    "ScenarioScript": {
+      "fields": "schema_version:const(1.0); total_duration_s:int[300..2700]; events:array<ScenarioEvent>",
+      "rules": ""
+    },
+    "ScenarioEvent": {
+      "fields": "at_ms:int>=0; event_type:BehaviorType; persona_hint?:Persona; payload:object; expect_action:string; score_weight:number[0..1]",
+      "rules": ""
+    },
+    "SessionQuery": {
+      "fields": "extends:PageQuery; task_id?:uuid; user_id?:uuid; class_id?:uuid; status?:SessionStatus",
+      "rules": ""
+    },
+    "SessionIn": {
+      "fields": "task_id:uuid|null; rubric_id?:uuid; mode?:SessionMode; topic_id?:uuid|null; scenario_id?:uuid|null; structured_q_id?:uuid|null; student_count:int[1..60]=30; behavior_intensity:enum(low,mid,high)=mid; classroom_theme:enum(blackboard,ppt,multimedia,kindergarten)=blackboard; bgm_level:enum(off,light,standard)=light; planned_duration_s?:int[300..2700]; device_info:DeviceInfo",
+      "rules": ""
+    },
+    "DeviceInfo": {
+      "fields": "browser:string; camera:enum(ok,denied,missing); mic:enum(ok,denied,missing); resolution:string|null; supported_mime_types:array<string>; board_used:bool; screen_used:bool",
+      "rules": ""
+    },
+    "SessionCreated": {
+      "fields": "session:Session; virtual_students:array<VirtualStudentDto>; candidates_status:enum(queued,ready,failed); required_tracks:array<TrackType>",
+      "rules": ""
+    },
+    "Session": {
+      "fields": "session_id:uuid; task_id:uuid|null; user_id:uuid; rubric_id:uuid; mode:SessionMode; topic_id:uuid|null; scenario_id:uuid|null; structured_q_id:uuid|null; topic_snapshot:TopicSnapshot; status:SessionStatus; planned_duration_s:int; actual_duration_s:int|null; active_ms:int; start_at:datetime|null; end_at:datetime|null; attempt_no:int|null; student_count:int; behavior_intensity:string; classroom_theme:string; bgm_level:string; device_info:DeviceInfo; candidates_status:string; recordings:array<Recording>; latest_report_id:uuid|null; manifest_hash:string|null",
+      "rules": ""
+    },
+    "TopicSnapshot": {
+      "fields": "kind:enum(topic,structured); topic_id?:uuid; q_id?:uuid; title?:string; content_text?:string; requirements?:string; category?:QuestionCategory; q_text?:string; stage?:Stage; textbook_version?:string; difficulty:int; snapshot_at:datetime",
+      "rules": ""
+    },
+    "VirtualStudentDto": {
+      "fields": "vs_id:uuid; seat_no:int; vs_name:string; persona:Persona; engagement_base:number[20..100]; avatar_key:string",
+      "rules": ""
+    },
+    "WsTicketIn": {
+      "fields": "observation_id?:uuid|null; peer_id:string[1..80]",
+      "rules": ""
+    },
+    "WsTicketOut": {
+      "fields": "ticket:string; expires_in:int=60; ws_url:string",
+      "rules": ""
+    },
+    "SessionSubmitIn": {
+      "fields": "recording_ids:array<uuid>[1..]; no_input_tracks:array<TrackType>; manifest_hash:char(64)",
+      "rules": ""
+    },
+    "AttemptAccepted": {
+      "fields": "report_id:uuid; attempt_id:uuid; status:enum(queued,running); accepted_at:datetime; poll_url:string",
+      "rules": ""
+    },
+    "EventQuery": {
+      "fields": "page?:int=1; page_size?:int[1..500]=200; since_ms?:int>=0; event_type?:array<BehaviorType>",
+      "rules": ""
+    },
+    "BehaviorEvent": {
+      "fields": "event_id:uuid; session_id:uuid; seq:int; vs_id:uuid|null; event_type:BehaviorType; offset_ms:int; payload:object; handled:bool; response_ms:int|null",
+      "rules": ""
+    },
+    "MessageQuery": {
+      "fields": "since_seq?:int>=0=0; limit?:int[1..500]=200",
+      "rules": ""
+    },
+    "Message": {
+      "fields": "msg_id:uuid; seq:int; sender_type:string; sender_id:uuid|null; msg_type:string; content:string; sent_at:datetime",
+      "rules": ""
+    },
+    "MessagePage": {
+      "fields": "items:array<Message>; last_seq:int; has_more:bool",
+      "rules": ""
+    },
+    "Observation": {
+      "fields": "observation_id:uuid; session_id:uuid; teacher_id:uuid; peer_id:string; joined_at:datetime; left_at:datetime|null; is_live:bool",
+      "rules": ""
+    },
+    "RtcConfig": {
+      "fields": "ice_servers:array<IceServer>; expires_at:datetime; max_observers:int=4",
+      "rules": ""
+    },
+    "IceServer": {
+      "fields": "urls:array<string>; username?:string; credential?:string",
+      "rules": ""
+    },
+    "RecordingInitIn": {
+      "fields": "session_id:uuid; tracks:array<TrackType>[1..4]",
+      "rules": ""
+    },
+    "RecordingInitOut": {
+      "fields": "session_id:uuid; tracks:array<RecordingUpload>",
+      "rules": ""
+    },
+    "RecordingUpload": {
+      "fields": "recording_id:uuid; track_type:TrackType; upload:Upload",
+      "rules": ""
+    },
+    "RecordingQuery": {
+      "fields": "extends:PageQuery; session_id?:uuid; user_id?:uuid; task_id?:uuid; upload_status?:string; expires_before?:date",
+      "rules": ""
+    },
+    "Recording": {
+      "fields": "recording_id:uuid; session_id:uuid; track_type:TrackType; upload_id:uuid; upload_status:enum(uploading,success,failed,transcoded); duration_ms:int|null; size_mb:number|null; format:string|null; checksum:string|null; retention_until:date; lock_until:datetime|null; deleted_at:datetime|null",
+      "rules": ""
+    },
+    "PlayUrlOut": {
+      "fields": "url:string; expires_at:datetime; duration_ms:int; content_type:string; supports_range:bool=true",
+      "rules": ""
+    },
+    "ExtendIn": {
+      "fields": "extend_days:int[1..1096]",
+      "rules": ""
+    },
+    "MarkerIn": {
+      "fields": "offset_ms:int>=0; marker_type:enum(teacher_comment,self_review,highlight); comment:string[1..2000]",
+      "rules": ""
+    },
+    "Marker": {
+      "fields": "marker_id:uuid; recording_id:uuid; offset_ms:int; marker_type:string; comment:string; created_by:uuid; created_at:datetime",
+      "rules": ""
+    },
+    "MediaInitIn": {
+      "fields": "purpose:enum(review_voice,training,resource,avatar,exam); target_id:uuid; content_type:string; expected_bytes?:int>0; filename:string<=200; metadata?:UploadMetadata",
+      "rules": ""
+    },
+    "Upload": {
+      "fields": "upload_id:uuid; purpose:string; mode:enum(local_parts,s3_multipart); status:enum(uploading,completed,aborted,failed); part_size:int=8388608; part_limit:int=10000; min_part_size:int=5242880; content_type:string; expires_at:datetime; total_bytes:int|null; sha256:string|null; duration_ms:int|null; parts_url:string; complete_url:string",
+      "rules": ""
+    },
+    "PartUrlsIn": {
+      "fields": "parts:array<PartRequest>[1..20]",
+      "rules": ""
+    },
+    "PartRequest": {
+      "fields": "part_no:int[1..10000]; bytes:int>0; sha256?:char(64)",
+      "rules": ""
+    },
+    "PartUrlsOut": {
+      "fields": "items:array<PartUrl>",
+      "rules": ""
+    },
+    "PartUrl": {
+      "fields": "part_no:int; url:string; required_headers:map<string,string>; expires_at:datetime",
+      "rules": ""
+    },
+    "BinaryPart": {
+      "fields": "body:binary; Content-Type:application/octet-stream; X-Part-SHA256:char(64)",
+      "rules": ""
+    },
+    "Part": {
+      "fields": "part_no:int; bytes:int; sha256:string|null; etag:string|null; received_at:datetime",
+      "rules": ""
+    },
+    "UploadCompleteIn": {
+      "fields": "parts:array<PartRequestWithEtag>[1..10000]; total_bytes:int>0; sha256:char(64)",
+      "rules": ""
+    },
+    "PartRequestWithEtag": {
+      "fields": "part_no:int; bytes:int>0; etag?:string; sha256?:char(64)",
+      "rules": ""
+    },
+    "RecalculateIn": {
+      "fields": "reason:enum(manual,model_upgrade,pipeline_failed); steps?:array<enum(asr,posture,board,text,score)>=all",
+      "rules": ""
+    },
+    "DimensionResult": {
+      "fields": "dimension:Dimension; score:number|null; max_score:const(100); weight:number; effective_weight:number; availability:enum(available,unavailable); unavailable_reason:string|null; ai_confidence:number|null; item_scores:array<ItemScore>; evidence:array<Evidence>",
+      "rules": ""
+    },
+    "ItemScore": {
+      "fields": "item_id:uuid; item_name:string; score:number|null; max_score:number>0; reason:string; confidence:number[0..1]|null; evidence:array<Evidence>",
+      "rules": ""
+    },
+    "Evidence": {
+      "fields": "offset_start_ms:int>=0; offset_end_ms:int>0; text:string; reason:string; alignment_quality:enum(verified,approximate,unavailable)",
+      "rules": ""
+    },
+    "Report": {
+      "fields": "report_id:uuid; session_id:uuid; status:ReportStatus; grade:Grade|null; ai_total_score:number|null; teacher_score:number|null; final_score:number|null; final_score_source:enum(ai,teacher,none); rubric:Rubric; topic_snapshot:TopicSnapshot; ai_model_version:string; generated_at:datetime|null; reviewed_at:datetime|null; score_version:int; published_attempt_id:uuid|null; latest_attempt:Attempt; alignment_quality:Alignment; result_origin:enum(glm,rules,cached_demo); warnings:array<string>; dimensions:array<DimensionResult>[6]; metrics:Metrics; filler_words:array<FillerHit>; segments:array<Segment>; issues:array<Issue>; suggestions:array<Suggestion>; teacher_reviews:array<Review>; effective_dimension_scores:DimensionNullableScores",
+      "rules": ""
+    },
+    "Attempt": {
+      "fields": "attempt_id:uuid; report_id:uuid; attempt_no:int; status:enum(queued,running,succeeded,partial,failed); reason:string; alignment_quality:Alignment; steps:map<string,StepProgress>; accepted_at:datetime; started_at:datetime|null; finished_at:datetime|null; error:Problem|null",
+      "rules": ""
+    },
+    "AttemptDetail": {
+      "fields": "extends:Attempt; result:ReportSnapshot|null; result_sha256:string|null; model_config:object",
+      "rules": ""
+    },
+    "ReportSnapshot": {
+      "fields": "rubric:Rubric; topic_snapshot:TopicSnapshot; dimensions:array<DimensionResult>[6]; ai_total_score:number|null; metrics:Metrics; issues:array<Issue>; suggestions:array<Suggestion>; segments:array<Segment>; filler_words:array<FillerHit>; alignment_quality:Alignment; warnings:array<string>; result_origin:string; asr_segments:array<AsrSegment>",
+      "rules": ""
+    },
+    "StepProgress": {
+      "fields": "status:enum(pending,running,done,failed,unavailable); attempts:int; elapsed_ms:int; error:string|null",
+      "rules": ""
+    },
+    "Metrics": {
+      "fields": "speech:SpeechMetric|null; posture:PostureMetric|null; visual_aid:VisualAidMetric|null; interaction:InteractionMetric|null",
+      "rules": ""
+    },
+    "SpeechMetric": {
+      "fields": "mandarin_score:null; speed_wpm:number|null; pause_count:int|null; avg_pause_ms:number|null; volume_avg_db:number|null; volume_stability:number|null; fluency_score:number|null",
+      "rules": ""
+    },
+    "PostureMetric": {
+      "fields": "stand_stability:number|null; gesture_score:number|null; eye_contact_ratio:number|null; smile_ratio:number|null; movement_score:null; frames_analyzed:int; detect_confidence:number|null",
+      "rules": ""
+    },
+    "VisualAidMetric": {
+      "fields": "board_structure_score:number|null; handwriting_score:null; ocr_enabled:const(false); ppt_slide_count:int|null; ppt_rationality_score:number|null; board_time_ratio:number|null",
+      "rules": ""
+    },
+    "InteractionMetric": {
+      "fields": "question_count:int|null; open_question_ratio:number|null; wait_time_avg_ms:number|null; feedback_quality_score:number|null; encourage_count:int|null; discipline_events:int; discipline_handled_ratio:number|null; pacing_score:number|null",
+      "rules": ""
+    },
+    "FillerHit": {
+      "fields": "word:string; cnt:int; per_minute:number; offsets_ms:array<int>; alignment_quality:Alignment",
+      "rules": ""
+    },
+    "Segment": {
+      "fields": "segment:enum(intro,new_lesson,practice,summary,homework,other); start_ms:int; end_ms:int; duration_ms:int; actual_ratio:number; plan_ratio:number; deviation_flag:enum(normal,overtime,insufficient,missing); source:enum(rule,llm,unavailable)",
+      "rules": ""
+    },
+    "AsrSegment": {
+      "fields": "chunk_id:int; text:string; start_ms:int; end_ms:int; alignment_quality:Alignment",
+      "rules": ""
+    },
+    "Issue": {
+      "fields": "issue_id:uuid; dimension:Dimension; issue_type:string; severity:enum(high,mid,low); offset_start_ms:int; offset_end_ms:int; description:string; evidence_text:string|null; alignment_quality:Alignment",
+      "rules": ""
+    },
+    "Suggestion": {
+      "fields": "suggestion_id:uuid; issue_id:uuid|null; suggestion_type:enum(wording,example_clip,sentence_level,drill); content_text:string; original_text:string|null; optimized_text:string|null; sample_audio_url:string|null; priority:int[1..5]; is_accepted:bool|null",
+      "rules": ""
+    },
+    "SuggestionQuery": {
+      "fields": "extends:PageQuery; dimension?:Dimension; suggestion_type?:string",
+      "rules": ""
+    },
+    "SuggestionAcceptIn": {
+      "fields": "is_accepted:bool",
+      "rules": ""
+    },
+    "ReviewDraftIn": {
+      "fields": "item_scores?:map<uuid,number>; comment_text?:string<=2000; voice_upload_id?:uuid|null",
+      "rules": ""
+    },
+    "ReviewSubmitIn": {
+      "fields": "item_scores:map<uuid,number>; comment_text?:string<=2000; voice_upload_id?:uuid|null; is_primary?:bool=false",
+      "rules": ""
+    },
+    "Review": {
+      "fields": "review_id:uuid; session_id:uuid; report_id:uuid; teacher_id:uuid; teacher_name:string; item_scores:map<uuid,number>|null; total_score:number|null; comment_text:string|null; voice_comment_url:string|null; status:enum(pending,reviewed,returned); is_primary:bool; reviewed_at:datetime|null; created_at:datetime",
+      "rules": ""
+    },
+    "ReviewResult": {
+      "fields": "review:Review; final_score:number|null; final_score_source:enum(ai,teacher,none); grade:Grade|null; score_version:int",
+      "rules": ""
+    },
+    "RadarOut": {
+      "fields": "dimensions:array<RadarDimension>[6]; class_avg_source:object|null; updated_at:datetime|null",
+      "rules": ""
+    },
+    "RadarDimension": {
+      "fields": "dimension:Dimension; score:number|null; class_avg:number|null; grade_avg:number|null; availability:string",
+      "rules": ""
+    },
+    "BatchReviewIn": {
+      "fields": "items:array<BatchReviewItem>[1..100]",
+      "rules": ""
+    },
+    "BatchReviewItem": {
+      "fields": "review_id:uuid; item_scores:map<uuid,number>; comment_text?:string; is_primary?:bool=false",
+      "rules": ""
+    },
+    "BatchReviewOut": {
+      "fields": "succeeded:int; failed:int; items:array<BatchReviewResult>",
+      "rules": ""
+    },
+    "BatchReviewResult": {
+      "fields": "review_id:uuid; ok:bool; result:ReviewResult|null; error:Problem|null",
+      "rules": ""
+    },
+    "StatsQuery": {
+      "fields": "period_type:enum(day,week,month,term); period_key:string; dimension?:Dimension",
+      "rules": ""
+    },
+    "ClassStats": {
+      "fields": "class_id:uuid; period_type:string; period_key:string; avg_score:number|null; submission_rate:number; active_count:int; weakest_dimension:Dimension|null; dimension_avgs:DimensionNullableScores; grade_benchmark:DimensionNullableScores; trend:array<StatPoint>; updated_at:datetime; stale:bool; source_version:int",
+      "rules": ""
+    },
+    "DimensionNullableScores": {
+      "fields": "content:number|null; expression:number|null; posture:number|null; interaction:number|null; board_ppt:number|null; time_management:number|null",
+      "rules": ""
+    },
+    "StatPoint": {
+      "fields": "period_key:string; avg_score:number|null; submission_rate:number",
+      "rules": ""
+    },
+    "ExportIn": {
+      "fields": "export_scope:enum(class_score,training_report,leaderboard,student_profile,eval_detail); export_format:enum(xlsx,csv,pdf); filter_cond:ExportFilter",
+      "rules": ""
+    },
+    "ExportFilter": {
+      "fields": "class_id?:uuid; user_id?:uuid; session_id?:uuid; task_id?:uuid; date_from?:date; date_to?:date; scope?:enum(class,grade,major,school); scope_id?:uuid; period_type?:enum(week,month,term); period_key?:string; board?:enum(score,improvement)",
+      "rules": ""
+    },
+    "Export": {
+      "fields": "export_id:uuid; status:enum(queued,running,success,failed,expired); progress:number[0..1]; file_url:string|null; expire_at:datetime; row_count:int|null; error:string|null",
+      "rules": ""
+    },
+    "AuditQuery": {
+      "fields": "extends:PageQuery; user_id?:uuid; action?:string; target_type?:string; target_id?:uuid; date_from?:datetime; date_to?:datetime",
+      "rules": ""
+    },
+    "Audit": {
+      "fields": "log_id:uuid; user_id:uuid; user_name:string; department_id:uuid|null; action:string; target_type:string; target_id:uuid; ip:string; user_agent:string; created_at:datetime; details:object",
+      "rules": ""
+    },
+    "TrainingQuery": {
+      "fields": "extends:PageQuery; train_mode?:string; status?:string",
+      "rules": ""
+    },
+    "TrainingMaterial": {
+      "fields": "material_id:uuid; subject_id:uuid|null; stage:Stage|null; material_text:string; audio_url:string; focus:enum(speed,pause,stress,intonation); difficulty:int[1..5]",
+      "rules": ""
+    },
+    "TrainingStartIn": {
+      "fields": "train_mode:enum(shadowing,full_trial,scenario,mock_exam); level:enum(entry,intermediate,advanced,exam); material_type?:enum(follow_along,trial_topic,scenario); material_id?:uuid; session_id?:uuid|null; exam_id?:uuid|null",
+      "rules": ""
+    },
+    "TrainingCompleteIn": {
+      "fields": "media_upload_id?:uuid; session_id?:uuid; media_sha256?:char(64)",
+      "rules": ""
+    },
+    "Training": {
+      "fields": "train_id:uuid; user_id:uuid; train_mode:string; level:string; material_type:string|null; material_id:uuid|null; status:enum(running,submitted,evaluating,finished,failed,aborted); started_at:datetime; completed_at:datetime|null; duration_ms:int|null; score:number|null; session_id:uuid|null; next_recommend:Recommendation|null; error:string|null",
+      "rules": ""
+    },
+    "Recommendation": {
+      "fields": "train_mode:string; material_type:string; material_id:uuid; reason:string",
+      "rules": ""
+    },
+    "ExamCreateIn": {
+      "fields": "subject_id:uuid; stage:Stage; examiner_rubric_id:uuid; difficulty:int[1..5]",
+      "rules": ""
+    },
+    "ExamAdvanceIn": {
+      "fields": "to_phase:enum(trial,defense); confirm_early:bool=false",
+      "rules": ""
+    },
+    "ExamSubmitIn": {
+      "fields": "session_id:uuid; answers:array<ExamAnswer>; media_upload_ids:array<uuid>",
+      "rules": ""
+    },
+    "ExamAnswer": {
+      "fields": "q_id:uuid; answer_text:string[1..10000]",
+      "rules": ""
+    },
+    "Exam": {
+      "fields": "exam_id:uuid; user_id:uuid; status:enum(preparation,trial,defense,submitted,finished,aborted); phase_started_at:datetime; phase_deadline_at:datetime; preparation_s:const(1200); trial_s:const(600); defense_s:const(300); session_id:uuid|null; questions:array<ExamQuestion>; final_score:number|null; result:enum(pass,fail)|null; cert_eligible:bool",
+      "rules": ""
+    },
+    "ExamQuestion": {
+      "fields": "question_type:enum(topic,structured); question_id:uuid; seq:int; snapshot:TopicSnapshot",
+      "rules": ""
+    },
+    "LeaderboardQuery": {
+      "fields": "extends:PageQuery; scope:enum(class,grade,major,school); scope_id:uuid; period_type:enum(week,month,term); period_key:string; board:enum(score,improvement)=score",
+      "rules": ""
+    },
+    "Leaderboard": {
+      "fields": "scope:string; scope_id:uuid; scope_name:string; period_type:string; period_key:string; board:string; items:array<LeaderboardRow>; my_rank:int|null; total:int; updated_at:datetime; stale:bool",
+      "rules": ""
+    },
+    "LeaderboardRow": {
+      "fields": "rank_no:int; user_id:uuid; display_name:string; class_name:string; score:number; improvement_delta:number|null",
+      "rules": ""
+    },
+    "CertificateQuery": {
+      "fields": "extends:PageQuery; user_id?:uuid; status?:string; skill?:string",
+      "rules": ""
+    },
+    "CertificateIssueIn": {
+      "fields": "user_id:uuid; skill:CertSkill; report_ids:array<uuid>[1..]; rubric_id:uuid; expire_date?:date",
+      "rules": ""
+    },
+    "CertificateReviewIn": {
+      "fields": "decision:enum(retain,revoke); reason:string[1..500]",
+      "rules": ""
+    },
+    "Certificate": {
+      "fields": "cert_id:uuid; user_id:uuid; skill:CertSkill; level:enum(pass,good,excellent); serial_no:string; issue_date:date; expire_date:date; status:enum(valid,expired,pending_review,revoked); verify_url:string; revoked_at:datetime|null; rule_snapshot:object; evidence:array<CertificateEvidence>",
+      "rules": ""
+    },
+    "CertificateEvidence": {
+      "fields": "report_id:uuid; attempt_id:uuid; score_version:int; score_snapshot:object",
+      "rules": ""
+    },
+    "CertificateVerify": {
+      "fields": "valid:bool; serial_no:string; holder_name:string; skill:CertSkill; level:string; issue_date:date; expire_date:date; status:string; revoked_at:datetime|null",
+      "rules": ""
+    },
+    "ProgressQuery": {
+      "fields": "dimension?:array<Dimension|overall>; date_from:date; date_to:date; granularity:enum(day,week,month)=day",
+      "rules": ""
+    },
+    "ProgressOut": {
+      "fields": "items:array<ProgressPoint>; summary:array<ProgressSummary>; updated_at:datetime; stale:bool",
+      "rules": ""
+    },
+    "ProgressPoint": {
+      "fields": "dimension:Dimension|overall; stat_date:date; score:number; session_count:int; delta_vs_last:number|null",
+      "rules": ""
+    },
+    "ProgressSummary": {
+      "fields": "dimension:string; first_score:number; latest_score:number; delta:number",
+      "rules": ""
+    },
+    "Weakness": {
+      "fields": "push_id:uuid; dimension:Dimension; issue_type:string; severity:string; recommend_train_mode:string; recommend_material_type:string; recommend_material_id:uuid; pushed_at:datetime; is_clicked:bool; is_resolved:bool",
+      "rules": ""
+    },
+    "WeaknessPatch": {
+      "fields": "is_clicked?:bool; is_resolved?:bool",
+      "rules": ""
+    },
+    "TtsOut": {
+      "fields": "status:enum(queued,ready,failed); upload_id:uuid|null; audio_url:string|null; error:string|null",
+      "rules": ""
+    },
+    "ScopeOut": {
+      "fields": "user_id:uuid; department_id:uuid|null; managed_class_ids:array<uuid>; advisor_class_ids:array<uuid>; auth_version:int",
+      "rules": ""
+    },
+    "ReplayIn": {
+      "fields": "event_ids:array<uuid>[1..100]; reason:string[1..500]",
+      "rules": ""
+    },
+    "Problem": {
+      "fields": "type:string; title:string; status:int; detail:string; instance:string; request_id:string; errors?:array<FieldError>",
+      "rules": ""
+    },
+    "FieldError": {
+      "fields": "field:string; reason:string; value?:string",
+      "rules": ""
+    },
+    "Health": {
+      "fields": "status:enum(ok,degraded); request_id:string",
+      "rules": ""
+    },
+    "ExamGradeIn": {
+      "fields": "item_scores:map<uuid,number>; comment:string[1..2000]",
+      "rules": ""
+    },
+    "UploadMetadata": {
+      "fields": "axis?:enum(exam_wall); phase?:enum(preparation,trial,defense); start_at?:datetime; end_at?:datetime",
+      "rules": ""
+    }
+  },
+  "errors": [
+    {
+      "status": 400,
+      "type": "urn:ai-teach:error:invalid-parameter",
+      "description": "类型、UUID、格式不符"
+    },
+    {
+      "status": 401,
+      "type": "urn:ai-teach:error:unauthenticated",
+      "description": "无效token/凭据"
+    },
+    {
+      "status": 401,
+      "type": "urn:ai-teach:error:token-expired",
+      "description": "access过期可refresh"
+    },
+    {
+      "status": 401,
+      "type": "urn:ai-teach:error:session-revoked",
+      "description": "auth_version变化/会话撤销，重新登录"
+    },
+    {
+      "status": 403,
+      "type": "urn:ai-teach:error:permission-denied",
+      "description": "权限码或资源范围不符"
+    },
+    {
+      "status": 403,
+      "type": "urn:ai-teach:error:password-change-required",
+      "description": "强制改密状态访问非白名单"
+    },
+    {
+      "status": 403,
+      "type": "urn:ai-teach:error:consent-required",
+      "description": "采集或analysis缺授权"
+    },
+    {
+      "status": 403,
+      "type": "urn:ai-teach:error:recording-locked",
+      "description": "锁定期内禁止删除"
+    },
+    {
+      "status": 404,
+      "type": "urn:ai-teach:error:not-found",
+      "description": "目标不存在"
+    },
+    {
+      "status": 409,
+      "type": "urn:ai-teach:error:state-conflict",
+      "description": "合法对象但状态不允许"
+    },
+    {
+      "status": 409,
+      "type": "urn:ai-teach:error:session-already-running",
+      "description": "本人已存在活动场次"
+    },
+    {
+      "status": 409,
+      "type": "urn:ai-teach:error:duplicate-submit",
+      "description": "同请求正在处理，查询已有结果"
+    },
+    {
+      "status": 409,
+      "type": "urn:ai-teach:error:idempotency-conflict",
+      "description": "同幂等key不同请求体"
+    },
+    {
+      "status": 409,
+      "type": "urn:ai-teach:error:primary-review-exists",
+      "description": "并发争抢有效主批"
+    },
+    {
+      "status": 409,
+      "type": "urn:ai-teach:error:review-state-conflict",
+      "description": "批阅未reopen等非法迁移"
+    },
+    {
+      "status": 409,
+      "type": "urn:ai-teach:error:observer-capacity",
+      "description": "观摩满4人"
+    },
+    {
+      "status": 409,
+      "type": "urn:ai-teach:error:part-conflict",
+      "description": "相同part_no不同内容"
+    },
+    {
+      "status": 409,
+      "type": "urn:ai-teach:error:attempt-running",
+      "description": "报告已存在queued/running尝试"
+    },
+    {
+      "status": 422,
+      "type": "urn:ai-teach:error:validation-failed",
+      "description": "业务字段关系错误"
+    },
+    {
+      "status": 422,
+      "type": "urn:ai-teach:error:rubric-weights-invalid",
+      "description": "六维权重错误"
+    },
+    {
+      "status": 422,
+      "type": "urn:ai-teach:error:rubric-items-invalid",
+      "description": "细则/主体/满分/组内权重错误"
+    },
+    {
+      "status": 422,
+      "type": "urn:ai-teach:error:grade-bands-invalid",
+      "description": "等级线不递增"
+    },
+    {
+      "status": 422,
+      "type": "urn:ai-teach:error:task-not-published",
+      "description": "任务未发布或已关闭"
+    },
+    {
+      "status": 422,
+      "type": "urn:ai-teach:error:deadline-passed",
+      "description": "正式start已过截止"
+    },
+    {
+      "status": 422,
+      "type": "urn:ai-teach:error:retry-exhausted",
+      "description": "任务已开始次数达到1+allow_retry"
+    },
+    {
+      "status": 422,
+      "type": "urn:ai-teach:error:session-not-ready",
+      "description": "场次状态不允许操作"
+    },
+    {
+      "status": 422,
+      "type": "urn:ai-teach:error:leaderboard-invalid-scope",
+      "description": "届次/范围ID不匹配"
+    },
+    {
+      "status": 422,
+      "type": "urn:ai-teach:error:import-rows-invalid",
+      "description": "fail_fast下导入失败"
+    },
+    {
+      "status": 422,
+      "type": "urn:ai-teach:error:upload-incomplete",
+      "description": "缺片/片号不连续/必需轨未完成"
+    },
+    {
+      "status": 422,
+      "type": "urn:ai-teach:error:checksum-mismatch",
+      "description": "服务端真实SHA256不匹配"
+    },
+    {
+      "status": 422,
+      "type": "urn:ai-teach:error:alignment-unverified",
+      "description": "正式考核/证书需要verified"
+    },
+    {
+      "status": 422,
+      "type": "urn:ai-teach:error:cert-not-eligible",
+      "description": "未达标或依据不完整"
+    },
+    {
+      "status": 423,
+      "type": "urn:ai-teach:error:account-locked",
+      "description": "账号锁定，detail含剩余时间"
+    },
+    {
+      "status": 429,
+      "type": "urn:ai-teach:error:rate-limited",
+      "description": "超限，Retry-After"
+    },
+    {
+      "status": 500,
+      "type": "urn:ai-teach:error:internal-error",
+      "description": "未捕获错误"
+    },
+    {
+      "status": 502,
+      "type": "urn:ai-teach:error:ai-bad-response",
+      "description": "provider结构错误且修正失败"
+    },
+    {
+      "status": 503,
+      "type": "urn:ai-teach:error:ai-provider-unavailable",
+      "description": "熔断/不可用"
+    },
+    {
+      "status": 503,
+      "type": "urn:ai-teach:error:queue-saturated",
+      "description": "待评测超过500，未接受submit"
+    },
+    {
+      "status": 503,
+      "type": "urn:ai-teach:error:dependency-unavailable",
+      "description": "鉴权SQL/存储不可用，不能跳过验证"
+    },
+    {
+      "status": 413,
+      "type": "urn:ai-teach:error:payload-too-large",
+      "description": "媒体/文件/WS大小超限"
+    }
+  ]
+}
