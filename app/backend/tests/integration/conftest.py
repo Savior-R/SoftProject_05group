@@ -128,3 +128,10 @@ def backup_pair():
     # 两个独立随机七库／账号组；不访问或清理既有开发库。
     with mysql_group() as source, mysql_group() as target:
         yield source, target
+
+
+@pytest.fixture
+def model_example_mysql():
+    # 样板运行在自己的随机库组，不污染61表或其他结构对照夹具。
+    with mysql_group() as database:
+        yield database

@@ -26,6 +26,8 @@ app/
 
 API→service→repository→model，DTO不暴露ORM对象；配置统一Settings，禁止散落读取环境变量。model显式schema，字段拼写为start_at/end_at，不使用started_at/ended_at代替场次字段。所有新增工程表见05，不从旧代码片段生成模型。
 
+步骤2实际交接样板：通用ORM见`app/backend/app/platform/models.py`；生成列唯一键和循环FK的最小模型及真实MySQL正负例见`app/backend/tests/integration/test_model_examples.py`，说明见[模型约束样板](../app/docs/team/步骤2-模型样板与约束示例.md)。样板测试覆盖05§7.1–7.3的四种唯一语义，但不是完整域模型，不计入61表。正式模型继承`common.model_base.Base`，不得复制测试用ExampleBase。`compile_metadata`先建表再补循环FK；完整迁移仍须61模型审查冻结，不按示例建4表生产基线。
+
 ## 2 事务与并发
 
 ### 2.1 start与次数

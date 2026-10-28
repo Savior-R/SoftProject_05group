@@ -13,7 +13,7 @@
 |---|---|---|---|---|---|---|
 | 0 | 环境/基线/Git | A + 全员 | 进行中 | 2026-10-28；2671628 | `artifacts/M0/bootstrap/` | A机环境及main历史基线已交付；main保护已配置并回读验证（1位PR审批/管理员受限/禁强推删除）；其余五人环境表待填 |
 | 1 | 工程/测试/health | A | 通过 | 2026-10-28；2671628 | `artifacts/M0/bootstrap/t07-step1.json`、`t05-clean-venv.json`、`git-clone-verification.json`；脱敏摘要见[交付记录](docs/当前阶段交付记录-2026-10-28.md) | 本轮69项测试、Ruff、pip check通过；新空venv仅lock安装、真实HTTP无库503/独立测试库200；基线已提交、干净本地clone复验并推送origin/main。只证明工程骨架／SQL连通性与交付，不代表目标迁移、业务或G1通过 |
-| 2 | 目标 DB/MySQL G1 | A + 各域 | 进行中 | 2026-10-28；A实现`42cbdc5`，已推送任务分支；PR #1待非作者复核 | [A交接说明](docs/步骤2-A公共数据库基础与交接.md)、[脱敏验收摘要](docs/步骤2-A交付验收摘要.json)；完整XML在artifacts/G1/mysql/ | A公共基础/4张platform表及测试数据恢复工具已交付并复测；缺B–F的57表，61表DDL未冻结，完整G1未通过；尚未合入main |
+| 2 | 目标 DB/MySQL G1 | A + 各域 | 进行中 | 2026-10-28；正式main基线`712da35`（PR #1已合并）；`42cbdc5`为实现来源 | [A交接说明](docs/步骤2-A公共数据库基础与交接.md)、[合并后复验与开工准备](docs/步骤2-A合并后复验与开工准备.json)；完整证据在artifacts/G1/mysql/ | 公共基础已合入；隔离test_g1_七空库/两账号已准备；缺57表和冻结DDL，完整迁移/约束/恢复G1未通过 |
 | 3 | DTO/前端/契约 | A + 全员 | 未开始 | — | `artifacts/M0/contracts/` | 依赖步骤 2 的 DB 可连 |
 | 4 | 身份组织/授权 | B | 未开始 | — | `artifacts/M0/identity/` | 依赖步骤 2/3 |
 | 5 | 标准/内容/任务 | C | 未开始 | — | `artifacts/M0/tasks/` | 依赖步骤 4 |
@@ -28,13 +28,14 @@
 
 ## 当前阻塞项
 
-### 步骤2 A公共基础（当前工作区）
+### 步骤2 A公共基础与合并交接
 
 - 公共同步事务/类型/DSN适配及4张platform模型已实施；测试含真实MySQL隔离随机七库和临时账号，测试对象已清理。
-- 最新复测：104项单元+16项集成（含真实MySQL），共120 passed、0 skipped；新增G1测试数据备份/恢复及失败回滚验证，原100项为补齐前历史结果。最终wheel/lock及干净安装结果见[交付摘要](docs/步骤2-A交付验收摘要.json)。步骤1原commit和69项结果保留为历史锚点；本轮交付采用`codex/step2-a-database-foundation`分支，main经非作者PR复核后集成。
+- PR #1已合入main：`712da3522d58ecf1c400eb69d93a9556cd42b861`；原实现`42cbdc5`和步骤1`2671628`保留为历史来源，不再使用“PR #1待复核”描述当前状态。已安全快进本地main并删除已合并旧任务分支的本地/远端引用，新增准备工作走`codex/step2-status-anchor`分支PR。
+- `712da35`原基线为104单元+16集成=120项；新增4项真实MySQL模型样板测试后当前准备分支124 passed、0 skipped。模型样板不注册生产Base，wheel及lock未变。合并基线干净clone/独立lock安装复验与新增样板结果分开记录，见[合并后摘要](docs/步骤2-A合并后复验与开工准备.json)。
 - 完整目标仍缺57张模型；迁移缺冻结快照即失败，不建版本表。全61表迁移与G1证据必须由A接收B–F交接后完成；步骤2整体不能标“通过”。
-- 旧宽权限初始化停用，现有账号/共享数据库未改动；新G1需独立最小权限目标。交接及后续节点见[A说明](docs/步骤2-A公共数据库基础与交接.md)。
-- 本轮实现提交`42cbdc56b4c1ef8786f5c9c6f163f08ec1a26201`已推送`origin/codex/step2-a-database-foundation`，GitHub PR #1已创建；main仍为原基线，等待非作者复核。远端新clone的源码/wheel/lock一致性已通过；GitHub main保护已配置并回读验证。未代表B–F已获取或完成环境验收。
+- 旧宽权限初始化停用，现有账号/共享数据库未改动。已通过bootstrap --apply新建test_g1_七空库及g1_migration/g1_business独立账号，空库/字符集/最小权限已检查；凭据仅在ignored runtime/g1/local.env，正式建表后仍须platform表级业务授权。环境准备不等于迁移或G1通过。
+- main保护与wsc20061204的Write权限已实际查询确认；C–F按用户说明暂未邀请。交接包和环境回执模板已准备，尚无群聊接收渠道与成员回执，不能记“五人已收到”或全组环境通过；见[开工交接包](docs/team/步骤2-B-F开工交接包.md)。
 
 ### 步骤1已交付历史基线（2026-10-28）
 
