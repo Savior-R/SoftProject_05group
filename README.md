@@ -15,7 +15,7 @@
 2. Python 3.12；后端依赖和本项目 wheel 以 app/backend/requirements.lock 锁定。
 3. 唯一正式前端为 app/frontend/（Vue 3 + TypeScript + Vite），构建产物为 dist/。
 4. ENV 取值为 dev/demo/staging/prod；正式生产统一使用 prod。
-5. 数据库目标为 61 表，先完成双方言 G1；现存旧 SQL、模型和生成器仅为迁移输入，不得直接用于新版初始化。
+5. 数据库目标为 61 表，先完成MySQL G1；仅支持全新空库初始化，取消旧52表升级及历史数据导入；历史SQL、模型和生成器不再是开发输入。
 
 ## 开发与部署入口
 

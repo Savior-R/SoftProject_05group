@@ -1,19 +1,19 @@
 {
   "document_version": "3.2.0",
-  "generated_at": "2026-10-28T13:05:56.428031+08:00",
+  "generated_at": "2026-10-28T14:01:49.828503+08:00",
   "sources": [],
   "outputs": [
     {
       "path": "设计文档3.x/00-README.md",
-      "bytes": 6184,
+      "bytes": 6345,
       "lines": 73,
-      "sha256": "05ec54724bd3e9d0eac552512bb059a45add88758d989ea77d9dac55f27c2602"
+      "sha256": "cc50df1203d3f134fd2232b4ce6ed12fb7e10a2f8a47e03509e6d0b06b4de24e"
     },
     {
       "path": "设计文档3.x/01-需求规格说明书-SRS.md",
-      "bytes": 19733,
+      "bytes": 19821,
       "lines": 207,
-      "sha256": "94025d21784e87700a71e301f0a79a9e4474c45c63573825d441b7ad74b3d9c3"
+      "sha256": "536418f2212eb35bae3626c6a081ce35fc9edeab93e16687cadf28b515e5984a"
     },
     {
       "path": "设计文档3.x/02-产品需求文档-PRD.md",
@@ -23,21 +23,21 @@
     },
     {
       "path": "设计文档3.x/03-系统概要设计-HLD.md",
-      "bytes": 9534,
+      "bytes": 9610,
       "lines": 121,
-      "sha256": "070dbdde6b1fd06cf99595bcbd60814a1b5f4c792ce6fa49039e69146e9e90a9"
+      "sha256": "acd693097187f8a08dcd0e42aa3bf61105cbb399a0b55ca10008c852c501aa21"
     },
     {
       "path": "设计文档3.x/04-详细设计-LLD.md",
-      "bytes": 14677,
+      "bytes": 14681,
       "lines": 231,
-      "sha256": "5141e22fe85e62e3fb276720c0456107c06253182473621d4f7cc0b065421401"
+      "sha256": "1fcabd3d4dba04c229bdb2f72a79a59a4d49a5a4250bbf507d61c3e971e4b035"
     },
     {
       "path": "设计文档3.x/05-数据库设计文档-V2.md",
-      "bytes": 108488,
-      "lines": 1545,
-      "sha256": "709779e7ec56351b6f2e983f1bac7cc8020dd0a4d059609290f261277faba9d4"
+      "bytes": 108399,
+      "lines": 1542,
+      "sha256": "ff1e63f9bff3a1deeeb6ff1a6dfce882ee92e84ab71c27b8e4191e01986bcc7f"
     },
     {
       "path": "设计文档3.x/06-接口设计文档.md",
@@ -53,51 +53,33 @@
     },
     {
       "path": "设计文档3.x/08-测试计划与测试用例.md",
-      "bytes": 13071,
+      "bytes": 13158,
       "lines": 151,
-      "sha256": "62351ce7a1441292c6d059a1c6e60d11eab79a74abeb04cd9b70ad8c3d386054"
+      "sha256": "24749663f09f2e1a08d958ca28980b5bd72d0b790bfdfc05c59a2653aabed217"
     },
     {
       "path": "设计文档3.x/09-部署运维方案.md",
-      "bytes": 8509,
+      "bytes": 8666,
       "lines": 120,
-      "sha256": "80beb185c8ba678f8dd76f20953ed7bc69f4516e60ae572a5f3fe49244ce5e96"
+      "sha256": "8b4b3e7e68c84e83d6cf558b928848c6da9950f7c05277b72b8e7b5312548467"
     },
     {
       "path": "设计文档3.x/10-本地零成本部署手册.md",
-      "bytes": 7659,
+      "bytes": 7733,
       "lines": 108,
-      "sha256": "c20fef9511bb9d424b12c7b0208a5b852e814b31fb9f6b2f4bbb52848fc67273"
+      "sha256": "dce31c2c825b134de690344012fb1f5569ac84702e5bbfd313885a9df3d31a5a"
     },
     {
       "path": "设计文档3.x/11-实现契约.md",
-      "bytes": 92668,
+      "bytes": 92680,
       "lines": 2540,
-      "sha256": "5543092ee7d3f61a1254688a7016a1732f4fd04cc5528daf051f765e0a63543f"
+      "sha256": "8f07f7fb7a591884f5dac07269f09d91c804d45b5f105641f440497972f7ae65"
     },
     {
       "path": "设计文档3.x/12-修订追踪与验收门禁.md",
-      "bytes": 9859,
-      "lines": 87,
-      "sha256": "e66cba72aad0e0c750ec9f6a041e542d109b21733c47c91007b4dc3f3921a65e"
-    },
-    {
-      "path": "设计文档3.x/V3移交说明.md",
-      "bytes": 4295,
-      "lines": 50,
-      "sha256": "7c8276231b3772cabe397b9e02c224d26a835a1726f4e700b2c2f655ebb48d1e"
-    },
-    {
-      "path": "设计文档3.x/团队开发文档/13-六人团队开发执行方案.md",
-      "bytes": 72303,
-      "lines": 834,
-      "sha256": "4553012b3bfa619f763c17b69ff3da2423ed3c6d40f5f5308c1567c90ae79457"
-    },
-    {
-      "path": "设计文档3.x/团队开发文档/14-六人成员任务卡与联调清单.md",
-      "bytes": 9961,
-      "lines": 146,
-      "sha256": "3bc5416c209a2c87aaaa842e4f6446b5772463425a4b88f7a320933dc6ddbe31"
+      "bytes": 11007,
+      "lines": 95,
+      "sha256": "35a3b20b5ae9486f4423bf7e40ab7ccfc935ec67f33857ea7c0dab6f0de1c970"
     },
     {
       "path": "设计文档3.x/api-contract.json",
@@ -106,11 +88,29 @@
       "sha256": "f6d11151cdb58ad5aa787510333a5f04a7da1f202391aedde0d4c6d68d5aa7a5"
     },
     {
+      "path": "设计文档3.x/V3移交说明.md",
+      "bytes": 4411,
+      "lines": 50,
+      "sha256": "e7dd62f1d12fff10ca456bf91078b7268c7b0477f21407ecef69a27f3b9015eb"
+    },
+    {
+      "path": "设计文档3.x/团队开发文档/13-六人团队开发执行方案.md",
+      "bytes": 71934,
+      "lines": 832,
+      "sha256": "a647144acdce541581fae62833f268bd32ed33e9f7fe81f7cfa781e892dcc822"
+    },
+    {
+      "path": "设计文档3.x/团队开发文档/14-六人成员任务卡与联调清单.md",
+      "bytes": 10092,
+      "lines": 146,
+      "sha256": "60a32d6d04f824e17a75e62e1464d9547827f069b090600f8eb93ada5f5bb568"
+    },
+    {
       "path": "设计文档3.x/文档校验结果.json",
-      "bytes": 2098,
+      "bytes": 2176,
       "lines": 80,
-      "sha256": "4a97d48587fe972c797f8c41663f1d10ab29968f014464716465de0ea2e782d7"
+      "sha256": "72c977f659450e36934f81c51d882c7a224951ecdd23595452686c568485d589"
     }
   ],
-  "note": "现行3.2.0独立维护；含16份Markdown、API契约及文档校验结果；不含自身hash。删除历史只保留审计元数据，不作为设计依赖。"
+  "note": "现行3.2.0独立维护；仅MySQL、全新61表，不支持旧52表升级。含16份Markdown、API契约及文档校验结果，不含自身hash；历史删除元数据不作为设计依赖。"
 }

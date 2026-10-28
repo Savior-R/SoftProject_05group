@@ -11,9 +11,9 @@
 
 | 步骤 | 目标 | 主责 | 状态 | 日期/commit | 证据 | 阻塞与下一步 |
 |---|---|---|---|---|---|---|
-| 0 | 环境/基线/Git | A + 全员 | 进行中 | 2026-10-28；2671628 | `artifacts/M0/bootstrap/` | A 机 Python/Node/FFmpeg/MySQL 已就绪；main基线已提交并推送origin；远端main保护待验证；**SQL Server 缺机器**，其余五人环境表待填 |
+| 0 | 环境/基线/Git | A + 全员 | 进行中 | 2026-10-28；2671628 | `artifacts/M0/bootstrap/` | A 机 Python/Node/FFmpeg/MySQL 已就绪；main基线已提交并推送origin；远端main保护待验证；其余五人环境表待填 |
 | 1 | 工程/测试/health | A | 通过 | 2026-10-28；2671628 | `artifacts/M0/bootstrap/t07-step1.json`、`t05-clean-venv.json`、`git-clone-verification.json`；脱敏摘要见[交付记录](docs/当前阶段交付记录-2026-10-28.md) | 本轮69项测试、Ruff、pip check通过；新空venv仅lock安装、真实HTTP无库503/独立测试库200；基线已提交、干净本地clone复验并推送origin/main。只证明工程骨架／SQL连通性与交付，不代表目标迁移、业务或G1通过 |
-| 2 | 目标 DB/双方言 G1 | A + 各域 | 未开始 | — | `artifacts/G1/mysql/`、`artifacts/G1/sqlserver/` | MySQL 容器已可用；SQL Server 阻塞 |
+| 2 | 目标 DB/MySQL G1 | A + 各域 | 未开始 | — | `artifacts/G1/mysql/` | MySQL容器可用；61表初始化/约束/恢复尚待步骤2实施 |
 | 3 | DTO/前端/契约 | A + 全员 | 未开始 | — | `artifacts/M0/contracts/` | 依赖步骤 2 的 DB 可连 |
 | 4 | 身份组织/授权 | B | 未开始 | — | `artifacts/M0/identity/` | 依赖步骤 2/3 |
 | 5 | 标准/内容/任务 | C | 未开始 | — | `artifacts/M0/tasks/` | 依赖步骤 4 |
@@ -63,7 +63,7 @@
 
 | 编号 | 阻塞内容 | 影响 | 责任人 | 计划到位 |
 |---|---|---|---|---|
-| BLK-01 | SQL Server 未安装（第二方言） | G1 只能记"部分完成"，不能整体通过 | A 安排 | 待定 |
+| BLK-01 | 第二方言要求已取消 | 2026-10-28用户确定仅MySQL；不再阻塞G1，MySQL验收仍待完成 | A | 已退出范围 |
 | BLK-02 | 真实模型账号与配额未验证 | 步骤 8 只能先跑规则降级 | F | 待定 |
 | BLK-03 | 教师样本 / 双盲评分人未预约 | G5（≥50 份）无法开始 | A 负责预约 | 待定 |
 | BLK-04 | 五名成员环境表未填 | 不能声称"全组环境通过" | 各成员 | 首次会议后 |
@@ -78,7 +78,7 @@
 | Docker 29.8.0（Desktop 4.91.0） | 引擎可用；必须先启动 Docker Desktop |
 | MySQL 8.0.46 容器 | 七域 + 七测试库齐全，日常账户可连，重启后数据保持 |
 | FFmpeg / FFprobe 6.1.1 | 可用；已实测生成 vp8+vorbis webm 并用 FFprobe 探出 3.003 秒 |
-| SQL Server | 未安装（BLK-01） |
+| 数据库范围（2026-10-28更新） | 仅MySQL；第二方言与旧52表升级退出范围 |
 
 证据：`artifacts/M0/bootstrap/env-check.json`（由 `app/tools/check-env.py` 生成）
 

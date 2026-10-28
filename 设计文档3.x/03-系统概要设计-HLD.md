@@ -56,7 +56,7 @@ flowchart TD
 | 编号 | 决策 | 原因与限制 |
 |---|---|---|
 | ADR-001 | Python3.12+FastAPI+Pydantic2 | API/WS统一，DTO导出；FFmpeg使用子进程并限制并发 |
-| ADR-002 | SQLAlchemy2+Alembic，MySQL8/SQL Server双方言 | 模型声明schema；数据库必须同实例；统一迁移依赖图，按方言生成DDL |
+| ADR-002 | SQLAlchemy2+Alembic，仅MySQL8 | 模型声明schema；数据库必须同实例；统一迁移依赖图，生成MySQL初始化DDL |
 | ADR-003 | A1 SQL待办+同进程调度；A2/B arq+Redis | 业务任务先落SQL/outbox；重启补投，队列不是唯一事实源；不宣称原样切换无需worker配置 |
 | ADR-004 | WS控制/信令，WebRTC媒体 | 每场1学生+最多4观摩，生产TURN；媒体与控制限流分离 |
 | ADR-005 | session_event持久化后广播 | 序号/快照/重放可恢复；事务失败不广播，Pub/Sub只作通知 |
@@ -67,11 +67,11 @@ flowchart TD
 
 ## 4 数据架构和连接
 
-7域：identity_org/task_content/classroom/media/evaluation/growth_cert/platform。MySQL为7个database；SQL Server为同一ai_teach数据库中的7个schema。单engine可带默认库，只要全部模型显式声明schema且账户具有访问权限；无需通过“删库名”实现跨库。schema_translate_map仅用于物理库名映射，不能把7个旧库自动合并为单库。多engine不会关闭数据库FK，但不能形成同一个本地跨engine事务。
+7域：identity_org/task_content/classroom/media/evaluation/growth_cert/platform。MySQL为同一实例内7个database，全部使用InnoDB。单engine可带默认库，只要全部模型显式声明schema且账户具有访问权限；无需通过“删库名”实现跨库。schema_translate_map仅用于物理库名映射，不能把7个旧库自动合并为单库。多engine不会关闭数据库FK，但不能形成同一个本地跨engine事务。
 
 本版保持同实例；跨域外键按05管理。分服务部署仍各自拥有写边界，跨域副作用交给outbox。未来跨实例拆库是架构变更，需要移除对应物理FK并实现事件校验，不能仅改DSN。
 
-目标61表：原52表修正+department/security_session/media_upload/media_upload_part/evaluation_attempt/outbox_event/consumer_receipt/session_event/session_time_span九表。旧生成器尚未适配本版，G1验收前不能直接覆盖新文档。
+目标61表：原52表修正+department/security_session/media_upload/media_upload_part/evaluation_attempt/outbox_event/consumer_receipt/session_event/session_time_span九表。仅从空库初始化，不支持旧52表升级；按目标模型建立MySQL初始迁移并执行G1，旧生成器不再作为开发依赖。
 
 ## 5 场次、媒体与实时恢复
 
@@ -118,4 +118,4 @@ JWT access 2小时，refresh 7天轮换；每次HTTP/WS业务写入校验user.st
 
 ## 9 技术风险与验证
 
-G1新库/升级与FK级联、G2真实录制上传、G3模型/时间对齐、G4越权/重启/改分、G5效果、G6容量详见12。模型标识可替换不代表能力等价；所有模型或提示词变更回归固定样本。配额限制时排队，600秒阈值以submit接受时间计算，不能无限延迟后仍声称5分钟达成。
+G1全新库初始化/重复执行保护/非空库拒绝与FK约束、G2真实录制上传、G3模型/时间对齐、G4越权/重启/改分、G5效果、G6容量详见12。模型标识可替换不代表能力等价；所有模型或提示词变更回归固定样本。配额限制时排队，600秒阈值以submit接受时间计算，不能无限延迟后仍声称5分钟达成。

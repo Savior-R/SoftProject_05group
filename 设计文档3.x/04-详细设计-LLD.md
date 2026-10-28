@@ -30,7 +30,7 @@ API→service→repository→model，DTO不暴露ORM对象；配置统一Setting
 
 ### 2.1 start与次数
 
-事务中锁user行（MySQL SELECT FOR UPDATE；SQL Server UPDLOCK/HOLDLOCK），校验security_session、授权、目标任务和所有running/paused场次；分配task+user的下一个attempt_no。已开始次数包括finished/aborted，不包括not_started。原子写session.status/start_at、time_span、首次任务ongoing、session_event和outbox。唯一活动场次索引再兜底。并发两个start最多一个成功，第二个409 session-already-running。
+事务中锁user行（MySQL SELECT ... FOR UPDATE，同一连接事务内执行），校验security_session、授权、目标任务和所有running/paused场次；分配task+user的下一个attempt_no。已开始次数包括finished/aborted，不包括not_started。原子写session.status/start_at、time_span、首次任务ongoing、session_event和outbox。唯一活动场次索引再兜底。并发两个start最多一个成功，第二个409 session-already-running。
 
 创建时允许多个not_started，但不预占次数。task截止后不允许start，即便草稿提前创建。服务端覆盖task固定模式和时长；不允许通过传自由练习参数绕过指定题集。自由练习rubric_id必填且已published。
 

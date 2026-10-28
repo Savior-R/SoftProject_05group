@@ -17,7 +17,7 @@
 
 学生只操作本人；教师访问managed/advisor班级；教研管理员访问本院department；系统管理员全校运维。department是真实组织维度，与V2多校school_id分离。管理员无教师评分权限，需教师角色执行批阅。
 
-服务端Python3.12/FastAPI/Pydantic2/SQLAlchemy2；开发MySQL8，交付SQL Server，生产Redis7与S3兼容对象存储。前端Chrome/Edge目标版本须过兼容测试；唯一正式前端为app/frontend的Vite+Vue3+TypeScript工程，依赖按lock冻结。摄像头/麦克风需安全上下文和明示授权；公网需HTTPS。
+服务端Python3.12/FastAPI/Pydantic2/SQLAlchemy2；开发、演示与交付统一MySQL8，生产Redis7与S3兼容对象存储。前端Chrome/Edge目标版本须过兼容测试；唯一正式前端为app/frontend的Vite+Vue3+TypeScript工程，依赖按lock冻结。摄像头/麦克风需安全上下文和明示授权；公网需HTTPS。
 
 GLM为首选云模型适配器。模型标识与配额须按实际账号记录；短音频连通、长音频时间轴、评分效果分别验证。字迹与音素级发音评分不属于MVP；不能把NULL当0或默认满分。
 
@@ -195,9 +195,9 @@ MVP覆盖所有P0：教师创建并发布rubric/任务→学生授权并按任�
 | D16 | 异步归属 | report 是当前发布结果；evaluation_attempt 保存每次运行和完整不可变快照；不再只依靠report中的进度JSON追溯。 |
 | D17 | 标准版本 | draft可编辑，published不可改正文；已发布标准PATCH创建下一draft版本；publish显式校验；场次锁定版本快照。 |
 | D18 | Redis | 缓存可淘汰；队列/租约noeviction+AOF；锁有TTL且持有者续期/条件释放；SQL是序号、状态和业务幂等的最终来源。 |
-| D19 | 分区 | 事件热存90天、按场次归档至3年；WS重放只保留7天，过期用快照；两方言使用各自归档语法。 |
+| D19 | 分区 | 事件热存90天、按场次归档至3年；WS重放只保留7天，过期用快照；使用MySQL归档语法。 |
 | D20 | 运营 | V1.0跟读与TTS、证书默认2年、进步榜、班级词表、考核20-10-5；practice_school/review_quota与多校为V2。 |
-| D21 | 数据库 | MySQL8开发/演示，SQL Server交付；统一逻辑模型+方言迁移，不能以旧DDL覆盖新需求；两方言均须空库与升级验收。 |
+| D21 | 数据库 | MySQL8统一开发/演示/交付；统一逻辑模型+MySQL迁移，不能以旧DDL覆盖新需求；MySQL须全新空库初始化、重复执行保护、未受管非空库拒绝、约束及新基线恢复验收；不支持旧52表升级。 |
 | D22 | 前端 | 唯一正式UI为app/frontend的Vite+Vue3+TypeScript工程，产物dist；演示也使用同一构建，不另维护零构建页面，见ADR-010。 |
 | D23 | 评测器 | glm/rules两实现；另有显式cached_demo模式，仅回放同一media_sha256的已验证结果，界面标缓存；规则不足4维不出总分。 |
 | D24 | ASR | 云端分段；ASR关闭只允许精确匹配内容哈希/模型/配置的缓存；缺真实时间戳则粗锚点标approximate，不承诺0.5秒证据定位。 |

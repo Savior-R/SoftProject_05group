@@ -32,7 +32,7 @@
 | Node | v24.19.0（LTS） | `D:\soft\DevEnv\Node` | npm 11.17.0 |
 | Git | 2.55.0 | `D:\soft\DevEnv\Git` | |
 | MySQL | 8.0.46（容器 `ai-teach-mysql`） | Docker，**主机端口 3307** → 容器内 3306 | 首个开发方言；3306 已被本机既有服务 `mysqlzt` 占用 |
-| SQL Server | 未安装 | — | 第二方言，G1 记"部分完成" |
+| 数据库范围 | 仅MySQL 8.0 | — | 全新61表；取消第二方言和旧52表升级，G1仍待完整验收 |
 | FFmpeg / FFprobe | 6.1.1-essentials | `D:\soft\DevEnv\ffmpeg\bin` | 已在用户 PATH |
 
 版本冻结理由与取舍见 `app/docs/adr/ADR-010-工程实现基线.md`。

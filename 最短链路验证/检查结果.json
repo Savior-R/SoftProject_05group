@@ -1,6 +1,6 @@
 {
   "status": "passed",
-  "generated_at": "2026-10-28T13:02:08.583634+08:00",
+  "generated_at": "2026-10-28T14:01:49.828503+08:00",
   "checks": [
     {
       "name": "文档文件和版本",
@@ -14,7 +14,7 @@
       "name": "链接、代码围栏和表格",
       "status": "passed",
       "detail": {
-        "relative_links": 42
+        "relative_links": 43
       }
     },
     {
@@ -31,7 +31,7 @@
       "status": "passed",
       "detail": {
         "entities": 61,
-        "scope": "仅字典和两类已知错误扫描，没有执行DDL"
+        "scope": "仅61实体字典、MySQL类型及关键约束和范围检查，没有执行DDL"
       }
     },
     {
@@ -58,7 +58,7 @@
   ],
   "application_present": true,
   "not_run": [
-    "真实SQL建库与升级",
+    "真实SQL新库初始化、约束及恢复",
     "应用HTTP/WS/浏览器",
     "真实上传与媒体对齐",
     "真实GLM模型",

@@ -119,9 +119,12 @@ def main():
         names = re.findall(r"^####[^\n]*`([a-z_]+\.[a-z_]+)`", text, re.M)
         names += re.findall(r"^### `([a-z_]+\.[a-z_]+)`", text, re.M)
         require(len(names) == len(set(names)) == 61, f"目标实体数应61，实际{len(names)}")
-        require("WHERE active_primary_report_id IS NOT NULL" not in text, "残留计算列过滤条件")
+        require("WHERE active_primary_report_id IS NOT NULL" not in text, "残留不支持的过滤索引")
+        require(not re.search(r"UNIQUEIDENTIFIER|DATETIME2|NVARCHAR|SYSUTCDATETIME|ISJSON|\[status\]", text), "字段字典残留非MySQL类型或语法")
+        require("仅开发全新 61 表数据库" in text and "仅使用MySQL" in text, "数据库范围决定缺失")
+        require("JSON_ARRAY()" in text and "JSON_VALID(" in text and "GENERATED ALWAYS AS" in text, "MySQL关键类型与约束定义缺失")
         require("max_score BETWEEN 0 AND 100" not in text, "残留允许满分为0的约束")
-        return {"entities": len(names), "scope": "仅字典和两类已知错误扫描，没有执行DDL"}
+        return {"entities": len(names), "scope": "仅61实体字典、MySQL类型及关键约束和范围检查，没有执行DDL"}
 
     def coverage():
         fr = set(re.findall(r"FR-\d{2}-\d+", contents["01-需求规格说明书-SRS.md"]))
@@ -177,7 +180,7 @@ def main():
     status = "passed" if all(c["status"] == "passed" for c in checks) else "failed"
     report = {"status": status, "generated_at": datetime.now(timezone(timedelta(hours=8))).isoformat(),
         "checks": checks, "application_present": (ROOT / "app/backend/app/main.py").is_file(),
-        "not_run": ["真实SQL建库与升级", "应用HTTP/WS/浏览器", "真实上传与媒体对齐", "真实GLM模型", "效果与性能"],
+        "not_run": ["真实SQL新库初始化、约束及恢复", "应用HTTP/WS/浏览器", "真实上传与媒体对齐", "真实GLM模型", "效果与性能"],
         "meaning": "passed仅表示所列静态检查和参考函数检查通过，不是开发文档完整正确或系统验收通过"}
     OUTPUT.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"\n结果: {status}; 报告: {OUTPUT}")

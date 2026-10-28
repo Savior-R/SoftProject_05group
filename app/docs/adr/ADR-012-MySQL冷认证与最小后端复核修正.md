@@ -11,10 +11,10 @@
    缺少 TEST_DATABASE_URL 返回非零，不能跳过后将 Step 1 标为通过。
    真库检查在仅安装 lock 的新 venv 中执行，执行真实 HTTP 和 SELECT 1，先校验 RSA
    依赖可导入，避免暖缓存掩盖缺依赖。该检查不证明表结构、迁移或业务已完成。
-3. 业务事务继续采用 ADR-010 的同步 SQLAlchemy Session，后续 MySQL/PyODBC 驱动、
+3. 业务事务继续采用 ADR-010 的同步 SQLAlchemy Session，后续 MySQL 同步驱动、
    Alembic 和事务测试在步骤 2 实施。现有异步 engine 只用于独立运维探针，不提供业务
    Session，不共享业务事务。ADR-011 不再被解释为全项目已选择异步业务访问。
-   不能从一个异步 SELECT 1 推导出禁止同步 Session；SQL Server 的驱动路线也不能省略。
+   不能从一个异步 SELECT 1 推导出禁止同步 Session；后续仅实现 MySQL，第二方言已按 ADR-013 取消。
 4. 保留本次明确 T06 契约：/health/live、/health/ready 在 OpenAPI 中公开；
    /api/v1/health/* 为隐藏兼容别名，/healthz 为旧 readiness 别名。
    业务 API 使用 /api/v1；运维探针为明确例外。团队指南据此统一。
