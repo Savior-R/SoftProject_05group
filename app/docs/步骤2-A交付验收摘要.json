@@ -1,0 +1,86 @@
+{
+  "verified_at": "2026-10-28T10:10:09.285140+00:00",
+  "scope": "Step 2 A foundation and G1 test-data backup/restore tooling only; not full G1",
+  "branch": "codex/step2-a-database-foundation",
+  "delivery": {
+    "implementation_commit": "42cbdc56b4c1ef8786f5c9c6f163f08ec1a26201",
+    "pushed_to_origin": true,
+    "pull_request_number": 1,
+    "remote_clean_clone_source_wheel_lock": "passed",
+    "main_integration": "pending_non_author_review",
+    "other_team_members_environment_verification": "pending"
+  },
+  "design_baseline": "3.2.0 MySQL-only fresh 61-table database",
+  "python": "3.12.10",
+  "mysql": "8.0.46",
+  "tests": {
+    "unit": 104,
+    "integration_including_real_mysql": 16,
+    "total": 120,
+    "failures": 0,
+    "skipped": 0
+  },
+  "quality": {
+    "ruff_lint": "passed",
+    "ruff_format": "passed",
+    "pip_check": "passed",
+    "wheel_matches_source_and_lock": "passed",
+    "step1_regression_exit_code": 0,
+    "fresh_venv_lock_only": "passed",
+    "installed_backup_restore_modules": "passed",
+    "executed_from_source": false
+  },
+  "http": {
+    "live": 200,
+    "ready_without_database": 503,
+    "ready_with_test_database": 200,
+    "openapi": 200
+  },
+  "model_inventory": {
+    "expected": 61,
+    "registered": 4,
+    "missing": 57
+  },
+  "guards": {
+    "incomplete_models_exit_code": 1,
+    "freeze_without_models_exit_code": 1,
+    "step2_gate_exit_code": 2,
+    "full_snapshot_exists": false
+  },
+  "backup_restore": {
+    "protocol": "g1-test-data-v1",
+    "scope": "authorized test data; structure rebuilt by frozen migration",
+    "real_mysql_roundtrip": "passed_for_platform_and_protocol_fixtures",
+    "nonempty_or_drifted_target": "rejected",
+    "bad_foreign_key": "transaction_rolled_back",
+    "generated_columns_and_cycle_fk": "passed_for_protocol_fixture",
+    "full_61_table_restore": "not_run_missing_domain_models",
+    "accounts_media_production_rpo_rto": "out_of_scope_step12"
+  },
+  "cleanup": {
+    "remaining_random_test_databases": 0,
+    "remaining_random_test_users": 0
+  },
+  "github_main_protection": {
+    "read_back_confirmed": true,
+    "required_approvals": 1,
+    "dismiss_stale_reviews": true,
+    "enforce_admins": true,
+    "allow_force_pushes": false,
+    "allow_deletions": false
+  },
+  "wheel_sha256": "127b230602075cec3695e11f48c41a080bb94c510bc66d5d7e1d4b97cad786df",
+  "lock_sha256": "42b9bc9567b613c921a5ec51bf6d85a51b7288298549ad22964986876c5cbd65",
+  "full_g1": "not_passed_missing_57_models_and_full_migration_constraint_restore_evidence",
+  "private_evidence": [
+    "artifacts/G1/mysql/a-foundation-combined.xml",
+    "artifacts/M0/bootstrap/t05-clean-venv.json",
+    "artifacts/M0/bootstrap/t07-step1.json"
+  ],
+  "reproduction": [
+    "Python 3.12: install app/backend/requirements.lock with --require-hashes --only-binary=:all:",
+    "set STEP2_BOOTSTRAP_ENV to a private DB_ROOT_PASSWORD/DB_DEV_HOST/DB_DEV_PORT config",
+    "from app/backend: python -m pytest tests/unit tests/integration -q",
+    "Step 1 additionally requires private TEST_DATABASE_URL to the fixed test_ seven-schema group"
+  ]
+}

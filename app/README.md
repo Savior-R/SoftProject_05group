@@ -3,7 +3,7 @@
 | 项目 | 内容 |
 |---|---|
 | 设计基线 | 设计文档 3.2.0（`../设计文档3.x/`） |
-| 工程状态 | T05–T07 最小后端已实现并通过空 venv 独立验收；业务模块尚未开始 |
+| 工程状态 | 步骤1已通过；步骤2 A公共基础与4张platform模型已实现，完整61表及G1待各域交接 |
 | 集成负责人 | A（平台/集成/迁移/部署） |
 | 上次更新 | 2026-10-28 |
 
@@ -31,7 +31,7 @@
 | Python | 3.12.10 | `D:\soft\DevEnv\Python312` | 全组统一用 `py -3.12`，不要依赖裸 `python` |
 | Node | v24.19.0（LTS） | `D:\soft\DevEnv\Node` | npm 11.17.0 |
 | Git | 2.55.0 | `D:\soft\DevEnv\Git` | |
-| MySQL | 8.0.46（容器 `ai-teach-mysql`） | Docker，**主机端口 3307** → 容器内 3306 | 首个开发方言；3306 已被本机既有服务 `mysqlzt` 占用 |
+| MySQL | 8.0.46（容器 `ai-teach-mysql`） | Docker，**主机端口 3307** → 容器内 3306 | 唯一目标数据库；3306 已被本机既有服务 `mysqlzt` 占用 |
 | 数据库范围 | 仅MySQL 8.0 | — | 全新61表；取消第二方言和旧52表升级，G1仍待完整验收 |
 | FFmpeg / FFprobe | 6.1.1-essentials | `D:\soft\DevEnv\ffmpeg\bin` | 已在用户 PATH |
 
@@ -52,12 +52,7 @@
 
 ### 数据库（容器形态）
 
-第一次或换机器时执行一次初始化（幂等，可重复跑）：
-
-```powershell
-Set-Location -LiteralPath 'D:\soft\HomeWork\SoftProject'
-.\app\tools\init-dev-db.ps1
-```
+旧`init-dev-db.ps1`宽权限初始化已停用，不再修改既有账号或授予业务DDL。新建七库/独立迁移与业务账号，使用`backend`目录的`python -m tools.bootstrap_db`先预览，人工确认隔离目标后再显式`--apply`；建表后单独交接platform权限。完整环境变量、命令顺序及当前4/61边界见[步骤2 A交接说明](docs/步骤2-A公共数据库基础与交接.md)。当前缺57表及冻结DDL，不能直接将现有共享库当作G1目标。
 
 日常只需启动容器（Docker Desktop 必须先运行）：
 
@@ -139,7 +134,7 @@ Set-Location -LiteralPath 'D:\soft\HomeWork\SoftProject'
 
 ## 8 协作与首次交付
 
-唯一策略为main加`codex/<任务简述>`短分支，不使用develop；依据见[ADR-010 §2.7](docs/adr/ADR-010-工程实现基线.md)。main通过PR集成，远端保护设置须单独实际确认。
+唯一策略为main加`codex/<任务简述>`短分支，不使用develop；依据见[ADR-010 §2.7](docs/adr/ADR-010-工程实现基线.md)。main通过PR集成；2026-10-28已实际配置并回读确认至少1位PR审批、过期审批失效、管理员受限、禁止强推和删除。其他五人环境仍须本人复验。
 
 ```powershell
 git fetch origin

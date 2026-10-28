@@ -6,9 +6,8 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
-from sqlalchemy.engine import make_url
-
 from app.settings import Settings
+from common.database_config import mysql_url
 from tools.smoke import run_smoke
 
 TEST_DATABASES = frozenset(
@@ -42,17 +41,13 @@ def validate_test_database_url(value: str | None) -> str:
     if not value or not value.strip():
         raise ValueError("未配置 TEST_DATABASE_URL；真实数据库验证未执行，不能判为通过。")
     try:
-        url = make_url(value)
-        valid = (
-            url.drivername == "mysql+aiomysql"
-            and url.host is not None
-            and url.database in TEST_DATABASES
-        )
+        url = mysql_url(value)
+        valid = url.host is not None and url.database in TEST_DATABASES
     except Exception:
         valid = False
     if not valid:
         raise ValueError(
-            "TEST_DATABASE_URL 必须为 mysql+aiomysql DSN，且库名属于 test_ 加七个逻辑域名白名单。"
+            "TEST_DATABASE_URL 必须为 MySQL pymysql／aiomysql DSN，且库名属于 test_七域白名单。"
         ) from None
     return value
 

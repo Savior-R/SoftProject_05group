@@ -1,3 +1,4 @@
+-- 步骤2已由tools.bootstrap_db替代；仅保留历史环境说明，不作为G1流程。
 -- =============================================================
 -- 开发环境库初始化（**不是** 3.2.0 迁移，不建业务表）
 -- 用途：为一个 Docker 里的 MySQL 8 实例准备七域 database 与测试库组
@@ -22,18 +23,9 @@ CREATE DATABASE IF NOT EXISTS `test_evaluation`   CHARACTER SET utf8mb4 COLLATE 
 CREATE DATABASE IF NOT EXISTS `test_growth_cert`  CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 CREATE DATABASE IF NOT EXISTS `test_platform`     CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 
--- 日常 DML 账户（最小权限：只在这七域与测试库组内有权限）
--- 口令不写进本文件，由 init-dev-databases.ps1 在执行时用 runtime/local-db.env 注入
--- CREATE USER IF NOT EXISTS 'ai_teach'@'%' IDENTIFIED BY '<由脚本注入>';
--- GRANT ALL PRIVILEGES ON `identity_org`.* TO 'ai_teach'@'%';
--- GRANT ALL PRIVILEGES ON `task_content`.* TO 'ai_teach'@'%';
--- GRANT ALL PRIVILEGES ON `classroom`.*    TO 'ai_teach'@'%';
--- GRANT ALL PRIVILEGES ON `media`.*        TO 'ai_teach'@'%';
--- GRANT ALL PRIVILEGES ON `evaluation`.*   TO 'ai_teach'@'%';
--- GRANT ALL PRIVILEGES ON `growth_cert`.*  TO 'ai_teach'@'%';
--- GRANT ALL PRIVILEGES ON `platform`.*     TO 'ai_teach'@'%';
--- GRANT ALL PRIVILEGES ON `test\_%`.*      TO 'ai_teach'@'%';
--- FLUSH PRIVILEGES;
+-- 此历史文件只包含空库DDL，不是当前初始化入口。
+-- 步骤2起请使用tools.bootstrap_db创建全新隔离七库及独立迁移/业务账号。
+-- 不得向业务账号授予DDL或测试库通配权限；platform需建表后分表授权。
 
 SELECT SCHEMA_NAME AS `已创建库`, DEFAULT_CHARACTER_SET_NAME AS `字符集`, DEFAULT_COLLATION_NAME AS `排序规则`
 FROM information_schema.SCHEMATA

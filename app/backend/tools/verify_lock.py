@@ -35,12 +35,14 @@ def inspect_lock(root: Path) -> dict[str, object]:
             if f"{package}/__init__.py" not in archive.namelist():
                 raise ValueError(f"wheel 漏打包：{package}")
             source_files = {
-                path.relative_to(root).as_posix(): path for path in (root / package).rglob("*.py")
+                path.relative_to(root).as_posix(): path
+                for path in (root / package).rglob("*")
+                if path.is_file() and path.suffix in {".py", ".json"}
             }
             packaged_files = {
                 name
                 for name in archive.namelist()
-                if name.startswith(f"{package}/") and name.endswith(".py")
+                if name.startswith(f"{package}/") and name.endswith((".py", ".json"))
             }
             if set(source_files) != packaged_files:
                 raise ValueError(f"wheel 与 {package} 文件清单不同，请重新构建。")

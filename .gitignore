@@ -72,3 +72,4 @@ Desktop.ini
 *.sqlite3
 *.bak
 *.dump
+*.g1-backup.json

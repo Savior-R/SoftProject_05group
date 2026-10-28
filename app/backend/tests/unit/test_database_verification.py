@@ -52,6 +52,7 @@ def test_missing_or_unsafe_database_cannot_pass(url: str | None) -> None:
     assert "invalid-secret" not in str(error.value)
 
 
-def test_only_explicit_test_database_is_accepted() -> None:
-    value = "mysql+aiomysql://u:FAKE_SECRET@127.0.0.1/test_identity_org"
+@pytest.mark.parametrize("driver", ["aiomysql", "pymysql"])
+def test_only_explicit_test_database_is_accepted(driver) -> None:
+    value = f"mysql+{driver}://u:FAKE_SECRET@127.0.0.1/test_identity_org"
     assert validate_test_database_url(value) == value
