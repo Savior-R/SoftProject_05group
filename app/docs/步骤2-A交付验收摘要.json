@@ -2,6 +2,14 @@
   "verified_at": "2026-10-28T10:10:09.285140+00:00",
   "scope": "Step 2 A foundation and G1 test-data backup/restore tooling only; not full G1",
   "branch": "codex/step2-a-database-foundation",
+  "delivery": {
+    "implementation_commit": "42cbdc56b4c1ef8786f5c9c6f163f08ec1a26201",
+    "pushed_to_origin": true,
+    "pull_request_number": 1,
+    "remote_clean_clone_source_wheel_lock": "passed",
+    "main_integration": "pending_non_author_review",
+    "other_team_members_environment_verification": "pending"
+  },
   "design_baseline": "3.2.0 MySQL-only fresh 61-table database",
   "python": "3.12.10",
   "mysql": "8.0.46",

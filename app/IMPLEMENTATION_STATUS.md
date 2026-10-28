@@ -13,7 +13,7 @@
 |---|---|---|---|---|---|---|
 | 0 | 环境/基线/Git | A + 全员 | 进行中 | 2026-10-28；2671628 | `artifacts/M0/bootstrap/` | A机环境及main历史基线已交付；main保护已配置并回读验证（1位PR审批/管理员受限/禁强推删除）；其余五人环境表待填 |
 | 1 | 工程/测试/health | A | 通过 | 2026-10-28；2671628 | `artifacts/M0/bootstrap/t07-step1.json`、`t05-clean-venv.json`、`git-clone-verification.json`；脱敏摘要见[交付记录](docs/当前阶段交付记录-2026-10-28.md) | 本轮69项测试、Ruff、pip check通过；新空venv仅lock安装、真实HTTP无库503/独立测试库200；基线已提交、干净本地clone复验并推送origin/main。只证明工程骨架／SQL连通性与交付，不代表目标迁移、业务或G1通过 |
-| 2 | 目标 DB/MySQL G1 | A + 各域 | 进行中 | 2026-10-28；本轮未提交 | `artifacts/G1/mysql/a-foundation-combined.xml`；[A交接说明](docs/步骤2-A公共数据库基础与交接.md) | A同步基础/守卫、4张platform模型及迁移工具已实现并真实MySQL复测；缺B–F的57表，61表DDL未冻结，完整初始化/重复head/约束/备份恢复G1未通过 |
+| 2 | 目标 DB/MySQL G1 | A + 各域 | 进行中 | 2026-10-28；A实现`42cbdc5`，已推送任务分支；PR #1待非作者复核 | [A交接说明](docs/步骤2-A公共数据库基础与交接.md)、[脱敏验收摘要](docs/步骤2-A交付验收摘要.json)；完整XML在artifacts/G1/mysql/ | A公共基础/4张platform表及测试数据恢复工具已交付并复测；缺B–F的57表，61表DDL未冻结，完整G1未通过；尚未合入main |
 | 3 | DTO/前端/契约 | A + 全员 | 未开始 | — | `artifacts/M0/contracts/` | 依赖步骤 2 的 DB 可连 |
 | 4 | 身份组织/授权 | B | 未开始 | — | `artifacts/M0/identity/` | 依赖步骤 2/3 |
 | 5 | 标准/内容/任务 | C | 未开始 | — | `artifacts/M0/tasks/` | 依赖步骤 4 |
@@ -34,6 +34,7 @@
 - 最新复测：104项单元+16项集成（含真实MySQL），共120 passed、0 skipped；新增G1测试数据备份/恢复及失败回滚验证，原100项为补齐前历史结果。最终wheel/lock及干净安装结果见[交付摘要](docs/步骤2-A交付验收摘要.json)。步骤1原commit和69项结果保留为历史锚点；本轮交付采用`codex/step2-a-database-foundation`分支，main经非作者PR复核后集成。
 - 完整目标仍缺57张模型；迁移缺冻结快照即失败，不建版本表。全61表迁移与G1证据必须由A接收B–F交接后完成；步骤2整体不能标“通过”。
 - 旧宽权限初始化停用，现有账号/共享数据库未改动；新G1需独立最小权限目标。交接及后续节点见[A说明](docs/步骤2-A公共数据库基础与交接.md)。
+- 本轮实现提交`42cbdc56b4c1ef8786f5c9c6f163f08ec1a26201`已推送`origin/codex/step2-a-database-foundation`，GitHub PR #1已创建；main仍为原基线，等待非作者复核。远端新clone的源码/wheel/lock一致性已通过；GitHub main保护已配置并回读验证。未代表B–F已获取或完成环境验收。
 
 ### 步骤1已交付历史基线（2026-10-28）
 

@@ -134,7 +134,7 @@ Set-Location -LiteralPath 'D:\soft\HomeWork\SoftProject'
 
 ## 8 协作与首次交付
 
-唯一策略为main加`codex/<任务简述>`短分支，不使用develop；依据见[ADR-010 §2.7](docs/adr/ADR-010-工程实现基线.md)。main通过PR集成，远端保护设置须单独实际确认。
+唯一策略为main加`codex/<任务简述>`短分支，不使用develop；依据见[ADR-010 §2.7](docs/adr/ADR-010-工程实现基线.md)。main通过PR集成；2026-10-28已实际配置并回读确认至少1位PR审批、过期审批失效、管理员受限、禁止强推和删除。其他五人环境仍须本人复验。
 
 ```powershell
 git fetch origin
