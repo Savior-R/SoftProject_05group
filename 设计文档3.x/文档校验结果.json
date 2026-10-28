@@ -1,10 +1,10 @@
 {
   "document_version": "3.2.0",
-  "generated_at": "2026-10-28T14:01:49.828503+08:00",
+  "generated_at": "2026-10-28T14:13:35.589950+08:00",
   "status": "passed",
   "scope": "现行仅MySQL全新61表设计静态检查及10组评分纯函数参考检查；不代表数据库或业务实现、G1及系统验收通过",
   "evidence": "最短链路验证/检查结果.json",
-  "evidence_sha256": "af15e6a84bc7aeed4332cb99ce26129fee1b41b8d8bdbd2759c08ba63d2d0e8a",
+  "evidence_sha256": "d674da146e9becfc7b9446372edf2bbf65f6cf2a4a423b31f25efd8547340310",
   "checks": [
     {
       "name": "文档文件和版本",
