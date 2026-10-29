@@ -39,17 +39,26 @@ py -3.12 -m venv .venv
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File app\tools\setup-member-env.ps1 -Role B
+# 只想体检、不装任何东西：加 -NoInstall
 # 已有本机MySQL、不用Docker：加 -SkipMysql
+# 允许尝试安装 Docker Desktop（需管理员，通常要重启）：加 -WithDocker
 # 下载慢：加 -PipIndexUrl https://mirrors.huaweicloud.com/repository/pypi/simple
 ```
 
-脚本按顺序做七件事：检查 Git 与 Python3.12 → clone/更新 → 校验必需基线 → 建 `codex/<角色>-models` → 建 venv 并按 lock 安装 → 跑单元测试（应 104 passed）→ 可选启动 Docker MySQL 并跑集成测试（应 20 passed）→ 生成回执到 `artifacts/M0/env/environment-<角色>.json`。
+**脚本是幂等的**：每次运行先探测，已满足的打印“已有”并跳过，缺的才安装或创建。重复运行不会重复装包、不会重建 venv、不会覆盖已有数据。
+
+顺序：Git → Python 3.12 → 仓库（clone 或复用）→ 基线校验 → `codex/<角色>-models` → venv → 按 lock 装依赖 → 单元测试 → Docker MySQL（可选）→ 集成测试（可选）→ 回执 `artifacts/M0/env/environment-<角色>.json`。结束时打印一张“组件／状态／详情”总表。
 
 约束与边界：
 - 凭据只写到**仓库外**的 `<WorkRoot>\<角色>-db.env`，脚本不打印口令、不入库。
-- 任一前置不满足会**立即停止并给出下一步**，不会跳过继续。
-- 不做的事：不装 Python/MySQL/Docker，不给 GitHub 权限，不替你填摄像头/麦克风实测，不提交任何代码。
+- 任一硬前置不满足会**立即停止并给出下一步**，不会跳过继续。
+- **默认自动安装**：Git、Python 3.12（走 winget；无 winget 时只报告缺什么）。用 `-NoInstall` 可关闭。
+- **不默认安装**：Docker Desktop（需管理员权限、WSL2、通常要重启）。加 `-WithDocker` 才会尝试，且装完需自行重启再跑一次。
+- 装了 Docker 但引擎没启动时，安装与集成测试记为“跳过”，**不算通过**。
+- 不做的事：不给 GitHub 权限，不替你填摄像头/麦克风实测，不提交任何代码。
 - 只在本人机器跑；不要把它指向共享数据库。
+
+> 判断标准：总表里 `集成测试` 为 `跳过` 时，环境只到“能写模型、能跑单测”这一层；**要交约束负例测试，必须让这一行变成 `通过`（20 passed）。**
 
 当前只需纯单元/模型核对可先运行：
 

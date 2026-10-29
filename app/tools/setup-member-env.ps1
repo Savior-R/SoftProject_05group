@@ -1,19 +1,27 @@
-﻿# Requires: Windows PowerShell 5.1+, Git, Python 3.12 (py launcher), Docker（可选）
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-    步骤2 成员一键配置：拉基线、建分支、装依赖、跑测试、起本地 MySQL、生成回执。
+    一键配置开发环境（幂等）：已有的跳过，缺的自动装，最后给状态表。
 
 .DESCRIPTION
-    面向 B-F。只在本机建立可运行环境，不改源码、不提交、不推送。
-    凭据仅写入仓库外的私有文件，不打印、不入库。
-    任一检查不通过立即停止并给出下一步，不做“跳过继续”。
+    面向 Windows x64 团队成员。按顺序处理：Git → Python 3.12 → 仓库 → 分支 → venv → 依赖 → 单元测试 → MySQL → 集成测试 → 回执。
+    任一步已满足则明确打印“已存在，跳过”，不重复安装、不重复创建、不覆盖数据。
+
+    自动安装依赖 winget（Win10 1809+ / Win11 自带）。没有 winget 时只报告缺什么，不猜测下载地址。
+    Docker Desktop 不默认安装：需要管理员权限、WSL2、通常要重启；用 -WithDocker 显式开启尝试。
+
+    不做的事：不给 GitHub 权限，不填摄像头/麦克风实测，不提交任何代码，不打印口令。
 
 .EXAMPLE
     powershell -ExecutionPolicy Bypass -File setup-member-env.ps1 -Role B
 
 .EXAMPLE
-    # 已装本机 MySQL，不用 Docker
-    powershell -ExecutionPolicy Bypass -File setup-member-env.ps1 -Role D -SkipMysql
+    # 只想检查，不安装任何东西
+    powershell -ExecutionPolicy Bypass -File setup-member-env.ps1 -Role C -NoInstall
+
+.EXAMPLE
+    # 允许尝试安装 Docker Desktop（需管理员，可能要重启）
+    powershell -ExecutionPolicy Bypass -File setup-member-env.ps1 -Role D -WithDocker
 #>
 [CmdletBinding()]
 param(
@@ -26,11 +34,13 @@ param(
     [string]$Baseline = '9e298d2dd1303e0d87f29e4530fe4fae906041d2',
     [string]$MysqlPort = '3307',
     [string]$PipIndexUrl = '',
+    [switch]$NoInstall,
+    [switch]$WithDocker,
     [switch]$SkipMysql
 )
 
-# PowerShell 5.1 会把原生命令写到 stderr 的正常提示（如 git 的 "Switched to branch"）
-# 当成 ErrorRecord；因此这里不用 Stop，统一用 $LASTEXITCODE 显式判断。
+# PS 5.1 会把原生命令写到 stderr 的正常提示（如 git 的 "Switched to branch"）当成 ErrorRecord，
+# 因此不用 Stop，统一用 $LASTEXITCODE 判断。
 $ErrorActionPreference = 'Continue'
 $ProgressPreference = 'SilentlyContinue'
 
@@ -41,6 +51,7 @@ $envFile = Join-Path $WorkRoot ('{0}-db.env' -f $Role.ToLower())
 $receiptDir = Join-Path $repoDir 'artifacts\M0\env'
 $script:step = 0
 $script:pushed = $false
+$script:status = New-Object System.Collections.ArrayList
 
 function Write-Step([string]$Text) {
     $script:step++
@@ -52,7 +63,60 @@ function Stop-WithHint([string]$Problem, [string]$Hint) {
     Write-Host ''
     Write-Host ('失败：' + $Problem) -ForegroundColor Red
     Write-Host ('下一步：' + $Hint) -ForegroundColor Yellow
+    Show-Summary
     exit 1
+}
+
+function Add-Status([string]$Item, [string]$State, [string]$Detail) {
+    [void]$script:status.Add([pscustomobject]@{ Item = $Item; State = $State; Detail = $Detail })
+    $color = switch ($State) {
+        '已有' { 'DarkGray' }
+        '已安装' { 'Green' }
+        '已完成' { 'Green' }
+        '通过' { 'Green' }
+        '跳过' { 'Yellow' }
+        default { 'White' }
+    }
+    Write-Host ('  -> {0}：{1}' -f $State, $Detail) -ForegroundColor $color
+}
+
+function Show-Summary {
+    if ($script:status.Count -eq 0) { return }
+    Write-Host ''
+    Write-Host '================ 环境状态 ================' -ForegroundColor Cyan
+    $script:status |
+        Select-Object @{ n = '组件'; e = { $_.Item } }, @{ n = '状态'; e = { $_.State } }, @{ n = '详情'; e = { $_.Detail } } |
+        Format-Table -AutoSize | Out-String -Width 200 | Write-Host
+}
+
+function Update-SessionPath {
+    $env:Path = [Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' + [Environment]::GetEnvironmentVariable('Path', 'User')
+}
+
+function Get-Python312Version {
+    if (-not (Get-Command py -ErrorAction SilentlyContinue)) { return $null }
+    $out = (& py -3.12 --version 2>&1) -join ''
+    if ($LASTEXITCODE -ne 0) { return $null }
+    return $out.Trim()
+}
+
+function Install-WithWinget([string]$PackageId, [string]$Label) {
+    if ($NoInstall) {
+        Write-Host ('  缺 {0}；当前为 -NoInstall，不自动安装' -f $Label) -ForegroundColor Yellow
+        return $false
+    }
+    if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+        Write-Host '  未检测到 winget，无法自动安装（Win10 1809 以下或精简系统常见）' -ForegroundColor Yellow
+        return $false
+    }
+    Write-Host ('  正在用 winget 安装 {0}（可能需要几分钟）...' -f $Label) -ForegroundColor Yellow
+    & winget install --exact --id $PackageId --accept-package-agreements --accept-source-agreements --disable-interactivity 2>&1 | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host '  默认安装未成功，尝试逐用户范围重试...' -ForegroundColor Yellow
+        & winget install --exact --id $PackageId --scope user --accept-package-agreements --accept-source-agreements --disable-interactivity 2>&1 | Out-Null
+    }
+    Update-SessionPath
+    return $true
 }
 
 function New-RandomPassword([int]$Length = 24) {
@@ -63,32 +127,49 @@ function New-RandomPassword([int]$Length = 24) {
     -join ($bytes | ForEach-Object { $chars[$_ % $chars.Length] })
 }
 
-Write-Host ('步骤2 成员环境配置  |  角色 {0}  |  目录 {1}' -f $Role, $repoDir) -ForegroundColor Green
+Write-Host ('一键环境配置  |  角色 {0}  |  目录 {1}' -f $Role, $repoDir) -ForegroundColor Green
+if ($NoInstall) { Write-Host '模式：只检查，不安装（-NoInstall）' -ForegroundColor Yellow }
 
-# ---------- 1 前置工具 ----------
-Write-Step '检查前置工具'
-foreach ($cmd in @('git', 'py')) {
-    if (-not (Get-Command $cmd -ErrorAction SilentlyContinue)) {
-        Stop-WithHint ('找不到 ' + $cmd) '安装 Git 与 Python 3.12（勾选 py launcher），重开终端后再运行。'
+# ---------- 1 Git ----------
+Write-Step 'Git'
+if (Get-Command git -ErrorAction SilentlyContinue) {
+    Add-Status 'Git' '已有' ((& git --version) -replace '^git version ', '')
+} else {
+    Install-WithWinget 'Git.Git' 'Git' | Out-Null
+    if (Get-Command git -ErrorAction SilentlyContinue) {
+        Add-Status 'Git' '已安装' ((& git --version) -replace '^git version ', '')
+    } else {
+        Stop-WithHint 'Git 不可用' '手动装 Git for Windows（https://git-scm.com/download/win），装完重开终端再跑。'
     }
 }
-$pyVersion = (& py -3.12 --version 2>&1) -join ''
-if ($LASTEXITCODE -ne 0) {
-    Stop-WithHint 'py -3.12 不可用' '装 Python 3.12.x（3.13 会被 pyproject 的 >=3.12,<3.13 拒绝）；先跑 py -0p 确认能列出。'
-}
-Write-Host ('  git    : ' + (& git --version))
-Write-Host ('  python : ' + $pyVersion)
 
-# ---------- 2 获取仓库 ----------
-Write-Step '获取仓库并校验基线'
+# ---------- 2 Python 3.12 ----------
+Write-Step 'Python 3.12'
+$pyVersion = Get-Python312Version
+if ($pyVersion) {
+    Add-Status 'Python 3.12' '已有' $pyVersion
+} else {
+    Install-WithWinget 'Python.Python.3.12' 'Python 3.12' | Out-Null
+    $pyVersion = Get-Python312Version
+    if ($pyVersion) {
+        Add-Status 'Python 3.12' '已安装' $pyVersion
+    } else {
+        Stop-WithHint 'py -3.12 不可用' '装 Python 3.12.x（3.13 会被 pyproject 的 >=3.12,<3.13 拒绝），勾选 py launcher；装完重开终端。'
+    }
+}
+
+# ---------- 3 仓库 ----------
+Write-Step '仓库'
 if (-not (Test-Path -LiteralPath $repoDir)) {
     New-Item -ItemType Directory -Force -Path $WorkRoot | Out-Null
     & git clone $RepoUrl $repoDir
     if ($LASTEXITCODE -ne 0) { Stop-WithHint 'clone 失败' '确认网络；私库还需先接受邀请并完成 Git 登录认证。' }
+    Add-Status '仓库' '已完成' ('已克隆到 ' + $repoDir)
 } else {
-    Write-Host '  目录已存在，执行 fetch'
     & git -C $repoDir fetch origin --prune 2>&1 | Out-Null
+    Add-Status '仓库' '已有' ('复用 ' + $repoDir)
 }
+
 & git -C $repoDir switch main 2>&1 | Out-Null
 if ($LASTEXITCODE -ne 0) { Stop-WithHint '切换 main 失败' '先 git status 处理本地未提交改动再重试。' }
 & git -C $repoDir merge --ff-only origin/main 2>&1 | Out-Null
@@ -96,120 +177,145 @@ if ($LASTEXITCODE -ne 0) { Stop-WithHint 'main 无法快进' '本地 main 有独
 
 & git -C $repoDir merge-base --is-ancestor $Baseline HEAD
 if ($LASTEXITCODE -ne 0) {
-    Stop-WithHint ('main 未包含基线 ' + $Baseline.Substring(0, 7)) '核对 origin 地址是否正确、main 是否为最新。'
+    Stop-WithHint ('main 未包含基线 ' + $Baseline.Substring(0, 7)) '核对 origin 地址与 main 最新提交，可能不是预期仓库。'
 }
-Write-Host ('  基线校验通过（含 {0}）' -f $Baseline.Substring(0, 7))
+Add-Status '基线校验' '通过' ('含 ' + $Baseline.Substring(0, 7))
 
-# ---------- 3 分支 ----------
-Write-Step ('准备分支 ' + $branchName)
-$existing = & git -C $repoDir branch --list $branchName
-if ([string]::IsNullOrWhiteSpace($existing)) {
+# ---------- 4 分支 ----------
+Write-Step ('分支 ' + $branchName)
+$existingBranch = & git -C $repoDir branch --list $branchName
+if ([string]::IsNullOrWhiteSpace($existingBranch)) {
     & git -C $repoDir switch -c $branchName 2>&1 | Out-Null
     if ($LASTEXITCODE -ne 0) { Stop-WithHint '建分支失败' '检查是否有未提交改动。' }
-    Write-Host '  已新建分支'
+    Add-Status '分支' '已完成' ('新建 ' + $branchName)
 } else {
     & git -C $repoDir switch $branchName 2>&1 | Out-Null
-    Write-Host '  分支已存在，直接切换'
+    Add-Status '分支' '已有' ('切换到 ' + $branchName)
 }
 
-# ---------- 4 依赖 ----------
-Write-Step '创建 venv 并按 lock 安装依赖（首次 1-3 分钟）'
+# ---------- 5 venv ----------
+Write-Step '虚拟环境'
 $venvDir = Join-Path $backendDir '.venv'
 $pyExe = Join-Path $venvDir 'Scripts\python.exe'
-if (-not (Test-Path -LiteralPath $pyExe)) {
+if (Test-Path -LiteralPath $pyExe) {
+    Add-Status 'venv' '已有' $venvDir
+} else {
     & py -3.12 -m venv $venvDir
-    if ($LASTEXITCODE -ne 0) { Stop-WithHint 'venv 创建失败' '确认磁盘可写、Python 3.12 完整安装。'
-    }
+    if ($LASTEXITCODE -ne 0) { Stop-WithHint 'venv 创建失败' '确认磁盘可写、Python 3.12 完整安装。' }
+    Add-Status 'venv' '已完成' $venvDir
 }
 
 Push-Location $backendDir
 $script:pushed = $true
 try {
+    # ---------- 6 依赖 ----------
+    Write-Step '依赖（按 lock 安装）'
     $installArgs = @('-m', 'pip', 'install', '--disable-pip-version-check', '--require-hashes', '--only-binary=:all:', '-r', 'requirements.lock')
     if (-not [string]::IsNullOrWhiteSpace($PipIndexUrl)) { $installArgs += @('-i', $PipIndexUrl) }
-    & $pyExe @installArgs
+    $pipOut = (& $pyExe @installArgs 2>&1) -join "`n"
     if ($LASTEXITCODE -ne 0) {
-        Stop-WithHint '依赖安装失败' '多为网络或 hash 不匹配：用 -PipIndexUrl 指定国内镜像；不要额外装 lock 外的包。'
+        Write-Host $pipOut
+        Stop-WithHint '依赖安装失败' '多为网络或 hash 不匹配：用 -PipIndexUrl 指定国内镜像；不要安装 lock 外的包。'
+    }
+    if ($pipOut -match 'Requirement already satisfied' -and $pipOut -notmatch 'Successfully installed') {
+        Add-Status '依赖' '已有' 'lock 内全部已满足'
+    } else {
+        Add-Status '依赖' '已完成' '按 requirements.lock 安装'
     }
 
-    # ---------- 5 单元测试 ----------
-    Write-Step '运行单元测试（不连库，应 104 passed）'
-    # 新 clone 里 runtime/ 被 .gitignore 排除而不存在，pytest 的 basetemp 父目录必须先建
+    # ---------- 7 单元测试 ----------
+    Write-Step '单元测试'
     $tmpRoot = Join-Path $repoDir 'runtime\tmp'
     New-Item -ItemType Directory -Force -Path $tmpRoot | Out-Null
     $unitBase = Join-Path $tmpRoot 'pytest-bootstrap'
-    & $pyExe -m pytest tests/unit -q -p no:cacheprovider "--basetemp=$unitBase"
+    $unitOut = (& $pyExe -m pytest tests/unit -q -p no:cacheprovider "--basetemp=$unitBase" 2>&1) -join "`n"
     if ($LASTEXITCODE -ne 0) {
-        Stop-WithHint '单元测试未通过' '若报 PermissionError 或路径不存在，手动建 runtime\tmp 后重试；其余看首个失败用例。'
+        Write-Host $unitOut
+        Stop-WithHint '单元测试未通过' '看首个失败用例；若报路径/权限错误，手动建 runtime\tmp 后重试。'
     }
+    $unitLine = ($unitOut -split "`n" | Where-Object { $_ -match 'passed' } | Select-Object -Last 1)
+    Add-Status '单元测试' '通过' $unitLine.Trim()
 
-    # ---------- 6 本地 MySQL ----------
-    $integrationResult = '未运行'
+    # ---------- 8 MySQL ----------
+    $integrationState = '跳过'
+    $integrationDetail = ''
     $mysqlNote = ''
     if ($SkipMysql) {
-        $mysqlNote = '按 -SkipMysql 跳过'
+        $integrationDetail = '按 -SkipMysql 跳过'
+        Add-Status '集成测试' '跳过' $integrationDetail
     } elseif (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
-        $mysqlNote = '未安装 Docker'
-        Write-Host '  未检测到 Docker，跳过集成测试（回执记未运行）' -ForegroundColor Yellow
+        if ($WithDocker) {
+            Install-WithWinget 'Docker.DockerDesktop' 'Docker Desktop' | Out-Null
+            Write-Host '  Docker Desktop 安装后通常需要重启并启用 WSL2；本次不继续等待。' -ForegroundColor Yellow
+        }
+        $integrationDetail = '未安装 Docker'
+        $mysqlNote = '未安装 Docker；集成测试未运行'
+        Add-Status 'Docker' '跳过' '未安装（加 -WithDocker 可尝试安装，需管理员并可能重启）'
+        Add-Status '集成测试' '跳过' $integrationDetail
     } else {
-        Write-Step ('准备本地 MySQL（Docker，主机端口 {0}）' -f $MysqlPort)
+        Write-Step ('MySQL（Docker，主机端口 {0}）' -f $MysqlPort)
         & docker info --format '{{.ServerVersion}}' 2>$null | Out-Null
         if ($LASTEXITCODE -ne 0) {
-            $mysqlNote = 'Docker 未运行'
-            Write-Host '  Docker 未运行，跳过集成测试（回执记未运行，不算通过）' -ForegroundColor Yellow
+            Add-Status 'Docker' '跳过' '引擎未启动，请打开 Docker Desktop 后重跑'
+            Add-Status '集成测试' '跳过' 'Docker 未运行'
+            $mysqlNote = 'Docker 未运行；集成测试未运行'
         } else {
             $container = '{0}-mysql' -f $Role.ToLower()
-            $rootPw = New-RandomPassword
             $exists = & docker ps -a --filter ('name=^' + $container + '$') --format '{{.Names}}'
             $reuse = -not [string]::IsNullOrWhiteSpace($exists)
+            $rootPw = New-RandomPassword
+            $ready = $false
             if ($reuse) {
-                Write-Host ('  容器 {0} 已存在，直接启动（沿用原密码，不重设）' -f $container)
-                & docker start $container | Out-Null
-                $mysqlNote = '容器已存在但密码未重设；如需重建请先 docker rm -f ' + $container
+                & docker start $container 2>&1 | Out-Null
+                if (Test-Path -LiteralPath $envFile) {
+                    $ready = $true
+                    Add-Status 'MySQL 容器' '已有' ($container + '（复用原密码配置）')
+                } else {
+                    Add-Status 'MySQL 容器' '已有' ($container + '（密码未知，需 docker rm -f ' + $container + ' 后重跑）')
+                    $mysqlNote = '容器已存在但私有配置缺失；集成测试未运行'
+                }
             } else {
                 & docker run -d --name $container -p ('{0}:3306' -f $MysqlPort) -e ('MYSQL_ROOT_PASSWORD=' + $rootPw) mysql:8.0 | Out-Null
-                if ($LASTEXITCODE -ne 0) {
-                    $mysqlNote = 'MySQL 容器启动失败'
-                    Write-Host $mysqlNote -ForegroundColor Yellow
-                }
-            }
-
-            $ready = $false
-            if (-not $reuse) {
                 for ($i = 0; $i -lt 30; $i++) {
                     Start-Sleep -Seconds 3
                     & docker exec $container mysqladmin ping -h 127.0.0.1 -uroot ('--password=' + $rootPw) --silent 2>$null | Out-Null
                     if ($LASTEXITCODE -eq 0) { $ready = $true; break }
                 }
+                if ($ready) {
+                    Set-Content -LiteralPath $envFile -Encoding ASCII -Value @(
+                        ('DB_ROOT_PASSWORD=' + $rootPw),
+                        'DB_DEV_HOST=127.0.0.1',
+                        ('DB_DEV_PORT=' + $MysqlPort)
+                    )
+                    Add-Status 'MySQL 容器' '已完成' ($container + '，端口 ' + $MysqlPort)
+                } else {
+                    Add-Status 'MySQL 容器' '跳过' '90 秒内未就绪'
+                    $mysqlNote = 'MySQL 未就绪；集成测试未运行'
+                }
             }
 
-            if ($ready) {
-                Set-Content -LiteralPath $envFile -Encoding ASCII -Value @(
-                    ('DB_ROOT_PASSWORD=' + $rootPw),
-                    'DB_DEV_HOST=127.0.0.1',
-                    ('DB_DEV_PORT=' + $MysqlPort)
-                )
-                Write-Host ('  私有配置已写入：' + $envFile + '（仓库外，不入库）')
-
-                Write-Step '运行集成测试（真实 MySQL，应 20 passed）'
+            if ($ready -and (Test-Path -LiteralPath $envFile)) {
+                Write-Step '集成测试'
                 $env:STEP2_BOOTSTRAP_ENV = $envFile
                 $intBase = Join-Path $tmpRoot 'pytest-integration'
-                & $pyExe -m pytest tests/integration -q -p no:cacheprovider "--basetemp=$intBase"
+                $intOut = (& $pyExe -m pytest tests/integration -q -p no:cacheprovider "--basetemp=$intBase" 2>&1) -join "`n"
                 if ($LASTEXITCODE -eq 0) {
-                    $integrationResult = '20 passed'
+                    $intLine = ($intOut -split "`n" | Where-Object { $_ -match 'passed' } | Select-Object -Last 1)
+                    Add-Status '集成测试' '通过' $intLine.Trim()
+                    $integrationState = '通过'
                 } else {
-                    $integrationResult = 'failed'
-                    $mysqlNote = '集成测试未通过：看首个失败用例，并确认容器为 Up'
+                    Write-Host (($intOut -split "`n" | Select-Object -Last 12) -join "`n")
+                    Add-Status '集成测试' '跳过' '未通过，见上方输出'
+                    $mysqlNote = '集成测试未通过'
                 }
-            } elseif (-not $mysqlNote) {
-                $mysqlNote = 'MySQL 未在 90 秒内就绪'
-                Write-Host $mysqlNote -ForegroundColor Yellow
+            } else {
+                Add-Status '集成测试' '跳过' '缺少可用的 MySQL 私有配置'
             }
         }
     }
 
-    # ---------- 7 回执 ----------
-    Write-Step '生成环境回执'
+    # ---------- 9 回执 ----------
+    Write-Step '回执'
     New-Item -ItemType Directory -Force -Path $receiptDir | Out-Null
     $head = (& git -C $repoDir rev-parse HEAD).Trim()
     $osName = ''
@@ -225,26 +331,25 @@ try {
         branch            = $branchName
         head_commit       = $head
         baseline_included = $true
-        unit_tests        = '104 passed'
-        integration_tests = $integrationResult
+        unit_tests        = $(if ($unitLine) { $unitLine.Trim() } else { 'unknown' })
+        integration_tests = $integrationState
         mysql_note        = $mysqlNote
         private_env_file  = $(if (Test-Path -LiteralPath $envFile) { $envFile } else { '' })
+        steps             = $script:status
     }
     $receiptPath = Join-Path $receiptDir ('environment-' + $Role.ToLower() + '.json')
-    $receipt | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $receiptPath -Encoding UTF8
-    Write-Host ('  回执：' + $receiptPath)
+    $receipt | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $receiptPath -Encoding UTF8
+    Add-Status '回执' '已完成' $receiptPath
 
+    Show-Summary
     Write-Host ''
-    Write-Host '================ 完成 ================' -ForegroundColor Green
-    Write-Host ('角色     : ' + $Role)
-    Write-Host ('分支     : ' + $branchName)
-    Write-Host ('HEAD     : ' + $head.Substring(0, 7))
-    Write-Host '单元测试 : 104 passed'
-    Write-Host ('集成测试 : ' + $integrationResult)
-    if ($mysqlNote) { Write-Host ('说明     : ' + $mysqlNote) -ForegroundColor Yellow }
-    Write-Host ''
-    Write-Host '把回执（或 artifacts/M0/env 下的 json）发给 A，即完成环境交接。' -ForegroundColor Cyan
-    Write-Host '摄像头/麦克风仍需在浏览器手动录 30 秒并回放，脚本不能代替。' -ForegroundColor Cyan
+    if ($integrationState -eq '通过') {
+        Write-Host '环境已完整就绪：可以写模型并运行约束负例测试。' -ForegroundColor Green
+    } else {
+        Write-Host '环境只到“能写模型、能跑单测”这一层；要交约束负例测试，需让集成测试通过。' -ForegroundColor Yellow
+    }
+    Write-Host '仍需人工完成：GitHub Write 权限、摄像头/麦克风实测 30 秒并回放。' -ForegroundColor Cyan
+    Write-Host '把回执（artifacts/M0/env 下的 json）发给 A，即完成环境交接。' -ForegroundColor Cyan
 }
 finally {
     if ($script:pushed) { Pop-Location }
