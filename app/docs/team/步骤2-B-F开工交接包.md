@@ -33,6 +33,24 @@ py -3.12 -m venv .venv
 
 没有`py`时，用本人确认的Python3.12可执行文件绝对路径替代首个建venv命令，不能换用3.13/3.14。默认lock仅验证Windows x64/CPython3.12；其他平台不能据此写“通过”。安装索引按团队确认源或本机`PIP_INDEX_URL`设置，不提交含凭据地址。日常源码修改与wheel复验方式按backend/README执行，不能只修改源码后测试旧安装包。
 
+### 一键完成（推荐，代替上面逐条执行）
+
+在仓库内运行：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File app\tools\setup-member-env.ps1 -Role B
+# 已有本机MySQL、不用Docker：加 -SkipMysql
+# 下载慢：加 -PipIndexUrl https://mirrors.huaweicloud.com/repository/pypi/simple
+```
+
+脚本按顺序做七件事：检查 Git 与 Python3.12 → clone/更新 → 校验必需基线 → 建 `codex/<角色>-models` → 建 venv 并按 lock 安装 → 跑单元测试（应 104 passed）→ 可选启动 Docker MySQL 并跑集成测试（应 20 passed）→ 生成回执到 `artifacts/M0/env/environment-<角色>.json`。
+
+约束与边界：
+- 凭据只写到**仓库外**的 `<WorkRoot>\<角色>-db.env`，脚本不打印口令、不入库。
+- 任一前置不满足会**立即停止并给出下一步**，不会跳过继续。
+- 不做的事：不装 Python/MySQL/Docker，不给 GitHub 权限，不替你填摄像头/麦克风实测，不提交任何代码。
+- 只在本人机器跑；不要把它指向共享数据库。
+
 当前只需纯单元/模型核对可先运行：
 
 ```powershell
