@@ -1,6 +1,8 @@
 # 步骤2：B–F开工交接包
 
-日期：2026-10-28。正式合入基线：`712da3522d58ecf1c400eb69d93a9556cd42b861`（PR #1已合并）。A实现commit `42cbdc5`作为历史来源保留；不要继续从已删除的旧任务分支开工。
+日期：2026-10-29。**最低必须包含的基线：`9e298d2dd1303e0d87f29e4530fe4fae906041d2`**（PR #2已合并，本交接包与模型样板自此版本进入main）。
+
+该值是“必须包含”的历史提交，不是“main当前版本”。main每次合并都会前进，但`9e298d2`永远是其后代的祖先，校验命令长期有效；不要把它理解为main停止在9e298d2。PR #1合入的`712da35`与A实现`42cbdc5`作为历史来源保留；不要继续从已删除的旧任务分支开工。
 
 本包是可转发内容，**尚未向群聊发送，未取得成员接收确认**。C–F按用户本轮说明暂未邀请，不猜测用户名或替成员确认。当前`wsc20061204`已具Write权限；角色与成员环境由团队本人确认。main继续要求至少1位非作者PR审批。
 
@@ -8,7 +10,7 @@
 
 1. [环境预检表模板](environment-template.md)：本人复制为`environment-<角色>.md`，填本机实际结果和证据，不能由A代填。
 2. [A交接说明§3/§5](../步骤2-A公共数据库基础与交接.md)：统一Base、同步事务及逐表分工。
-3. [模型与特殊约束样板](步骤2-模型样板与约束示例.md)：通用生产范例、四种生成列唯一键和循环外键；新增样板在本PR审查，合入后更新main再使用。
+3. [模型与特殊约束样板](步骤2-模型样板与约束示例.md)：通用生产范例、四种生成列唯一键和循环外键；样板已随PR #2合入main，直接从main读取即可。
 4. 设计05字段字典、04事务流程、13步骤2：逐表核对最终实现；示例没有列出的字段不能省略。
 
 ## 获取正式基线并开分支
@@ -20,8 +22,8 @@ git clone https://github.com/Savior-R/SoftProject_05group.git
 Set-Location SoftProject_05group
 git switch main
 git pull --ff-only origin main
-# 必须包含已验证的712da35；非零时停下核对远端和分支。
-git merge-base --is-ancestor 712da3522d58ecf1c400eb69d93a9556cd42b861 HEAD
+# 必须包含已验证的9e298d2（含本交接包与模型样板）；非零时停下核对远端和分支。
+git merge-base --is-ancestor 9e298d2dd1303e0d87f29e4530fe4fae906041d2 HEAD
 # 按自己职责选择一个，例如identity-models、task-models、classroom-models、media-models、evaluation-models。
 git switch -c codex/identity-models
 Set-Location app/backend
@@ -31,6 +33,33 @@ py -3.12 -m venv .venv
 
 没有`py`时，用本人确认的Python3.12可执行文件绝对路径替代首个建venv命令，不能换用3.13/3.14。默认lock仅验证Windows x64/CPython3.12；其他平台不能据此写“通过”。安装索引按团队确认源或本机`PIP_INDEX_URL`设置，不提交含凭据地址。日常源码修改与wheel复验方式按backend/README执行，不能只修改源码后测试旧安装包。
 
+### 一键完成（推荐，代替上面逐条执行）
+
+在仓库内运行：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File app\tools\setup-member-env.ps1 -Role B
+# 只想体检、不装任何东西：加 -NoInstall
+# 已有本机MySQL、不用Docker：加 -SkipMysql
+# 允许尝试安装 Docker Desktop（需管理员，通常要重启）：加 -WithDocker
+# 下载慢：加 -PipIndexUrl https://mirrors.huaweicloud.com/repository/pypi/simple
+```
+
+**脚本是幂等的**：每次运行先探测，已满足的打印“已有”并跳过，缺的才安装或创建。重复运行不会重复装包、不会重建 venv、不会覆盖已有数据。
+
+顺序：Git → Python 3.12 → 仓库（clone 或复用）→ 基线校验 → `codex/<角色>-models` → venv → 按 lock 装依赖 → 单元测试 → Docker MySQL（可选）→ 集成测试（可选）→ 回执 `artifacts/M0/env/environment-<角色>.json`。结束时打印一张“组件／状态／详情”总表。
+
+约束与边界：
+- 凭据只写到**仓库外**的 `<WorkRoot>\<角色>-db.env`，脚本不打印口令、不入库。
+- 任一硬前置不满足会**立即停止并给出下一步**，不会跳过继续。
+- **默认自动安装**：Git、Python 3.12（走 winget；无 winget 时只报告缺什么）。用 `-NoInstall` 可关闭。
+- **不默认安装**：Docker Desktop（需管理员权限、WSL2、通常要重启）。加 `-WithDocker` 才会尝试，且装完需自行重启再跑一次。
+- 装了 Docker 但引擎没启动时，安装与集成测试记为“跳过”，**不算通过**。
+- 不做的事：不给 GitHub 权限，不替你填摄像头/麦克风实测，不提交任何代码。
+- 只在本人机器跑；不要把它指向共享数据库。
+
+> 判断标准：总表里 `集成测试` 为 `跳过` 时，环境只到“能写模型、能跑单测”这一层；**要交约束负例测试，必须让这一行变成 `通过`（20 passed）。**
+
 当前只需纯单元/模型核对可先运行：
 
 ```powershell
@@ -38,7 +67,7 @@ py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe -m tools.db_manifest --models
 ```
 
-`712da35`已独立复验：104项单元+16项集成=120通过。manifest当前61/4/57、退出1，是尚缺B–F模型的真实状态；freeze退出1、Step2退出2。新增样板分支的测试总数另外记录，不冒充712da35已有样板。真实集成需要A安排的私有MySQL配置，未运行必须填“未运行”，不能跳过后称全套通过。
+`9e298d2`已独立复验：104项单元+20项集成=124通过（`712da35`时为120，PR #2新增4个模型样板用例）。manifest当前61/4/57、退出1，是尚缺B–F模型的真实状态；freeze退出1、Step2退出2。新增样板分支的测试总数另外记录，不冒充712da35已有样板。真实集成需要A安排的私有MySQL配置，未运行必须填“未运行”，不能跳过后称全套通过。
 
 ## 各角色交给A的内容
 
@@ -56,6 +85,8 @@ py -3.12 -m venv .venv
 
 A机已经准备`test_g1_`七个**空库**及独立迁移/业务两账号，凭据只在A机私有配置。此事不等于成员远程可访问，不开放端口、不发群共享管理员口令。成员需要的连接由A与本人另行受控交接；正式迁移后还需补platform表级业务授权。各成员本机实测表仍待本人填写。
 
+成员本机跑集成测试时：先用`docker ps`确认MySQL容器为Up（容器未启动会报`OperationalError 2003`，是必现问题不是代码缺陷）；测试会自建随机`test_a<token>_`七库与临时账号并在结束时清理，因此需要**本机root口令**，通过`STEP2_BOOTSTRAP_ENV`指向仓库外的私有配置文件（仅含`DB_ROOT_PASSWORD`/`DB_DEV_HOST`/`DB_DEV_PORT`）。不要指向A机实例或任何共享库。
+
 Write权限只有在仓库权限列表实际显示Write后才成立；邀请发出还需本人接受，C–F当前未邀请。PR非作者审批及合入须由有权限的真实成员完成，不能由作者自批。A可以准备PR，但不能保证“五人都确认收到”。
 
 ## 接收与环境回执（本人填写）
@@ -70,4 +101,4 @@ Write权限只有在仓库权限列表实际显示Write后才成立；邀请发�
 
 可直接转发：
 
-> 步骤2 A公共基础已通过PR #1合入main，正式基线712da35。请更新main后按自己的codex分支开工，先读本交接包及A说明§3/§5，复制环境模板填写本人实测结果。当前生产模型仅4/61表，G1未通过；请按职责提交模型、逐表约束核对、正负例和关系数据。收到后请回复角色、GitHub账号、环境表及模型PR位置。不要把私有数据库配置或口令发群。
+> 步骤2 A公共基础已通过PR #1、#2合入main，基线需包含9e298d2（含本交接包与模型样板）。请更新main后按自己的codex分支开工，先读本交接包及A说明§3/§5，复制环境模板填写本人实测结果。当前生产模型仅4/61表，G1未通过；请按职责提交模型、逐表约束核对、正负例和关系数据。收到后请回复角色、GitHub账号、环境表及模型PR位置。不要把私有数据库配置或口令发群。
