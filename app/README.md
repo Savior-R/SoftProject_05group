@@ -151,6 +151,8 @@ git push -u origin codex/identity-auth
 
 PR必须说明改动、依赖commit、数据库／契约影响、验证结果、证据位置及未完成事项，并由非作者复核。首次交付须有真实基线提交，状态表随后引用该commit，不能只记录日期。
 
+步骤2公共基础已通过PR #1合入main，正式基线`712da35`。B–F从最新main开分支；启动命令、角色交付、模型样板和成员回执见[步骤2开工交接包](docs/team/步骤2-B-F开工交接包.md)。旧`codex/step2-a-database-foundation`已在合并后删除；其他成员本人环境验收和C–F邀请仍待完成。
+
 `artifacts/`、`runtime/`、`.venv/`、`build/`及本地工具目录不入库；clone后没有完整本机证据是预期行为。仓库保留[本次交付摘要](docs/当前阶段交付记录-2026-10-28.md)及复跑入口，完整脱敏证据按团队受控方式共享；不得为共享而提交密钥或私有数据。
 
 源码变化后先按[后端README](backend/README.md)重新构建项目wheel与主锁，再执行`verify-step -Step 1`。默认索引读取`PIP_INDEX_URL`，也可显式覆盖：

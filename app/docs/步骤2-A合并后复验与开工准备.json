@@ -1,0 +1,109 @@
+{
+  "verified_at": "2026-10-28T14:20:41.393369+00:00",
+  "scope": "Postmerge A foundation verification and independent handoff preparation; not full G1",
+  "formal_main_baseline": "712da3522d58ecf1c400eb69d93a9556cd42b861",
+  "implementation_source_commit": "42cbdc56b4c1ef8786f5c9c6f163f08ec1a26201",
+  "PR1": "merged",
+  "old_foundation_branch": "deleted_local_and_remote_after_ancestor_check",
+  "preparation_branch": "codex/step2-status-anchor",
+  "postmerge_baseline_verification": {
+    "status": "passed",
+    "commit": "712da3522d58ecf1c400eb69d93a9556cd42b861",
+    "source": "fresh_remote_main_clone",
+    "environment": "fresh_Python312_venv_lock_only_no_editable_install",
+    "unit_tests": 104,
+    "integration_tests_including_real_mysql": 16,
+    "total_tests": 120,
+    "failed": 0,
+    "skipped": 0,
+    "ruff_lint_format_pip_check_source_wheel_lock": "passed",
+    "installed_package_http": {
+      "live": 200,
+      "ready_without_database": 503,
+      "ready_with_test_database": 200,
+      "openapi": 200
+    },
+    "models": {
+      "expected": 61,
+      "registered": 4,
+      "missing": 57
+    },
+    "freeze_exit_code": 1,
+    "step2_exit_code": 2,
+    "full_g1": "not_passed",
+    "wheel_sha256": "127b230602075cec3695e11f48c41a080bb94c510bc66d5d7e1d4b97cad786df",
+    "lock_sha256": "42b9bc9567b613c921a5ec51bf6d85a51b7288298549ad22964986876c5cbd65",
+    "remote_clone_worktree_clean": true,
+    "environment_notes": "Reused download cache only; fresh venv installed lock with hashes. Used workspace TEMP/TMP/pytest basetemp because Windows system temp ACL denied access. No source changes in clone."
+  },
+  "new_preparation_branch_tests": {
+    "unit": 104,
+    "integration_including_real_mysql": 20,
+    "total": 124,
+    "failures": 0,
+    "skipped": 0,
+    "new_model_example_tests": 4,
+    "ruff_lint_and_format": "passed"
+  },
+  "prepared_G1_environment": {
+    "status": "passed",
+    "scope": "only isolated empty schemas and least-privilege accounts; not migration or G1",
+    "schemas": [
+      "test_g1_classroom",
+      "test_g1_evaluation",
+      "test_g1_growth_cert",
+      "test_g1_identity_org",
+      "test_g1_media",
+      "test_g1_platform",
+      "test_g1_task_content"
+    ],
+    "table_count": 0,
+    "account_count": 2,
+    "accounts": {
+      "migration": "g1_migration",
+      "business": "g1_business"
+    },
+    "business_ddl": "not_granted",
+    "migration_scope": "only_test_g1_seven_schemas",
+    "charset": "utf8mb4",
+    "collation": "utf8mb4_0900_ai_ci",
+    "mysql": "8.0.46",
+    "shared_databases_or_accounts_modified": false,
+    "private_configuration": "runtime/g1/local.env",
+    "platform_dml_grant": "pending_after_real_migration_creates_four_tables"
+  },
+  "cleanup": {
+    "remaining_random_test_databases": 0,
+    "remaining_random_test_users": 0,
+    "persistent_test_g1_schemas_retained": 7,
+    "persistent_test_g1_tables": 0
+  },
+  "production_models": {
+    "expected": 61,
+    "registered": 4,
+    "missing": 57,
+    "example_models_in_production_metadata": false
+  },
+  "github_permissions": {
+    "wsc20061204": "write_confirmed_via_GitHub_API",
+    "C_to_F": "not_invited_usernames_not_provided",
+    "main_PR_review_required": true
+  },
+  "handoff": {
+    "package": "app/docs/team/步骤2-B-F开工交接包.md",
+    "examples": "app/docs/team/步骤2-模型样板与约束示例.md",
+    "environment_template": "app/docs/team/environment-template.md",
+    "delivery_to_group": "pending_channel",
+    "member_receipts": "pending_members"
+  },
+  "remaining_dependencies": [
+    "57 real domain models and constraint tests from B-F",
+    "reviewed immutable 61-table baseline",
+    "post-migration platform business table grants",
+    "full MySQL migration/constraint/restore G1",
+    "C-F GitHub usernames/invitation acceptance when team ready",
+    "member environment and handoff receipts",
+    "non-author review and merge of preparation PR"
+  ],
+  "full_G1": "not_passed"
+}

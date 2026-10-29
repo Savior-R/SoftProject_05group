@@ -1,13 +1,17 @@
 {
   "verified_at": "2026-10-28T10:10:09.285140+00:00",
   "scope": "Step 2 A foundation and G1 test-data backup/restore tooling only; not full G1",
-  "branch": "codex/step2-a-database-foundation",
+  "historical_source_branch": "codex/step2-a-database-foundation",
+  "formal_main_baseline": "712da3522d58ecf1c400eb69d93a9556cd42b861",
   "delivery": {
     "implementation_commit": "42cbdc56b4c1ef8786f5c9c6f163f08ec1a26201",
     "pushed_to_origin": true,
     "pull_request_number": 1,
     "remote_clean_clone_source_wheel_lock": "passed",
-    "main_integration": "pending_non_author_review",
+    "main_integration": "merged_PR1",
+    "merge_commit": "712da3522d58ecf1c400eb69d93a9556cd42b861",
+    "original_branch": "deleted_after_merge_local_and_remote",
+    "postmerge_verification": "see_步骤2-A合并后复验与开工准备.json",
     "other_team_members_environment_verification": "pending"
   },
   "design_baseline": "3.2.0 MySQL-only fresh 61-table database",
